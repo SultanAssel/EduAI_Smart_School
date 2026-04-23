@@ -1,0 +1,80 @@
+{% extends "core/base.html" %}
+{% load custom_filters %}
+{% block title %}{{ t.nav_faq }}{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+    <div class="hero-orb hero-orb-1"></div>
+    <div class="hero-orb hero-orb-2"></div>
+    <div class="hero-orb hero-orb-3"></div>
+    <div class="container" style="position:relative;z-index:1">
+        <div class="page-hero-icon"><i class="fas fa-circle-question"></i></div>
+        <h1>{{ t.faq_title }}</h1>
+        <p>{{ t.faq_sub }}</p>
+    </div>
+</section>
+
+<section class="section section-green">
+    <div class="container-sm">
+        {% if faq_categories %}
+        <!-- DB-driven FAQ -->
+        {% for cat in faq_categories %}
+        <div style="margin-bottom:2rem" class="reveal">
+            <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:.75rem;display:flex;align-items:center;gap:.5rem">
+                <span style="width:2.25rem;height:2.25rem;font-size:.85rem;border-radius:8px;background:var(--c{{ forloop.counter|add:0 }}-50);color:var(--c{{ forloop.counter|add:0 }});display:inline-flex;align-items:center;justify-content:center">{{ cat.icon }}</span>
+                {{ cat|localized_name:lang }}
+            </h3>
+            {% for q in cat.questions.all %}
+            <div class="faq-item"><button class="faq-question" onclick="this.parentElement.classList.toggle('open')">{{ q|localized_question:lang }}<i class="fas fa-chevron-down faq-icon"></i></button><div class="faq-answer">{{ q|localized_answer:lang }}</div></div>
+            {% endfor %}
+        </div>
+        {% endfor %}
+        {% else %}
+        <!-- Fallback: i18n keys -->
+        <div style="margin-bottom:2rem" class="reveal">
+            <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:.75rem;display:flex;align-items:center;gap:.5rem">
+                <span style="width:2.25rem;height:2.25rem;font-size:.85rem;border-radius:8px;background:var(--c1-50);color:var(--c1);display:inline-flex;align-items:center;justify-content:center"><i class="fas fa-info-circle"></i></span>
+                {{ t.faq_cat_platform }}
+            </h3>
+            <div class="faq-item"><button class="faq-question" onclick="this.parentElement.classList.toggle('open')">{{ t.faq_q1 }}<i class="fas fa-chevron-down faq-icon"></i></button><div class="faq-answer">{{ t.faq_a1 }}</div></div>
+            <div class="faq-item"><button class="faq-question" onclick="this.parentElement.classList.toggle('open')">{{ t.faq_q2 }}<i class="fas fa-chevron-down faq-icon"></i></button><div class="faq-answer">{{ t.faq_a2 }}</div></div>
+            <div class="faq-item"><button class="faq-question" onclick="this.parentElement.classList.toggle('open')">{{ t.faq_q3 }}<i class="fas fa-chevron-down faq-icon"></i></button><div class="faq-answer">{{ t.faq_a3 }}</div></div>
+        </div>
+        <div style="margin-bottom:2rem" class="reveal">
+            <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:.75rem;display:flex;align-items:center;gap:.5rem">
+                <span style="width:2.25rem;height:2.25rem;font-size:.85rem;border-radius:8px;background:var(--c2-50);color:var(--c2);display:inline-flex;align-items:center;justify-content:center"><i class="fas fa-robot"></i></span>
+                {{ t.faq_cat_ai }}
+            </h3>
+            <div class="faq-item"><button class="faq-question" onclick="this.parentElement.classList.toggle('open')">{{ t.faq_q4 }}<i class="fas fa-chevron-down faq-icon"></i></button><div class="faq-answer">{{ t.faq_a4 }}</div></div>
+            <div class="faq-item"><button class="faq-question" onclick="this.parentElement.classList.toggle('open')">{{ t.faq_q5 }}<i class="fas fa-chevron-down faq-icon"></i></button><div class="faq-answer">{{ t.faq_a5 }}</div></div>
+            <div class="faq-item"><button class="faq-question" onclick="this.parentElement.classList.toggle('open')">{{ t.faq_q6 }}<i class="fas fa-chevron-down faq-icon"></i></button><div class="faq-answer">{{ t.faq_a6 }}</div></div>
+        </div>
+        <div style="margin-bottom:2rem" class="reveal">
+            <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:.75rem;display:flex;align-items:center;gap:.5rem">
+                <span style="width:2.25rem;height:2.25rem;font-size:.85rem;border-radius:8px;background:var(--c3-50);color:var(--c3);display:inline-flex;align-items:center;justify-content:center"><i class="fas fa-credit-card"></i></span>
+                {{ t.faq_cat_pricing }}
+            </h3>
+            <div class="faq-item"><button class="faq-question" onclick="this.parentElement.classList.toggle('open')">{{ t.faq_q7 }}<i class="fas fa-chevron-down faq-icon"></i></button><div class="faq-answer">{{ t.faq_a7 }}</div></div>
+            <div class="faq-item"><button class="faq-question" onclick="this.parentElement.classList.toggle('open')">{{ t.faq_q8 }}<i class="fas fa-chevron-down faq-icon"></i></button><div class="faq-answer">{{ t.faq_a8 }}</div></div>
+            <div class="faq-item"><button class="faq-question" onclick="this.parentElement.classList.toggle('open')">{{ t.faq_q9 }}<i class="fas fa-chevron-down faq-icon"></i></button><div class="faq-answer">{{ t.faq_a9 }}</div></div>
+        </div>
+        <div style="margin-bottom:2rem" class="reveal">
+            <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:.75rem;display:flex;align-items:center;gap:.5rem">
+                <span style="width:2.25rem;height:2.25rem;font-size:.85rem;border-radius:8px;background:var(--c5-50);color:var(--c5);display:inline-flex;align-items:center;justify-content:center"><i class="fas fa-cog"></i></span>
+                {{ t.faq_cat_tech }}
+            </h3>
+            <div class="faq-item"><button class="faq-question" onclick="this.parentElement.classList.toggle('open')">{{ t.faq_q10 }}<i class="fas fa-chevron-down faq-icon"></i></button><div class="faq-answer">{{ t.faq_a10 }}</div></div>
+            <div class="faq-item"><button class="faq-question" onclick="this.parentElement.classList.toggle('open')">{{ t.faq_q11 }}<i class="fas fa-chevron-down faq-icon"></i></button><div class="faq-answer">{{ t.faq_a11 }}</div></div>
+            <div class="faq-item"><button class="faq-question" onclick="this.parentElement.classList.toggle('open')">{{ t.faq_q12 }}<i class="fas fa-chevron-down faq-icon"></i></button><div class="faq-answer">{{ t.faq_a12 }}</div></div>
+        </div>
+        {% endif %}
+
+        <!-- CTA -->
+        <div class="card card-elevated text-center mt-4 reveal">
+            <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:.3rem">{{ t.faq_no_answer }}</h3>
+            <p style="color:var(--t2);font-size:.86rem;margin-bottom:1rem">{{ t.faq_write_desc }}</p>
+            <a href="{% url 'contact' %}" class="btn btn-primary"><i class="fas fa-envelope"></i> {{ t.faq_write_btn }}</a>
+        </div>
+    </div>
+</section>
+{% endblock %}

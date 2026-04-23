@@ -1,0 +1,68 @@
+{% extends "core/base.html" %}
+{% load custom_filters %}
+{% block title %}{{ t.al_title|default:"Задания" }}{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+    <div class="hero-orb hero-orb-1"></div>
+    <div class="hero-orb hero-orb-2"></div>
+    <div class="container" style="position:relative;z-index:1;text-align:center">
+        <div class="page-hero-icon" style="background:var(--c3-100)"><i class="fas fa-tasks" style="color:var(--c3)"></i></div>
+        <h1>{{ t.al_hero_1|default:"Учебные" }} <span class="grad-text">{{ t.al_hero_2|default:"задания" }}</span></h1>
+        <p style="color:var(--t2);font-size:1.05rem;max-width:520px;margin:0 auto">{{ t.al_hero_desc|default:"Выполняйте задания и получайте оценки" }}</p>
+    </div>
+</section>
+
+<section class="section" style="padding-top:1.5rem">
+    <div class="container-wide">
+        <div class="card-elevated reveal" style="margin-bottom:1.25rem;padding:.85rem 1.1rem">
+            <div style="display:flex;align-items:center;gap:.6rem;flex-wrap:wrap">
+                <span style="font-weight:600;font-size:.85rem;color:var(--t3)"><i class="fas fa-tasks"></i> {{ t.al_total|default:"Задания" }}</span>
+                {% if not user.is_teacher %}
+                <a href="{% url 'assignment_list' %}" class="btn btn-sm {% if not request.GET.subject %}btn-primary{% else %}btn-ghost{% endif %}">{{ t.les_all|default:"Все" }}</a>
+                {% for s in subjects %}
+                <a href="{% url 'assignment_list' %}?subject={{ s.id }}" class="btn btn-sm {% if request.GET.subject == s.id|stringformat:'d' %}btn-primary{% else %}btn-ghost{% endif %}">{{ s.icon }} {{ s|localized_name:lang }}</a>
+                {% endfor %}
+                {% endif %}
+                {% if user.is_teacher %}
+                <a href="{% url 'assignment_create' %}" class="btn btn-sm btn-primary btn-glow" style="margin-left:auto"><i class="fas fa-plus"></i> {{ t.al_create|default:"Создать задание" }}</a>
+                {% endif %}
+            </div>
+        </div>
+
+        {% if assignments %}
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:1.1rem">
+            {% for a in assignments %}
+            <a href="{% url 'assignment_detail' a.id %}" class="card-interactive reveal" style="padding:1.25rem;display:flex;flex-direction:column;border-top:3px solid {% cycle 'var(--c3)' 'var(--c5)' 'var(--c1)' 'var(--c2)' %};text-decoration:none;color:inherit">
+                <div style="display:flex;align-items:center;gap:.4rem;margin-bottom:.6rem">
+                    <span style="font-size:1rem">{{ a.subject.icon|default:"📋" }}</span>
+                    <span class="badge" style="font-size:.72rem">{{ a.subject|localized_name:lang }}</span>
+                    {% if a.grade_level %}<span class="badge badge-primary" style="font-size:.72rem">{{ a.grade_level }} {{ t.ta_grade_suffix|default:"класс" }}</span>{% endif %}
+                    {% if user.is_teacher %}
+                    <span class="badge {% if a.is_published %}badge-primary{% endif %}" style="font-size:.68rem;margin-left:auto">
+                        {% if a.is_published %}{{ t.tm_published|default:"Опубликовано" }}{% else %}{{ t.tm_draft|default:"Черновик" }}{% endif %}
+                    </span>
+                    {% endif %}
+                </div>
+                <h3 style="font-size:.95rem;margin-bottom:.4rem;line-height:1.4">{{ a.title }}</h3>
+                <p style="color:var(--t2);font-size:.82rem;line-height:1.5;flex:1">{{ a.description|truncatechars:120 }}</p>
+                <div style="display:flex;align-items:center;gap:.5rem;margin-top:.6rem;padding-top:.6rem;border-top:1px solid var(--border);font-size:.76rem;color:var(--t3)">
+                    <span><i class="fas fa-star"></i> {{ t.al_max|default:"макс" }} {{ a.max_score }}</span>
+                    {% if a.due_date %}<span><i class="fas fa-calendar"></i> {{ a.due_date|date:"d.m.Y" }}</span>{% endif %}
+                    {% if user.is_teacher %}<span><i class="fas fa-users"></i> {{ a.submission_count }}</span>{% endif %}
+                    {% if not user.is_teacher %}
+                        {% if my_submissions and a.id in my_submissions %}
+                        <span style="color:var(--ok);margin-left:auto"><i class="fas fa-check"></i> {{ t.al_submitted|default:"Сдано" }}</span>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="card-elevated reveal"><div class="empty"><i class="fas fa-tasks"></i><h3>{{ t.al_empty|default:"Нет заданий" }}</h3><p>{{ t.al_empty_desc|default:"Задания появятся здесь после публикации" }}</p></div></div>
+        {% endif %}
+    </div>
+</section>
+{% if page_obj %}{% include 'core/pagination.html' %}{% endif %}
+{% endblock %}

@@ -1,0 +1,211 @@
+{% extends "core/base.html" %}
+{% load custom_filters %}
+{% block title %}{{ t.tc_title|default:"Создать тест" }}{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+    <div class="hero-orb hero-orb-1"></div>
+    <div class="hero-orb hero-orb-2"></div>
+    <div class="container" style="position:relative;z-index:1;text-align:center">
+        <div class="page-hero-icon" style="background:var(--c2-100)"><i class="fas fa-plus-circle" style="color:var(--c2)"></i></div>
+        <h1>{{ t.tc_hero_1|default:"Создать" }} <span class="grad-text">{{ t.tc_hero_2|default:"тест вручную" }}</span></h1>
+        <p style="color:var(--t2);font-size:1.05rem;max-width:520px;margin:0 auto">{{ t.tc_hero_desc|default:"Добавьте вопросы, варианты ответов и правильные ответы" }}</p>
+    </div>
+</section>
+
+<section class="section" style="padding-top:1.5rem">
+    <div class="container" style="max-width:900px">
+        <div class="card-elevated reveal" style="padding:1.5rem" id="testForm">
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:.75rem;margin-bottom:1rem">
+                <div class="form-group" style="margin:0;grid-column:1/3">
+                    <label class="form-label">{{ t.tc_test_title|default:"Название теста" }}</label>
+                    <input type="text" id="testTitle" class="form-input" placeholder="{{ t.tc_test_title|default:'Название теста' }}" required>
+                </div>
+                <div class="form-group" style="margin:0">
+                    <label class="form-label">{{ t.ta_subject|default:"Предмет" }}</label>
+                    <select id="testSubject" class="form-select">
+                        {% for s in subjects %}<option value="{{ s.id }}">{{ s.icon }} {{ s|localized_name:lang }}</option>{% endfor %}
+                    </select>
+                </div>
+                <div class="form-group" style="margin:0">
+                    <label class="form-label">{{ t.ta_grade|default:"Класс" }}</label>
+                    <select id="testGrade" class="form-select">
+                        {% for g in "12345678910" %}<option value="{{ forloop.counter }}">{{ forloop.counter }} {{ t.ta_grade_suffix|default:"класс" }}</option>{% endfor %}
+                        <option value="11">11 {{ t.ta_grade_suffix|default:"класс" }}</option>
+                    </select>
+                </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:1rem">
+                <div class="form-group" style="margin:0;width:140px">
+                    <label class="form-label">{{ t.tc_time_limit|default:"Время (мин)" }}</label>
+                    <input type="number" id="testTime" class="form-input" value="45" min="5" max="180">
+                </div>
+                <label class="form-label" style="display:flex;align-items:center;gap:.4rem;cursor:pointer;margin-top:1.2rem">
+                    <input type="checkbox" id="testPublished" checked style="width:18px;height:18px">
+                    {{ t.tc_publish|default:"Опубликовать сразу" }}
+                </label>
+            </div>
+
+            <hr style="margin:1rem 0;border-color:var(--border)">
+
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem">
+                <h3 style="font-size:1.05rem"><i class="fas fa-list-ol"></i> {{ t.tc_questions|default:"Вопросы" }}</h3>
+                <div style="display:flex;gap:.4rem">
+                    <button class="btn btn-ghost btn-sm" onclick="addQuestion('choice')"><i class="fas fa-check-circle"></i> {{ t.tc_add_choice|default:"Выбор" }}</button>
+                    <button class="btn btn-ghost btn-sm" onclick="addQuestion('text')"><i class="fas fa-font"></i> {{ t.tc_add_text|default:"Текст" }}</button>
+                    <button class="btn btn-ghost btn-sm" onclick="addQuestion('truefalse')"><i class="fas fa-balance-scale"></i> {{ t.tc_add_tf|default:"Да/Нет" }}</button>
+                </div>
+            </div>
+
+            <div id="questionsList"></div>
+
+            <div id="emptyQuestions" class="empty" style="padding:2rem">
+                <i class="fas fa-question-circle"></i>
+                <h3>{{ t.tc_no_questions|default:"Нет вопросов" }}</h3>
+                <p>{{ t.tc_add_hint|default:"Нажмите кнопки выше, чтобы добавить вопросы" }}</p>
+            </div>
+
+            <div style="display:flex;gap:.5rem;justify-content:flex-end;margin-top:1.5rem;padding-top:1rem;border-top:1px solid var(--border)">
+                <a href="{% url 'test_manage' %}" class="btn btn-ghost">{{ t.btn_cancel|default:"Отмена" }}</a>
+                <button class="btn btn-primary btn-glow" id="saveTestBtn" onclick="saveTest()"><i class="fas fa-save"></i> {{ t.btn_save|default:"Сохранить" }}</button>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let questionCounter = 0;
+
+function addQuestion(type) {
+    questionCounter++;
+    const id = questionCounter;
+    document.getElementById('emptyQuestions').style.display = 'none';
+    const div = document.createElement('div');
+    div.className = 'card';
+    div.id = 'q_' + id;
+    div.style.cssText = 'padding:1rem;margin-bottom:.75rem;border-left:3px solid var(--c1)';
+    div.dataset.type = type;
+
+    let typeLabel = type === 'choice' ? '{{ t.tc_type_choice|default:"Выбор" }}' : type === 'text' ? '{{ t.tc_type_text|default:"Текст" }}' : '{{ t.tc_type_tf|default:"Да/Нет" }}';
+
+    let html = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.6rem">' +
+        '<span style="font-weight:600;font-size:.85rem"><span class="badge">' + typeLabel + '</span> {{ t.tc_question|default:"Вопрос" }} ' + id + '</span>' +
+        '<button class="btn btn-ghost btn-sm" onclick="removeQuestion(' + id + ')" style="color:var(--err);font-size:.75rem"><i class="fas fa-trash"></i></button></div>';
+
+    html += '<div class="form-group" style="margin:0 0 .5rem"><input type="text" class="form-input q-text" placeholder="{{ t.tc_question_text|default:"Текст вопроса" }}" data-id="' + id + '"></div>';
+
+    if (type === 'choice') {
+        html += '<div class="q-options" data-id="' + id + '">';
+        for (let i = 0; i < 4; i++) {
+            const letter = String.fromCharCode(65 + i);
+            html += '<div style="display:flex;align-items:center;gap:.4rem;margin-bottom:.3rem">' +
+                '<input type="radio" name="correct_' + id + '" value="' + letter + '"' + (i === 0 ? ' checked' : '') + ' style="width:16px;height:16px">' +
+                '<input type="text" class="form-input q-opt" placeholder="' + letter + ')" style="flex:1;padding:.3rem .5rem;font-size:.85rem" data-letter="' + letter + '">' +
+                '</div>';
+        }
+        html += '<button class="btn btn-ghost btn-sm" onclick="addOption(' + id + ')" style="font-size:.72rem;margin-top:.2rem"><i class="fas fa-plus"></i> {{ t.tc_add_option|default:"Ещё вариант" }}</button></div>';
+    } else if (type === 'text') {
+        html += '<div class="form-group" style="margin:0 0 .5rem"><input type="text" class="form-input q-correct" placeholder="{{ t.tc_correct_answer|default:"Правильный ответ" }}" data-id="' + id + '"></div>';
+    } else {
+        html += '<div style="display:flex;gap:.5rem;margin-bottom:.5rem">' +
+            '<label style="display:flex;align-items:center;gap:.3rem;cursor:pointer"><input type="radio" name="correct_' + id + '" value="true" checked> {{ t.tc_true|default:"Верно" }}</label>' +
+            '<label style="display:flex;align-items:center;gap:.3rem;cursor:pointer"><input type="radio" name="correct_' + id + '" value="false"> {{ t.tc_false|default:"Неверно" }}</label></div>';
+    }
+
+    html += '<div style="display:flex;gap:.5rem;align-items:center;margin-top:.5rem">' +
+        '<input type="number" class="form-input q-points" value="1" min="1" max="10" style="width:70px;padding:.3rem .5rem;font-size:.85rem" data-id="' + id + '">' +
+        '<span style="font-size:.78rem;color:var(--t3)">{{ t.tc_points|default:"баллов" }}</span>' +
+        '<input type="text" class="form-input q-explanation" placeholder="{{ t.tc_explanation|default:"Пояснение (необязательно)" }}" style="flex:1;padding:.3rem .5rem;font-size:.85rem" data-id="' + id + '"></div>';
+
+    div.innerHTML = html;
+    document.getElementById('questionsList').appendChild(div);
+}
+
+function addOption(qId) {
+    const container = document.querySelector('.q-options[data-id="' + qId + '"]');
+    const count = container.querySelectorAll('.q-opt').length;
+    const letter = String.fromCharCode(65 + count);
+    const div = document.createElement('div');
+    div.style.cssText = 'display:flex;align-items:center;gap:.4rem;margin-bottom:.3rem';
+    div.innerHTML = '<input type="radio" name="correct_' + qId + '" value="' + letter + '" style="width:16px;height:16px">' +
+        '<input type="text" class="form-input q-opt" placeholder="' + letter + ')" style="flex:1;padding:.3rem .5rem;font-size:.85rem" data-letter="' + letter + '">' +
+        '<button class="btn btn-ghost btn-sm" onclick="this.parentElement.remove()" style="font-size:.7rem;color:var(--err)"><i class="fas fa-times"></i></button>';
+    container.insertBefore(div, container.lastElementChild);
+}
+
+function removeQuestion(id) {
+    const el = document.getElementById('q_' + id);
+    if (el) el.remove();
+    if (!document.getElementById('questionsList').children.length) {
+        document.getElementById('emptyQuestions').style.display = '';
+    }
+}
+
+async function saveTest() {
+    const title = document.getElementById('testTitle').value.trim();
+    if (!title) { showNotification('{{ t.tc_enter_title|default:"Введите название" }}', 'error'); return; }
+
+    const qEls = document.getElementById('questionsList').children;
+    if (!qEls.length) { showNotification('{{ t.tc_add_questions|default:"Добавьте вопросы" }}', 'error'); return; }
+
+    const questions = [];
+    for (const qEl of qEls) {
+        const type = qEl.dataset.type;
+        const id = qEl.id.replace('q_', '');
+        const text = qEl.querySelector('.q-text').value.trim();
+        if (!text) continue;
+
+        let correct = '';
+        let options = null;
+
+        if (type === 'choice') {
+            options = [];
+            qEl.querySelectorAll('.q-opt').forEach(o => { if (o.value.trim()) options.push(o.value.trim()); });
+            const checked = qEl.querySelector('input[name="correct_' + id + '"]:checked');
+            correct = checked ? checked.value : 'A';
+        } else if (type === 'text') {
+            correct = qEl.querySelector('.q-correct') ? qEl.querySelector('.q-correct').value.trim() : '';
+        } else {
+            const checked = qEl.querySelector('input[name="correct_' + id + '"]:checked');
+            correct = checked ? checked.value : 'true';
+        }
+
+        questions.push({
+            text, type, options, correct,
+            points: parseInt(qEl.querySelector('.q-points').value) || 1,
+            explanation: qEl.querySelector('.q-explanation') ? qEl.querySelector('.q-explanation').value.trim() : ''
+        });
+    }
+
+    if (!questions.length) { showNotification('{{ t.tc_add_questions|default:"Добавьте вопросы" }}', 'error'); return; }
+
+    const btn = document.getElementById('saveTestBtn');
+    btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>';
+
+    try {
+        const r = await fetch('/api/test/save/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+            body: JSON.stringify({
+                title,
+                subject_id: document.getElementById('testSubject').value,
+                grade: document.getElementById('testGrade').value,
+                time_limit: document.getElementById('testTime').value,
+                is_published: document.getElementById('testPublished').checked,
+                questions
+            })
+        });
+        const d = await r.json();
+        if (d.success) {
+            showNotification('{{ t.tc_saved|default:"Тест создан!" }} (' + d.questions_count + ' {{ t.ta_questions_count|default:"вопросов" }})', 'success');
+            setTimeout(() => { window.location.href = '{% url "test_manage" %}'; }, 1000);
+        } else {
+            showNotification(d.error || '{{ t.ta_error|default:"Ошибка" }}', 'error');
+        }
+    } catch(e) { showNotification(e.message, 'error'); }
+    btn.disabled = false; btn.innerHTML = '<i class="fas fa-save"></i> {{ t.btn_save|default:"Сохранить" }}';
+}
+</script>
+{% endblock %}

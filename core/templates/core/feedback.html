@@ -1,0 +1,207 @@
+{% extends "core/base.html" %}
+{% load custom_filters %}
+{% block title %}{{ t.fb_title }}{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+    <div class="hero-orb hero-orb-1"></div>
+    <div class="hero-orb hero-orb-2"></div>
+    <div class="hero-orb hero-orb-3"></div>
+    <div class="container" style="position:relative;z-index:1;text-align:center">
+        <div class="page-hero-icon" style="background:var(--c5-100)"><i class="fas fa-check-double" style="color:var(--c5)"></i></div>
+        <h1>{{ t.fb_hero_title_1 }} <span class="grad-text">{{ t.fb_hero_title_2 }}</span> {{ t.fb_hero_title_3 }}</h1>
+        <p style="color:var(--t2);font-size:1.05rem;max-width:560px;margin:0 auto">{{ t.fb_hero_desc }}</p>
+    </div>
+</section>
+
+<section class="section section-blue" style="padding-top:1.5rem">
+    <div class="container-wide">
+    {% if user.role == 'student' %}
+    <div class="tabs reveal">
+        <button class="tab-btn active" data-tab="submit"><i class="fas fa-pen"></i> {{ t.fb_tab_submit }}</button>
+        <button class="tab-btn" data-tab="history"><i class="fas fa-chart-bar"></i> {{ t.fb_tab_history }}</button>
+    </div>
+
+    <div class="tab-content active" id="tab-submit">
+        <div class="workspace">
+            <div class="ws-panel">
+                <div class="ws-head"><i class="fas fa-edit"></i> {{ t.fb_essay_head }}</div>
+                <div class="ws-body">
+                    <div class="grid-2" style="margin-bottom:.75rem">
+                        <div class="form-group" style="margin:0">
+                            <label class="form-label">{{ t.fb_subject }}</label>
+                            <select id="essaySubject" class="form-select">{% for s in subjects %}<option value="{{ s.id }}">{{ s.icon }} {{ s|localized_name:lang }}</option>{% empty %}<option value="">{{ t.fb_general }}</option>{% endfor %}</select>
+                        </div>
+                        <div class="form-group" style="margin:0">
+                            <label class="form-label">{{ t.fb_essay_title }}</label>
+                            <input type="text" id="essayTitle" class="form-input" placeholder="{{ t.fb_essay_placeholder }}">
+                        </div>
+                    </div>
+                    <textarea id="essayContent" placeholder="{{ t.fb_essay_content }}" style="min-height:300px"></textarea>
+                    <button class="btn btn-primary btn-lg" onclick="checkEssay()" id="checkEssayBtn" style="margin-top:.75rem"><i class="fas fa-search"></i> {{ t.fb_check }}</button>
+                </div>
+            </div>
+            <div class="ws-panel">
+                <div class="ws-head"><i class="fas fa-chart-bar"></i> {{ t.fb_result_head }}</div>
+                <div class="ws-body" id="essayResultPanel">
+                    <div class="empty"><i class="fas fa-clipboard-check"></i><h3>{{ t.fb_result_placeholder }}</h3><p>{{ t.fb_result_desc }}</p></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="tab-content" id="tab-history">
+        <div class="card-elevated">
+            {% if my_essays %}
+            <table class="dtable">
+                <thead><tr><th>{{ t.fb_work }}</th><th>{{ t.fb_subject }}</th><th>{{ t.fb_score }}</th><th>{{ t.fb_logic }}</th><th>{{ t.fb_structure }}</th><th>{{ t.fb_argumentation }}</th><th>{{ t.fb_date }}</th></tr></thead>
+                <tbody>{% for e in my_essays %}<tr>
+                    <td><strong>{{ e.title }}</strong></td>
+                    <td>{{ e.subject|localized_name:lang }}</td>
+                    <td><span class="badge badge-{% if e.score >= 80 %}ok{% elif e.score >= 50 %}primary{% else %}danger{% endif %}">{{ e.score }}/100</span></td>
+                    <td>{{ e.logic_score }}/10</td><td>{{ e.structure_score }}/10</td><td>{{ e.argumentation_score }}/10</td>
+                    <td>{{ e.created_at|date:"d.m.Y" }}</td>
+                </tr>{% endfor %}</tbody>
+            </table>
+            {% else %}
+            <div class="empty"><i class="fas fa-file-alt"></i><h3>{{ t.fb_history_empty }}</h3><p>{{ t.fb_history_empty_desc }}</p></div>
+            {% endif %}
+        </div>
+    </div>
+
+    {% elif user.role == 'teacher' or user.role == 'school_admin' %}
+    <div class="tabs reveal">
+        <button class="tab-btn active" data-tab="report"><i class="fas fa-chart-pie"></i> {{ t.fb_tab_report }}</button>
+        <button class="tab-btn" data-tab="check_single"><i class="fas fa-pen"></i> {{ t.fb_tab_check }}</button>
+        <button class="tab-btn" data-tab="essays_list"><i class="fas fa-clipboard-list"></i> {{ t.fb_tab_essays|default:"Работы учеников" }}</button>
+        <button class="tab-btn" data-tab="reports_history"><i class="fas fa-clipboard-list"></i> {{ t.fb_tab_reports }}</button>
+    </div>
+
+    <div class="tab-content active" id="tab-report">
+        <div class="card-elevated" style="max-width:640px;padding:1.5rem">
+            <h3 style="margin-bottom:.4rem;display:flex;align-items:center;gap:.4rem;font-size:1rem"><i class="fas fa-chart-pie" style="color:var(--c1)"></i> {{ t.fb_report_title }}</h3>
+            <p style="color:var(--t2);margin-bottom:1.25rem;font-size:.88rem">{{ t.fb_report_desc }}</p>
+            <div class="grid-2" style="margin-bottom:.75rem">
+                <div class="form-group" style="margin:0">
+                    <label class="form-label">{{ t.fb_subject }}</label>
+                    <select id="reportSubject" class="form-select">{% for s in subjects %}<option value="{{ s.id }}">{{ s.icon }} {{ s|localized_name:lang }}</option>{% empty %}<option value="">{{ t.fb_general }}</option>{% endfor %}</select>
+                </div>
+                <div class="form-group" style="margin:0">
+                    <label class="form-label">{{ t.fb_grade }}</label>
+                    <select id="reportGrade" class="form-select">{% for g in "12345678910" %}<option value="{{ forloop.counter }}">{{ forloop.counter }} {{ t.fb_grade_suffix }}</option>{% endfor %}<option value="11">11 {{ t.fb_grade_suffix }}</option></select>
+                </div>
+            </div>
+            <button class="btn btn-primary btn-lg" onclick="generateReport()" id="genReportBtn"><i class="fas fa-chart-bar"></i> {{ t.fb_generate_report }}</button>
+            <div id="reportResult" style="margin-top:.75rem"></div>
+        </div>
+    </div>
+
+    <div class="tab-content" id="tab-check_single">
+        <div class="workspace">
+            <div class="ws-panel">
+                <div class="ws-head"><i class="fas fa-edit"></i> {{ t.fb_student_work }}</div>
+                <div class="ws-body">
+                    <div class="grid-2" style="margin-bottom:.75rem">
+                        <div class="form-group" style="margin:0">
+                            <label class="form-label">{{ t.fb_subject }}</label>
+                            <select id="teacherEssaySubject" class="form-select">{% for s in subjects %}<option value="{{ s.id }}">{{ s.icon }} {{ s|localized_name:lang }}</option>{% empty %}<option value="">{{ t.fb_general }}</option>{% endfor %}</select>
+                        </div>
+                        <div class="form-group" style="margin:0">
+                            <label class="form-label">{{ t.fb_essay_title }}</label>
+                            <input type="text" id="teacherEssayTitle" class="form-input" placeholder="{{ t.fb_work_placeholder }}">
+                        </div>
+                    </div>
+                    <textarea id="teacherEssayContent" placeholder="{{ t.fb_paste_work }}" style="min-height:300px"></textarea>
+                    <button class="btn btn-primary btn-lg" onclick="teacherCheckEssay()" id="teacherCheckBtn" style="margin-top:.75rem"><i class="fas fa-search"></i> {{ t.fb_tab_check }}</button>
+                </div>
+            </div>
+            <div class="ws-panel">
+                <div class="ws-head"><i class="fas fa-chart-bar"></i> {{ t.fb_result }}</div>
+                <div class="ws-body" id="teacherEssayResult">
+                    <div class="empty"><i class="fas fa-clipboard-check"></i><h3>{{ t.fb_result_placeholder }}</h3></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="tab-content" id="tab-essays_list">
+        <div class="card-elevated" style="padding:1rem">
+            <h3 style="margin-bottom:.3rem;font-size:1rem"><i class="fas fa-clipboard-list" style="color:var(--c5)"></i> {{ t.fb_teacher_review_title|default:"Ручная проверка" }}</h3>
+            <p style="color:var(--t3);font-size:.82rem;margin-bottom:1rem">{{ t.fb_teacher_review_desc|default:"Вы можете изменить оценку или добавить комментарий к любой работе" }}</p>
+            {% if recent_essays %}
+            <div style="overflow-x:auto">
+            <table class="dtable">
+                <thead><tr><th>{{ t.admin_student|default:"Ученик" }}</th><th>{{ t.fb_work }}</th><th>{{ t.fb_subject }}</th><th>{{ t.fb_score }} ({{ t.fb_ai_label|default:"ИИ" }})</th><th>{{ t.fb_teacher_score|default:"Ваша оценка" }}</th><th>{{ t.fb_teacher_comment|default:"Комментарий" }}</th><th>{{ t.fb_date }}</th><th></th></tr></thead>
+                <tbody>
+                {% for e in recent_essays %}
+                <tr id="essay-row-{{ e.id }}">
+                    <td style="font-weight:600">{{ e.student.full_name|default:"—" }}</td>
+                    <td>{{ e.title|truncatechars:30 }}</td>
+                    <td>{{ e.subject|localized_name:lang }}</td>
+                    <td><span class="badge badge-{% if e.score >= 80 %}ok{% elif e.score >= 50 %}primary{% else %}danger{% endif %}">{{ e.score|floatformat:0|default:"—" }}</span></td>
+                    <td><input type="number" min="0" max="100" step="1" class="form-input" style="width:70px;font-size:.82rem;padding:.2rem .3rem" id="escore-{{ e.id }}" value="{{ e.score|floatformat:0|default:'' }}"></td>
+                    <td><input type="text" class="form-input" style="font-size:.82rem;padding:.2rem .4rem;min-width:140px" id="ecomment-{{ e.id }}" value="{{ e.recommendations|truncatechars:60 }}" placeholder="{{ t.fb_teacher_comment|default:'Комментарий...' }}"></td>
+                    <td style="color:var(--t3);font-size:.78rem">{{ e.created_at|date:"d.m.Y" }}</td>
+                    <td><button class="btn btn-primary btn-sm" onclick="teacherSaveEssay({{ e.id }})" style="font-size:.72rem"><i class="fas fa-save"></i></button></td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            </div>
+            {% else %}
+            <div class="empty"><i class="fas fa-file-alt"></i><h3>{{ t.fb_history_empty }}</h3></div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="tab-content" id="tab-reports_history">
+        <div class="card-elevated">
+            {% if my_reports %}
+            <table class="dtable">
+                <thead><tr><th>{{ t.fb_subject }}</th><th>{{ t.fb_grade }}</th><th>{{ t.fb_avg_score }}</th><th>{{ t.fb_date }}</th></tr></thead>
+                <tbody>{% for r in my_reports %}<tr>
+                    <td>{{ r.subject|localized_name:lang }}</td><td>{{ r.grade_level }} {{ t.fb_grade_suffix }}</td>
+                    <td><span class="badge badge-primary">{{ r.avg_score|floatformat:0 }}%</span></td>
+                    <td>{{ r.created_at|date:"d.m.Y" }}</td>
+                </tr>{% endfor %}</tbody>
+            </table>
+            {% else %}
+            <div class="empty"><i class="fas fa-chart-pie"></i><h3>{{ t.fb_reports_empty }}</h3><p>{{ t.fb_reports_empty_desc }}</p></div>
+            {% endif %}
+        </div>
+    </div>
+
+    {% else %}
+    <div class="card-elevated"><div class="empty"><i class="fas fa-lock"></i><h3>{{ t.fb_unavailable }}</h3><p>{{ t.fb_login_required }}</p></div></div>
+    {% endif %}
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.querySelectorAll('.tab-btn').forEach(btn=>{btn.addEventListener('click',()=>{document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));btn.classList.add('active');document.getElementById('tab-'+btn.dataset.tab).classList.add('active')})});
+
+async function checkEssay(){const c=document.getElementById('essayContent').value.trim();if(!c){alert('{{ t.fb_write_text }}');return}const btn=document.getElementById('checkEssayBtn');btn.disabled=true;btn.innerHTML='<span class="spinner"></span> {{ t.fb_ai_checking }}';try{const r=await fetch('/api/check-essay/',{method:'POST',headers:{'Content-Type':'application/json','X-CSRFToken':getCookie('csrftoken')},body:JSON.stringify({title:document.getElementById('essayTitle').value.trim()||'{{ t.fb_no_title }}',content:c,subject_id:document.getElementById('essaySubject').value})});const d=await r.json();if(d.success){renderEssayResult('essayResultPanel',d)}else{document.getElementById('essayResultPanel').innerHTML='<div class="result-box err">'+_esc(d.error||'{{ t.fb_error }}')+'</div>'}}catch(e){document.getElementById('essayResultPanel').innerHTML='<div class="result-box err">{{ t.fb_error }}: '+_esc(e.message)+'</div>'}btn.disabled=false;btn.innerHTML='<i class="fas fa-search"></i> {{ t.fb_check }}'}
+
+async function teacherCheckEssay(){const c=document.getElementById('teacherEssayContent').value.trim();if(!c){alert('{{ t.fb_paste_text }}');return}const btn=document.getElementById('teacherCheckBtn');btn.disabled=true;btn.innerHTML='<span class="spinner"></span> {{ t.fb_ai_checking }}';try{const r=await fetch('/api/check-essay/',{method:'POST',headers:{'Content-Type':'application/json','X-CSRFToken':getCookie('csrftoken')},body:JSON.stringify({title:document.getElementById('teacherEssayTitle').value.trim()||'{{ t.fb_no_title }}',content:c,subject_id:document.getElementById('teacherEssaySubject').value})});const d=await r.json();if(d.success){renderEssayResult('teacherEssayResult',d)}else{document.getElementById('teacherEssayResult').innerHTML='<div class="result-box err">'+_esc(d.error||'{{ t.fb_error }}')+'</div>'}}catch(e){document.getElementById('teacherEssayResult').innerHTML='<div class="result-box err">{{ t.fb_error }}: '+_esc(e.message)+'</div>'}btn.disabled=false;btn.innerHTML='<i class="fas fa-search"></i> {{ t.fb_tab_check }}'}
+
+async function generateReport(){const btn=document.getElementById('genReportBtn');btn.disabled=true;btn.innerHTML='<span class="spinner"></span> {{ t.fb_ai_analyzing }}';try{const r=await fetch('/api/class-report/',{method:'POST',headers:{'Content-Type':'application/json','X-CSRFToken':getCookie('csrftoken')},body:JSON.stringify({subject_id:document.getElementById('reportSubject').value,grade:parseInt(document.getElementById('reportGrade').value)})});const d=await r.json();if(d.success){let h='<div class="result-box ok"><strong>✅ {{ t.fb_report_ready }}</strong>';if(d.avg_score!==undefined){h+='<div class="scores" style="margin:.75rem 0"><div class="score"><div class="score-val">'+_esc(String(d.avg_score))+'%</div><div class="score-lbl">{{ t.fb_avg_score }}</div></div></div>'}if(d.problem_topics&&d.problem_topics.length){h+='<div style="margin-bottom:.5rem"><strong>⚠️ {{ t.fb_problem_topics }}</strong> '+_esc(d.problem_topics.join(', '))+'</div>'}h+='<div style="margin-top:.5rem">'+_esc(d.report||'').replace(/\n/g,'<br>')+'</div>';if(d.recommendations){h+='<div style="margin-top:.75rem;background:var(--c1-50);padding:.85rem;border-radius:var(--r-sm)"><strong>💡 {{ t.fb_recommendations }}</strong><br>'+_esc(d.recommendations).replace(/\n/g,'<br>')+'</div>'}h+='</div>';document.getElementById('reportResult').innerHTML=h}else{document.getElementById('reportResult').innerHTML='<div class="result-box err">'+_esc(d.error||'{{ t.fb_error }}')+'</div>'}}catch(e){document.getElementById('reportResult').innerHTML='<div class="result-box err">{{ t.fb_error }}: '+_esc(e.message)+'</div>'}btn.disabled=false;btn.innerHTML='<i class="fas fa-chart-bar"></i> {{ t.fb_generate_report }}'}
+
+function _s(v){if(Array.isArray(v))return v.join(', ');return typeof v==='string'?v:String(v||'')}
+function renderEssayResult(panelId,d){let h='<div class="result-box ok"><strong>✅ {{ t.fb_check_done }}</strong><div class="scores" style="margin:.75rem 0"><div class="score"><div class="score-val">'+_esc(String(d.score))+'<small>/100</small></div><div class="score-lbl">{{ t.fb_overall }}</div></div><div class="score"><div class="score-val">'+_esc(String(d.logic))+'<small>/10</small></div><div class="score-lbl">{{ t.fb_logic }}</div></div><div class="score"><div class="score-val">'+_esc(String(d.structure))+'<small>/10</small></div><div class="score-lbl">{{ t.fb_structure }}</div></div><div class="score"><div class="score-val">'+_esc(String(d.argumentation))+'<small>/10</small></div><div class="score-lbl">{{ t.fb_argumentation }}</div></div></div>';if(d.strengths){h+='<div style="margin:.5rem 0;padding:.6rem;background:rgba(34,197,94,0.06);border-radius:var(--r-sm)"><strong>💪 {{ t.fb_strengths }}</strong><br>'+_esc(_s(d.strengths)).replace(/\n/g,'<br>')+'</div>'}if(d.weaknesses){h+='<div style="margin:.5rem 0;padding:.6rem;background:rgba(239,68,68,0.06);border-radius:var(--r-sm)"><strong>📌 {{ t.fb_weaknesses }}</strong><br>'+_esc(_s(d.weaknesses)).replace(/\n/g,'<br>')+'</div>'}if(d.recommendations){h+='<div style="margin:.5rem 0;padding:.6rem;background:var(--c1-50);border-radius:var(--r-sm)"><strong>💡 {{ t.fb_recommendations }}</strong><br>'+_esc(_s(d.recommendations)).replace(/\n/g,'<br>')+'</div>'}h+='</div>';document.getElementById(panelId).innerHTML=h}
+
+async function teacherSaveEssay(id){
+    var scoreEl=document.getElementById('escore-'+id);
+    var commentEl=document.getElementById('ecomment-'+id);
+    var score=scoreEl?scoreEl.value:'';
+    var comment=commentEl?commentEl.value:'';
+    try{
+        var r=await fetch('/api/essay/teacher-review/',{method:'POST',headers:{'Content-Type':'application/json','X-CSRFToken':getCookie('csrftoken')},body:JSON.stringify({essay_id:id,score:score?parseFloat(score):null,comment:comment})});
+        var d=await r.json();
+        if(d.success){showNotification('{{ t.fb_teacher_saved|default:"Оценка сохранена!" }}','success')}
+        else{showNotification(d.error||'Ошибка','error')}
+    }catch(e){showNotification(e.message,'error')}
+}
+</script>
+{% endblock %}

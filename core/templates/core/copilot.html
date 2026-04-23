@@ -1,0 +1,793 @@
+{% extends "core/base.html" %}
+{% load i18n %}
+{% block title %}{{ t.copilot_title }}{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<!-- i18n data for JS -->
+<script id="i18nData" type="application/json">
+{
+  "history": "{{ t.copilot_history|escapejs }}",
+  "start": "{{ t.copilot_start|escapejs }}",
+  "welcome": "{{ t.copilot_welcome|escapejs }}",
+  "welcome2": "{{ t.copilot_welcome2|escapejs }}",
+  "q1": "{{ t.copilot_q1|escapejs }}",
+  "q1_short": "{{ t.copilot_q1_short|escapejs }}",
+  "q2": "{{ t.copilot_q2|escapejs }}",
+  "q2_short": "{{ t.copilot_q2_short|escapejs }}",
+  "q3": "{{ t.copilot_q3|escapejs }}",
+  "q3_short": "{{ t.copilot_q3_short|escapejs }}",
+  "q4": "{{ t.copilot_q4|escapejs }}",
+  "q4_short": "{{ t.copilot_q4_short|escapejs }}",
+  "too_big": "{{ t.copilot_too_big|escapejs }}",
+  "empty": "{{ t.copilot_empty|escapejs }}",
+  "error": "{{ t.copilot_error|escapejs }}",
+  "edit": "{{ t.copilot_edit|escapejs }}",
+  "copy": "{{ t.copilot_copy|escapejs }}",
+  "regenerate": "{{ t.copilot_regenerate|escapejs }}",
+  "tool_test": "{{ t.copilot_tool_test_prompt|escapejs }}",
+  "tool_essay": "{{ t.copilot_tool_essay_prompt|escapejs }}",
+  "tool_mindmap": "{{ t.copilot_tool_mindmap_prompt|escapejs }}",
+  "tool_simplify": "{{ t.copilot_tool_simplify_prompt|escapejs }}",
+  "lang": "{{ current_lang|default:'ru'|escapejs }}",
+  "tts_voice": "{{ t.copilot_tts_voice|escapejs }}",
+  "tts_volume": "{{ t.copilot_tts_volume|escapejs }}",
+  "tts_speed": "{{ t.copilot_tts_speed|escapejs }}",
+  "tts_settings": "{{ t.copilot_tts_settings|escapejs }}",
+  "user_tts_voice": "{{ user.tts_voice|default:''|escapejs }}",
+  "user_tts_speed": "{{ user.tts_speed|default:'0'|escapejs }}",
+  "user_tts_volume": "{{ user.tts_volume|default:'100'|escapejs }}",
+  "del_confirm": "{{ t.copilot_del_confirm|escapejs }}",
+  "clear_confirm": "{{ t.copilot_clear_confirm|escapejs }}",
+  "tts_truncated": "{{ t.tts_truncated|escapejs }}"
+}
+</script>
+<div class="copilot-wrap">
+    <aside class="copilot-side" id="copilotSide">
+        <div class="copilot-side-head">
+            <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.75rem">
+                <div style="width:32px;height:32px;border-radius:var(--r-sm);background:var(--g-1);display:flex;align-items:center;justify-content:center;color:#fff;font-size:.8rem"><i class="fas fa-robot"></i></div>
+                <div><div style="font-weight:800;font-size:.9rem">{{ t.copilot_brand }}</div><div style="font-size:.68rem;color:var(--t3)">{{ t.copilot_personal }}</div></div>
+            </div>
+            <button class="btn btn-primary btn-sm" id="btnNewChat" style="width:100%;margin-bottom:.35rem"><i class="fas fa-plus"></i> {{ t.copilot_new_chat }}</button>
+            <button class="btn btn-ghost btn-sm" id="btnTempChat" style="width:100%;font-size:.78rem"><i class="fas fa-clock"></i> {{ t.copilot_temp_chat }}</button>
+
+        </div>
+        <div class="copilot-history" id="chatHistory">
+            <span class="copilot-history-label">{{ t.copilot_history }}</span>
+            <div class="copilot-history-empty" id="historyEmpty"><i class="fas fa-comments" style="font-size:1.3rem;opacity:.3;margin-bottom:.4rem"></i><p>{{ t.copilot_start }}</p></div>
+        </div>
+        <div class="copilot-side-foot">
+            <button class="btn btn-ghost btn-sm" id="btnClearChats" style="width:100%"><i class="fas fa-trash"></i> {{ t.copilot_clear }}</button>
+        </div>
+    </aside>
+
+    <main class="copilot-main">
+        <div class="copilot-mobile-bar">
+            <button class="btn btn-ghost btn-sm" id="btnToggleSidebar"><i class="fas fa-bars"></i></button>
+            <span style="font-weight:700;font-size:.85rem"><i class="fas fa-robot" style="color:var(--c1)"></i> {{ t.copilot_brand }}</span>
+            <div style="width:32px"></div>
+        </div>
+
+        <div id="tempChatBanner" style="display:none;padding:.35rem 1rem;background:var(--c5-50);color:var(--c5);text-align:center;font-size:.78rem;font-weight:600"><i class="fas fa-clock"></i> {{ t.copilot_temp_notice }}</div>
+
+        <div class="copilot-msgs" id="chatMessages">
+            <div class="co-welcome" id="welcomeScreen">
+                <div class="co-welcome-icon"><i class="fas fa-robot"></i></div>
+                <h2>{{ t.copilot_welcome }}</h2>
+                <p>{{ t.copilot_welcome2 }}</p>
+                <div class="co-quick-grid" id="quickGrid"></div>
+            </div>
+        </div>
+
+        <!-- Tools -->
+        <div class="copilot-tools" id="toolsBar">
+            <button class="tool-btn" data-tool="test"><i class="fas fa-file-alt"></i> {{ t.copilot_tool_test }}</button>
+            <button class="tool-btn" data-tool="essay"><i class="fas fa-pen-fancy"></i> {{ t.copilot_tool_essay }}</button>
+            <button class="tool-btn" data-tool="mindmap"><i class="fas fa-project-diagram"></i> {{ t.copilot_tool_mindmap }}</button>
+            <button class="tool-btn" data-tool="simplify"><i class="fas fa-feather"></i> {{ t.copilot_tool_simplify }}</button>
+        </div>
+
+        <!-- Input -->
+        <div class="copilot-input">
+            <div class="copilot-input-row">
+                <label class="copilot-attach" title="{{ t.copilot_attach }}">
+                    <i class="fas fa-paperclip"></i>
+                    <input type="file" id="fileAttach" style="display:none" accept=".txt,.pdf,.doc,.docx,.png,.jpg">
+                </label>
+                <textarea id="chatInput" placeholder="{{ t.copilot_placeholder }}" rows="1"></textarea>
+                <button class="voice-btn" id="voiceBtn" title="{{ t.copilot_voice_input|default:'Голосовой ввод' }}" style="display:none"><i class="fas fa-microphone"></i></button>
+                <button class="copilot-tts-gear" id="btnTtsGear" title="{{ t.copilot_tts_settings }}"><i class="fas fa-sliders-h"></i></button>
+                <button class="copilot-send" id="sendBtn"><i class="fas fa-paper-plane"></i></button>
+            </div>
+            <!-- Floating TTS settings popup -->
+            <div class="tts-popup" id="ttsPopup" style="display:none">
+                <div class="tts-popup-head">
+                    <span><i class="fas fa-volume-up"></i> {{ t.copilot_tts_settings }}</span>
+                    <button class="tts-popup-close" id="ttsPopupClose"><i class="fas fa-times"></i></button>
+                </div>
+                <div class="tts-popup-body">
+                    <label class="tts-label">{{ t.copilot_tts_voice }}</label>
+                    <select id="ttsVoiceSelect" class="tts-select"></select>
+                    <label class="tts-label" style="margin-top:.5rem">{{ t.copilot_tts_volume }} <span id="volValue">100%</span></label>
+                    <input type="range" id="ttsVolume" min="0" max="100" value="100" class="tts-slider">
+                    <label class="tts-label" style="margin-top:.5rem">{{ t.copilot_tts_speed }} <span id="speedValue">1×</span></label>
+                    <input type="range" id="ttsSpeed" min="-50" max="100" value="0" step="10" class="tts-slider">
+                </div>
+            </div>
+            <div id="filePreview" style="display:none"></div>
+            <div style="text-align:center;font-size:.68rem;color:var(--t3);margin-top:.25rem">{{ t.copilot_disclaimer }}</div>
+        </div>
+    </main>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<style>
+/* Hide footer on copilot page */
+footer.footer{display:none!important}
+
+.copilot-wrap{display:flex;height:calc(100vh - 64px);overflow:hidden}
+.copilot-side{width:270px;flex-shrink:0;border-right:1px solid var(--border);background:var(--bg2);display:flex;flex-direction:column}
+.copilot-side-head{padding:1rem;border-bottom:1px solid var(--border)}
+.copilot-history{flex:1;overflow-y:auto;padding:.5rem}
+.copilot-history-label{display:block;font-size:.68rem;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.35rem;padding:0 .25rem}
+.copilot-history-empty{text-align:center;padding:1.2rem .75rem;color:var(--t3);font-size:.82rem}
+.chat-history-item{display:flex;align-items:center;gap:.45rem;padding:.45rem .55rem;border-radius:var(--r-sm);cursor:pointer;transition:all .15s;font-size:.8rem;color:var(--t2);margin-bottom:.15rem}
+.chat-history-item:hover,.chat-history-item.active{background:var(--card);color:var(--t1)}
+.chat-history-item i{color:var(--t3);font-size:.7rem;flex-shrink:0}
+.chat-history-item span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
+.chat-history-item .del-chat{opacity:0;color:var(--t3);cursor:pointer;font-size:.7rem;transition:all .15s;padding:4px 7px;border-radius:4px;flex-shrink:0;margin-left:6px}
+.chat-history-item:hover .del-chat{opacity:1}
+.chat-history-item .del-chat:hover{color:var(--err);background:rgba(239,68,68,.1)}
+.copilot-side-foot{padding:.5rem;border-top:1px solid var(--border)}
+
+/* TTS floating popup */
+.copilot-tts-gear{width:32px;height:32px;display:flex;align-items:center;justify-content:center;color:var(--t3);cursor:pointer;border-radius:var(--r-sm);transition:all .15s;flex-shrink:0;font-size:.85rem;background:none;border:none;font-family:inherit}
+.copilot-tts-gear:hover{color:var(--c1);background:var(--c1-50)}
+.copilot-input-row .voice-btn{width:32px;height:32px;display:flex;align-items:center;justify-content:center;color:var(--t3);cursor:pointer;border-radius:var(--r-sm);transition:all .15s;flex-shrink:0;font-size:.85rem;background:none;border:none;font-family:inherit}
+.copilot-input-row .voice-btn:hover{color:var(--c5);background:rgba(168,85,247,.1)}
+.copilot-input-row .voice-btn.recording{color:#ef4444;animation:voicePulse 1s ease-in-out infinite}
+.copilot-input-row .voice-btn.processing{color:var(--c2);position:relative}
+.copilot-input-row .voice-btn.processing i{opacity:0}
+.copilot-input-row .voice-btn.processing::after{content:'';position:absolute;width:14px;height:14px;border:2px solid var(--c2);border-top-color:transparent;border-radius:50%;animation:voiceSpin .6s linear infinite}
+@keyframes voiceSpin{to{transform:rotate(360deg)}}
+.tts-popup{position:absolute;bottom:calc(100% + 8px);right:0;width:280px;background:var(--card);border:1px solid var(--border);border-radius:var(--r-lg);box-shadow:var(--sh-xl);z-index:50;animation:fadeUp .15s ease}
+.tts-popup-head{display:flex;align-items:center;justify-content:space-between;padding:.6rem .8rem;border-bottom:1px solid var(--border);font-size:.82rem;font-weight:700;color:var(--t1)}
+.tts-popup-head i{color:var(--c1);margin-right:.3rem}
+.tts-popup-close{background:none;border:none;color:var(--t3);cursor:pointer;font-size:.8rem;padding:2px 4px;border-radius:3px;transition:all .12s}
+.tts-popup-close:hover{color:var(--err);background:var(--bg2)}
+.tts-popup-body{padding:.6rem .8rem .8rem}
+.tts-label{display:block;font-size:.7rem;font-weight:600;color:var(--t3);margin-bottom:.2rem}
+.tts-select{width:100%;padding:.3rem .4rem;font-size:.75rem;border:1px solid var(--border);border-radius:var(--r-sm);background:var(--card);color:var(--t1);font-family:inherit;outline:none}
+.tts-select:focus{border-color:var(--c1)}
+.tts-slider{width:100%;height:4px;-webkit-appearance:none;appearance:none;background:var(--border);border-radius:2px;outline:none;margin-top:.2rem}
+.tts-slider::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--c1);cursor:pointer;border:2px solid var(--card)}
+.tts-slider::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:var(--c1);cursor:pointer;border:2px solid var(--card)}
+
+.copilot-main{flex:1;display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+.copilot-mobile-bar{display:none;padding:.5rem .75rem;border-bottom:1px solid var(--border);align-items:center;justify-content:space-between;background:var(--card)}
+.copilot-msgs{flex:1;overflow-y:auto;padding:1.2rem;scroll-behavior:smooth;display:flex;flex-direction:column}
+
+/* Welcome screen */
+.co-welcome{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;text-align:center;padding:2rem;max-width:600px;margin:0 auto}
+.co-welcome-icon{width:56px;height:56px;border-radius:50%;background:var(--g-1);display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.3rem;margin-bottom:1rem;box-shadow:0 4px 20px rgba(99,102,241,.25)}
+.co-welcome h2{font-size:1.15rem;margin-bottom:.4rem}
+.co-welcome p{color:var(--t2);font-size:.88rem;margin-bottom:1.5rem;line-height:1.6}
+.co-quick-grid{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;width:100%}
+.co-quick-card{display:flex;align-items:center;gap:.5rem;padding:.7rem .85rem;border-radius:var(--r-lg);border:1px solid var(--border);background:var(--card);color:var(--t2);font-size:.82rem;font-family:inherit;cursor:pointer;transition:all .15s;text-align:left}
+.co-quick-card:hover{border-color:var(--c1);color:var(--c1);background:var(--c1-50);transform:translateY(-1px)}
+.co-quick-card i{font-size:.9rem;color:var(--c1);flex-shrink:0}
+
+/* Messages */
+.cmsg{display:flex;gap:.6rem;margin-bottom:.75rem;max-width:780px;animation:fadeUp .2s ease}
+.cmsg.user{flex-direction:row-reverse;margin-left:auto}
+.cmsg-ava{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:.75rem;flex-shrink:0;margin-top:.15rem}
+.cmsg-ava.ai{background:var(--g-1)}
+.cmsg-ava.user{background:var(--g-2);font-weight:700}
+.cmsg-wrap{display:flex;flex-direction:column;min-width:0;max-width:680px}
+.cmsg-bubble{background:var(--card);border:1px solid var(--border);border-radius:var(--r-lg);padding:.7rem 1rem;line-height:1.65;font-size:.9rem;word-break:break-word}
+.cmsg.user .cmsg-bubble{background:var(--c1);color:#fff;border-color:var(--c1)}
+.cmsg.ai .cmsg-bubble{border-radius:4px var(--r-lg) var(--r-lg) var(--r-lg)}
+.cmsg.user .cmsg-bubble{border-radius:var(--r-lg) 4px var(--r-lg) var(--r-lg)}
+
+/* Action buttons */
+.cmsg-actions{display:flex;gap:2px;padding-top:3px;opacity:0;transition:opacity .15s}
+.cmsg:hover .cmsg-actions{opacity:1}
+.cmsg-act{background:none;border:none;padding:3px 6px;cursor:pointer;font-size:.65rem;color:var(--t3);transition:all .12s;font-family:inherit;display:inline-flex;align-items:center;gap:3px;border-radius:4px}
+.cmsg-act:hover{color:var(--c1);background:var(--c1-50)}
+.cmsg-act.speaking{color:var(--err);animation:pulse 1.5s infinite}
+@keyframes pulse{50%{opacity:.5}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* Tools bar */
+.copilot-tools{display:flex;gap:.3rem;padding:.3rem 1rem;border-top:1px solid var(--border);background:var(--bg2)}
+.tool-btn{display:inline-flex;align-items:center;gap:.25rem;padding:.25rem .5rem;border-radius:var(--r-sm);border:1px solid var(--border);background:var(--card);color:var(--t2);font-size:.72rem;font-family:inherit;cursor:pointer;transition:all .15s;white-space:nowrap}
+.tool-btn:hover{border-color:var(--c1);color:var(--c1);background:var(--c1-50)}
+
+.copilot-input{padding:.5rem 1rem .6rem;border-top:1px solid var(--border);background:var(--card);position:relative}
+.copilot-input-row{display:flex;gap:.35rem;align-items:flex-end;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r-lg);padding:.35rem .5rem;transition:border-color .15s}
+.copilot-input-row:focus-within{border-color:var(--c1);box-shadow:0 0 0 3px var(--c1-50)}
+.copilot-attach{width:32px;height:32px;display:flex;align-items:center;justify-content:center;color:var(--t3);cursor:pointer;border-radius:var(--r-sm);transition:all .15s;flex-shrink:0;font-size:.85rem}
+.copilot-attach:hover{color:var(--c1);background:var(--c1-50)}
+.copilot-input-row textarea{flex:1;border:none;padding:.35rem 0;font-size:.88rem;resize:none;max-height:120px;font-family:inherit;background:transparent;color:var(--t1);outline:none}
+.copilot-send{width:34px;height:34px;border-radius:50%;border:none;background:var(--g-1);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.8rem;transition:all .2s;flex-shrink:0}
+.copilot-send:hover{transform:scale(1.05)}
+.copilot-send:disabled{opacity:.4;cursor:not-allowed;transform:none}
+
+#filePreview{padding:.3rem 0;display:flex;align-items:center;gap:.3rem;font-size:.78rem}
+#filePreview .file-tag{display:inline-flex;align-items:center;gap:.3rem;padding:.2rem .5rem;border-radius:var(--r-full);background:var(--c1-50);color:var(--c1);font-weight:600;font-size:.75rem}
+#filePreview .file-remove{cursor:pointer;color:var(--t3)}
+#filePreview .file-remove:hover{color:var(--err)}
+
+.typing-dots{display:inline-flex;gap:3px;padding:.3rem 0}
+.typing-dots span{width:5px;height:5px;border-radius:50%;background:var(--t3);animation:typingBounce 1.4s infinite}
+.typing-dots span:nth-child(2){animation-delay:.2s}
+.typing-dots span:nth-child(3){animation-delay:.4s}
+@keyframes typingBounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-4px)}}
+
+/* Markdown in chat */
+.cmsg-bubble h1,.cmsg-bubble h2,.cmsg-bubble h3{margin:.8em 0 .4em;font-weight:700}
+.cmsg-bubble h1{font-size:1.15em}.cmsg-bubble h2{font-size:1.05em}.cmsg-bubble h3{font-size:1em}
+.cmsg-bubble ul,.cmsg-bubble ol{margin:.4em 0;padding-left:1.4em}
+.cmsg-bubble li{margin:.15em 0}
+.cmsg-bubble p{margin:.35em 0}
+.cmsg-bubble pre{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r-sm);padding:.6rem;overflow-x:auto;margin:.5rem 0;position:relative;font-size:.82rem}
+.cmsg-bubble pre code{background:none;padding:0;border-radius:0;font-size:inherit}
+.cmsg-bubble code{background:var(--bg2);padding:.1em .3em;border-radius:3px;font-size:.86em;font-family:'Fira Code',monospace}
+.cmsg-bubble table{border-collapse:collapse;margin:.5em 0;width:100%;font-size:.86em}
+.cmsg-bubble th,.cmsg-bubble td{border:1px solid var(--border);padding:.3rem .5rem;text-align:left}
+.cmsg-bubble th{background:var(--bg2);font-weight:700}
+.cmsg-bubble blockquote{border-left:3px solid var(--c1);margin:.5em 0;padding:.25em .7em;color:var(--t2);background:var(--c1-50);border-radius:0 var(--r-sm) var(--r-sm) 0}
+.copy-code-btn{position:absolute;top:.3rem;right:.3rem;background:var(--card);border:1px solid var(--border);border-radius:3px;padding:2px 6px;cursor:pointer;font-size:.62rem;color:var(--t3);transition:all .15s;font-family:inherit}
+.copy-code-btn:hover{color:var(--c1);border-color:var(--c1)}
+.cmsg-bubble .katex-display{margin:.5em 0;overflow-x:auto;overflow-y:hidden}
+
+@media(max-width:768px){
+.copilot-wrap{flex-direction:column}
+.copilot-side{position:fixed;left:-270px;top:64px;bottom:0;z-index:100;width:270px;box-shadow:var(--sh-xl);transition:left .25s}
+.copilot-side.open{left:0}
+.copilot-mobile-bar{display:flex}
+.copilot-msgs{padding:.6rem}
+.copilot-tools{overflow-x:auto;flex-wrap:nowrap}
+.co-quick-grid{grid-template-columns:1fr}
+}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script>
+(function(){
+"use strict";
+// ── i18n from JSON block (safe from quote/newline issues) ──
+const I = JSON.parse(document.getElementById('i18nData').textContent);
+
+const messagesEl = document.getElementById('chatMessages');
+const inputEl    = document.getElementById('chatInput');
+const sendBtn    = document.getElementById('sendBtn');
+const quickGrid  = document.getElementById('quickGrid');
+
+let isStreaming = false;
+let chatSessions = [];
+let currentChatId = null;
+let isTempChat = false;
+let attachedFile = null;
+let lastUserMsg = '';
+let editingMsgIndex = -1;
+let ttsSpeaking = false;
+
+// ── Load chat history from DB ──
+(function loadFromDB(){
+    fetch('/api/chat/history/')
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+        if(d.sessions && d.sessions.length){
+            chatSessions = d.sessions;
+            renderHistory();
+        }
+    }).catch(function(){});
+})();
+
+const USER_LETTER = '{{ request.session.username|first|upper|default:"U"|escapejs }}';
+
+marked.setOptions({breaks:true, gfm:true});
+
+// ── Auto-resize textarea ──
+inputEl.addEventListener('input', function(){
+    this.style.height = 'auto';
+    this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+});
+inputEl.addEventListener('keydown', function(e){
+    if(e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); sendMessage(); }
+});
+
+// ── Quick suggestion cards ──
+const suggestions = [
+    {icon:'fa-calculator', text:I.q1, short:I.q1_short},
+    {icon:'fa-leaf',       text:I.q2, short:I.q2_short},
+    {icon:'fa-history',    text:I.q3, short:I.q3_short},
+    {icon:'fa-pen-fancy',  text:I.q4, short:I.q4_short}
+];
+function buildQuickCards(container){
+    container.innerHTML = '';
+    suggestions.forEach(function(s){
+        var btn = document.createElement('button');
+        btn.className = 'co-quick-card';
+        btn.innerHTML = '<i class="fas '+s.icon+'"></i><span>'+escapeHtml(s.short)+'</span>';
+        btn.addEventListener('click', function(){ sendSuggestion(s.text); });
+        container.appendChild(btn);
+    });
+}
+buildQuickCards(quickGrid);
+
+// ── Button event listeners (not inline onclick) ──
+document.getElementById('btnNewChat').addEventListener('click', newChat);
+document.getElementById('btnTempChat').addEventListener('click', newTempChat);
+document.getElementById('btnClearChats').addEventListener('click', clearAllChats);
+document.getElementById('btnToggleSidebar').addEventListener('click', toggleSidebar);
+sendBtn.addEventListener('click', sendMessage);
+document.getElementById('fileAttach').addEventListener('change', function(){ handleFileAttach(this); });
+
+// ── Voice input button ──
+(function(){
+    var vb = document.getElementById('voiceBtn');
+    if(!vb) return;
+    var show = localStorage.getItem('eduai_voice_input') === 'true' || '{{ acc_voice_input|yesno:"true,false" }}' === 'true';
+    if(show) vb.style.display = '';
+    vb.addEventListener('click', function(){
+        if(window.EduAI && EduAI.voiceInput) EduAI.voiceInput.toggle(inputEl, {button: vb});
+    });
+    window.addEventListener('storage', function(e){
+        if(e.key === 'eduai_voice_input') vb.style.display = e.newValue === 'true' ? '' : 'none';
+    });
+})();
+
+// Tool buttons
+document.querySelectorAll('.tool-btn[data-tool]').forEach(function(btn){
+    btn.addEventListener('click', function(){ useTool(this.dataset.tool); });
+});
+
+// ── History rendering ──
+function renderHistory(){
+    var el = document.getElementById('chatHistory');
+    var label = '<span class="copilot-history-label">' + escapeHtml(I.history) + '</span>';
+    if(!chatSessions.length){
+        el.innerHTML = label + '<div class="copilot-history-empty"><i class="fas fa-comments" style="font-size:1.3rem;opacity:.3;margin-bottom:.4rem"></i><p>' + escapeHtml(I.start) + '</p></div>';
+        return;
+    }
+    var html = label;
+    chatSessions.forEach(function(s){
+        html += '<div class="chat-history-item' + (s.id === currentChatId ? ' active' : '') + '" data-chat-id="' + escapeHtml(s.id) + '">';
+        html += '<i class="fas fa-message"></i><span>' + escapeHtml(s.title) + '</span>';
+        html += '<span class="del-chat" data-del-id="' + escapeHtml(s.id) + '"><i class="fas fa-trash"></i></span></div>';
+    });
+    el.innerHTML = html;
+    // Attach click listeners
+    el.querySelectorAll('.chat-history-item').forEach(function(item){
+        item.addEventListener('click', function(){ loadChat(this.dataset.chatId); });
+    });
+    el.querySelectorAll('.del-chat').forEach(function(btn){
+        btn.addEventListener('click', function(e){ e.stopPropagation(); deleteChat(this.dataset.delId); });
+    });
+}
+
+function newChat(){
+    currentChatId = 'chat_' + Date.now(); isTempChat = false;
+    document.getElementById('tempChatBanner').style.display = 'none';
+    showWelcome(); renderHistory();
+}
+function newTempChat(){
+    currentChatId = 'temp_' + Date.now(); isTempChat = true;
+    document.getElementById('tempChatBanner').style.display = 'block';
+    showWelcome(); renderHistory();
+}
+function showWelcome(){
+    messagesEl.innerHTML = '';
+    var w = document.createElement('div');
+    w.className = 'co-welcome'; w.id = 'welcomeScreen';
+    w.innerHTML = '<div class="co-welcome-icon"><i class="fas fa-robot"></i></div><h2>' + escapeHtml(I.welcome) + '</h2><p>' + escapeHtml(I.welcome2) + '</p><div class="co-quick-grid" id="quickGrid2"></div>';
+    messagesEl.appendChild(w);
+    buildQuickCards(w.querySelector('.co-quick-grid'));
+}
+function deleteChat(id){
+    if(!confirm(I.del_confirm || 'Удалить этот чат?')) return;
+    chatSessions = chatSessions.filter(function(c){ return c.id !== id; });
+    fetch('/api/chat/clear/', {method:'POST', headers:{'Content-Type':'application/json','X-CSRFToken':getCookie('csrftoken')}, body:JSON.stringify({session_key:id})}).catch(function(){});
+    if(currentChatId === id) newChat();
+    renderHistory();
+}
+function loadChat(id){
+    var s = chatSessions.find(function(c){ return c.id === id; });
+    if(!s) return;
+    currentChatId = id; isTempChat = false;
+    document.getElementById('tempChatBanner').style.display = 'none';
+    messagesEl.innerHTML = '';
+    s.messages.forEach(function(m, i){
+        if(m.role === 'user') addUserMessage(m.text, i);
+        else addAIMessage(m.text);
+    });
+    renderHistory();
+}
+function clearAllChats(){
+    if(!confirm(I.clear_confirm || 'Удалить все чаты?')) return;
+    chatSessions = []; currentChatId = null;
+    fetch('/api/chat/clear/', {method:'POST', headers:{'Content-Type':'application/json','X-CSRFToken':getCookie('csrftoken')}, body:JSON.stringify({})}).catch(function(){});
+    showWelcome(); renderHistory();
+}
+function saveChatSession(userText, aiText){
+    if(isTempChat) return;
+    if(!currentChatId) currentChatId = 'chat_' + Date.now();
+    var session = chatSessions.find(function(c){ return c.id === currentChatId; });
+    if(!session){ session = {id: currentChatId, title: userText.substring(0, 40), messages: []}; chatSessions.unshift(session); }
+    if(editingMsgIndex >= 0){ session.messages = session.messages.slice(0, editingMsgIndex); editingMsgIndex = -1; }
+    session.messages.push({role:'user', text:userText}, {role:'ai', text:aiText});
+    if(chatSessions.length > 30) chatSessions = chatSessions.slice(0, 30);
+    renderHistory();
+}
+function toggleSidebar(){ document.getElementById('copilotSide').classList.toggle('open'); }
+
+// ── File attach ──
+function handleFileAttach(input){
+    if(!input.files.length) return;
+    var file = input.files[0];
+    if(file.size > 5*1024*1024){ showNotification(I.too_big, 'error'); input.value = ''; return; }
+    attachedFile = file;
+    var p = document.getElementById('filePreview'); p.style.display = 'flex';
+    p.innerHTML = '<span class="file-tag"><i class="fas fa-file"></i> ' + escapeHtml(file.name) + '</span><span class="file-remove"><i class="fas fa-times-circle"></i></span>';
+    p.querySelector('.file-remove').addEventListener('click', removeFile);
+}
+function removeFile(){ attachedFile = null; document.getElementById('filePreview').style.display = 'none'; document.getElementById('fileAttach').value = ''; }
+function sendSuggestion(t){ inputEl.value = t; sendMessage(); }
+
+// ── Messages ──
+function addUserMessage(t, idx){
+    var d = document.createElement('div'); d.className = 'cmsg user';
+    var msgIdx = idx !== undefined ? idx : document.querySelectorAll('.cmsg').length;
+    d.innerHTML = '<div class="cmsg-ava user">' + USER_LETTER + '</div><div class="cmsg-wrap"><div class="cmsg-bubble">' + escapeHtml(t) + '</div><div class="cmsg-actions" style="justify-content:flex-end"><button class="cmsg-act edit-msg" data-idx="' + msgIdx + '" title="' + escapeHtml(I.edit) + '"><i class="fas fa-pen"></i></button></div></div>';
+    messagesEl.appendChild(d);
+    d.querySelector('.edit-msg').addEventListener('click', function(){ editMessage(parseInt(this.dataset.idx)); });
+    scrollB();
+}
+function addAIMessage(h){
+    var d = document.createElement('div'); d.className = 'cmsg ai';
+    var wrap = document.createElement('div'); wrap.className = 'cmsg-wrap';
+    var bubble = document.createElement('div'); bubble.className = 'cmsg-bubble';
+    var acts = document.createElement('div'); acts.className = 'cmsg-actions';
+
+    var copyBtn = document.createElement('button'); copyBtn.className = 'cmsg-act'; copyBtn.title = escapeHtml(I.copy);
+    copyBtn.innerHTML = '<i class="fas fa-copy"></i>';
+    copyBtn.addEventListener('click', function(){ copyMsg(this); });
+
+    var regenBtn = document.createElement('button'); regenBtn.className = 'cmsg-act'; regenBtn.title = escapeHtml(I.regenerate);
+    regenBtn.innerHTML = '<i class="fas fa-rotate"></i>';
+    regenBtn.addEventListener('click', regenerate);
+
+    var ttsBtn = document.createElement('button'); ttsBtn.className = 'cmsg-act tts-btn'; ttsBtn.title = 'TTS';
+    ttsBtn.innerHTML = '<i class="fas fa-volume-up"></i>';
+    ttsBtn.addEventListener('click', function(){ toggleTTS(this); });
+
+    acts.appendChild(copyBtn); acts.appendChild(regenBtn); acts.appendChild(ttsBtn);
+    d.innerHTML = '<div class="cmsg-ava ai"><i class="fas fa-robot"></i></div>';
+    wrap.appendChild(bubble); wrap.appendChild(acts); d.appendChild(wrap);
+    messagesEl.appendChild(d); scrollB();
+    renderMarkdown(bubble, h);
+    return bubble;
+}
+
+function scrollB(){ messagesEl.scrollTop = messagesEl.scrollHeight; }
+function escapeHtml(t){ var d = document.createElement('div'); d.textContent = t; return d.innerHTML; }
+
+var _renderTimer = null;
+function renderMarkdown(el, text){
+    // Debounce: during streaming, re-parse at most every 80ms to avoid O(n^2) lag
+    if(_renderTimer) clearTimeout(_renderTimer);
+    _renderTimer = setTimeout(function(){ _doRender(el, text); }, 80);
+}
+function renderMarkdownFinal(el, text){
+    // Final render when streaming is done — immediate, no debounce
+    if(_renderTimer){ clearTimeout(_renderTimer); _renderTimer = null; }
+    _doRender(el, text);
+}
+function _doRender(el, text){
+    _renderTimer = null;
+    var html = text;
+    try { html = marked.parse(text); } catch(e){}
+    html = html.replace(/\$\$([\s\S]*?)\$\$/g, function(m, tex){ try { return '<div class="katex-display">' + katex.renderToString(tex.trim(), {displayMode:true, throwOnError:false}) + '</div>'; } catch(e){ return m; } });
+    html = html.replace(/\$([^\$\n]+?)\$/g, function(m, tex){ try { return katex.renderToString(tex.trim(), {throwOnError:false}); } catch(e){ return m; } });
+    el.innerHTML = html;
+    el.querySelectorAll('pre').forEach(function(pre){
+        if(pre.querySelector('.copy-code-btn')) return;  // avoid duplicating button
+        var btn = document.createElement('button'); btn.className = 'copy-code-btn'; btn.textContent = 'Copy';
+        btn.addEventListener('click', function(){
+            navigator.clipboard.writeText(pre.textContent.replace('Copy','').trim());
+            btn.textContent = 'OK'; setTimeout(function(){ btn.textContent = 'Copy'; }, 1200);
+        });
+        pre.style.position = 'relative'; pre.appendChild(btn);
+    });
+}
+
+function editMessage(idx){
+    var msgs = document.querySelectorAll('.cmsg');
+    var userBubble = msgs[idx] ? msgs[idx].querySelector('.cmsg-bubble') : null;
+    if(!userBubble) return;
+    inputEl.value = userBubble.textContent; inputEl.focus();
+    for(var i = msgs.length - 1; i >= idx; i--) msgs[i].remove();
+    editingMsgIndex = idx;
+}
+function copyMsg(btn){
+    var bubble = btn.closest('.cmsg').querySelector('.cmsg-bubble');
+    navigator.clipboard.writeText(bubble.textContent);
+    var o = btn.innerHTML; btn.innerHTML = '<i class="fas fa-check"></i>'; setTimeout(function(){ btn.innerHTML = o; }, 1200);
+}
+function regenerate(){
+    if(!lastUserMsg || isStreaming) return;
+    var msgs = document.querySelectorAll('.cmsg.ai');
+    if(msgs.length) msgs[msgs.length - 1].remove();
+    _doSend(lastUserMsg);
+}
+
+// ── TTS Settings Popup ──
+var ttsPopup = document.getElementById('ttsPopup');
+document.getElementById('btnTtsGear').addEventListener('click', function(e){
+    e.stopPropagation();
+    ttsPopup.style.display = ttsPopup.style.display === 'none' ? 'block' : 'none';
+});
+document.getElementById('ttsPopupClose').addEventListener('click', function(){
+    ttsPopup.style.display = 'none';
+});
+document.addEventListener('click', function(e){
+    if(ttsPopup.style.display !== 'none' && !ttsPopup.contains(e.target) && e.target.id !== 'btnTtsGear'){
+        ttsPopup.style.display = 'none';
+    }
+});
+var ttsVoiceSelect = document.getElementById('ttsVoiceSelect');
+var ttsVolumeSlider = document.getElementById('ttsVolume');
+var ttsSpeedSlider = document.getElementById('ttsSpeed');
+var volValue = document.getElementById('volValue');
+var speedValue = document.getElementById('speedValue');
+
+ttsVolumeSlider.addEventListener('input', function(){
+    volValue.textContent = this.value + '%';
+    localStorage.setItem('eduai_tts_volume', this.value);
+});
+ttsSpeedSlider.addEventListener('input', function(){
+    var v = parseInt(this.value);
+    speedValue.textContent = v === 0 ? '1\u00d7' : (v > 0 ? '+' + v + '%' : v + '%');
+    localStorage.setItem('eduai_tts_speed', this.value);
+});
+ttsVoiceSelect.addEventListener('change', function(){
+    localStorage.setItem('eduai_copilot_voice', this.value);
+});
+
+// Load saved prefs (prefer localStorage, fall back to user profile settings)
+(function loadTtsPrefs(){
+    var savedVol = localStorage.getItem('eduai_tts_volume') || I.user_tts_volume || '100';
+    ttsVolumeSlider.value = savedVol; volValue.textContent = savedVol + '%';
+    var savedSpeed = localStorage.getItem('eduai_tts_speed') || I.user_tts_speed || '0';
+    ttsSpeedSlider.value = savedSpeed;
+    var v = parseInt(savedSpeed);
+    speedValue.textContent = v === 0 ? '1\u00d7' : (v > 0 ? '+' + v + '%' : v + '%');
+})();
+
+// Load voices from edge-tts API
+(function loadCopilotVoices(){
+    fetch('/api/tts/voices/')
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+        ttsVoiceSelect.innerHTML = '';
+        var voices = data.voices || [];
+        if(!voices.length){
+            var opt = document.createElement('option');
+            opt.value = '';
+            opt.textContent = 'Auto';
+            ttsVoiceSelect.appendChild(opt);
+            return;
+        }
+        var groups = {};
+        voices.forEach(function(v){
+            var lang = v.lang === 'multi' ? 'multi' : v.lang.split('-').slice(0,2).join('-');
+            if(!groups[lang]) groups[lang] = [];
+            groups[lang].push(v);
+        });
+        var order = ['multi','ru-RU','kk-KZ','en-US','en-GB'];
+        var labels = {'multi':'\ud83c\udf10 \u041c\u0443\u043b\u044c\u0442\u0438\u044f\u0437\u044b\u0447\u043d\u044b\u0435'};
+        var added = {};
+        order.forEach(function(lang){
+            if(groups[lang]){
+                var og = document.createElement('optgroup');
+                og.label = labels[lang] || lang;
+                groups[lang].forEach(function(v){
+                    var opt = document.createElement('option');
+                    opt.value = v.id;
+                    opt.textContent = v.name + ' (' + v.gender + ')';
+                    og.appendChild(opt);
+                });
+                ttsVoiceSelect.appendChild(og);
+                added[lang] = true;
+            }
+        });
+        Object.keys(groups).sort().forEach(function(lang){
+            if(added[lang]) return;
+            var og = document.createElement('optgroup');
+            og.label = labels[lang] || lang;
+            groups[lang].forEach(function(v){
+                var opt = document.createElement('option');
+                opt.value = v.id;
+                opt.textContent = v.name + ' (' + v.gender + ')';
+                og.appendChild(opt);
+            });
+            ttsVoiceSelect.appendChild(og);
+        });
+        var saved = localStorage.getItem('eduai_copilot_voice') || I.user_tts_voice;
+        if(saved && ttsVoiceSelect.querySelector('option[value="' + saved + '"]')){
+            ttsVoiceSelect.value = saved;
+        } else {
+            var multiF = voices.find(function(v){ return v.id === 'en-US-AvaMultilingualNeural'; });
+            if(multiF) ttsVoiceSelect.value = multiF.id;
+        }
+    })
+    .catch(function(){
+        ttsVoiceSelect.innerHTML = '<option value="">Auto</option>';
+    });
+})();
+
+// ── TTS for AI messages (server-only, edge-tts + gTTS fallback) ──
+var ttsAudio = null;
+var _ttsAbort = null;  // AbortController to cancel in-flight requests
+
+function _ttsReset(btn){
+    ttsSpeaking = false;
+    if(btn){
+        btn.classList.remove('speaking');
+        btn.querySelector('i').className = 'fas fa-volume-up';
+    }
+    document.querySelectorAll('.tts-btn.speaking').forEach(function(b){
+        b.classList.remove('speaking');
+        b.querySelector('i').className = 'fas fa-volume-up';
+    });
+}
+
+function toggleTTS(btn){
+    // ── Stop ──
+    if(ttsSpeaking){
+        if(_ttsAbort){ _ttsAbort.abort(); _ttsAbort = null; }
+        if(ttsAudio){ ttsAudio.pause(); ttsAudio.currentTime = 0; ttsAudio = null; }
+        if(window.EduAI && EduAI.quickTTS) EduAI.quickTTS.stop();
+        _ttsReset(btn);
+        return;
+    }
+
+    var bubble = btn.closest('.cmsg').querySelector('.cmsg-bubble');
+    var text = (bubble.textContent || '').trim();
+    if(!text) return;
+    // Truncate very long AI answers for faster TTS
+    if(text.length > 2000) text = text.substring(0, 2000);
+
+    ttsSpeaking = true;
+    btn.classList.add('speaking');
+    btn.querySelector('i').className = 'fas fa-stop';
+
+    var volume = parseInt(ttsVolumeSlider.value) / 100;
+    var voice = ttsVoiceSelect.value;
+    var speed = parseInt(ttsSpeedSlider.value);
+    var rate = (speed >= 0 ? '+' : '') + speed + '%';
+
+    // ── Instant browser TTS while server loads ──
+    if(window.EduAI && EduAI.quickTTS && text.length <= 500){
+        EduAI.quickTTS.speak(text, {volume: volume});
+    }
+
+    _ttsAbort = new AbortController();
+
+    fetch('/api/tts/', {
+        method:'POST',
+        headers:{'Content-Type':'application/json','X-CSRFToken':getCookie('csrftoken')},
+        body:JSON.stringify({text:text, voice:voice, rate:rate}),
+        signal: _ttsAbort.signal
+    }).then(function(resp){
+        if(!resp.ok) throw new Error('fail');
+        var wasTruncated = resp.headers.get('X-TTS-Truncated') === '1';
+        return resp.blob().then(function(blob){ return {blob:blob, truncated:wasTruncated}; });
+    }).then(function(result){
+        var blob = result.blob;
+        if(result.truncated){
+            showNotification(I.tts_truncated || 'Текст был сокращён для озвучки', 'warning');
+        }
+        _ttsAbort = null;
+        if(!ttsSpeaking) return;  // was stopped during fetch
+        // Stop browser TTS — server audio is higher quality
+        if(window.EduAI && EduAI.quickTTS) EduAI.quickTTS.stop();
+        var url = URL.createObjectURL(blob);
+        ttsAudio = new Audio(url);
+        ttsAudio.volume = volume;
+        ttsAudio.onended = function(){
+            URL.revokeObjectURL(url); ttsAudio = null;
+            _ttsReset(btn);
+        };
+        ttsAudio.onerror = function(){
+            URL.revokeObjectURL(url); ttsAudio = null;
+            _ttsReset(btn);
+        };
+        ttsAudio.play();
+    }).catch(function(e){
+        _ttsAbort = null;
+        if(e.name === 'AbortError') return;  // user cancelled — don't reset icon twice
+        // If server TTS fails, browser TTS is still playing if it started
+        if(!(window.EduAI && EduAI.quickTTS && window.speechSynthesis && window.speechSynthesis.speaking)){
+            _ttsReset(btn);
+        } else {
+            // Wait for browser TTS to finish
+            var checkDone = setInterval(function(){
+                if(!window.speechSynthesis || !window.speechSynthesis.speaking){
+                    clearInterval(checkDone); _ttsReset(btn);
+                }
+            }, 300);
+        }
+    });
+}
+
+// ── Send message ──
+function sendMessage(){
+    var t = inputEl.value.trim(); if(!t || isStreaming) return;
+    var displayText = t;
+    if(attachedFile) displayText += ' [\uD83D\uDCCE ' + attachedFile.name + ']';
+    var w = messagesEl.querySelector('.co-welcome'); if(w) w.remove();
+    addUserMessage(displayText);
+    inputEl.value = ''; inputEl.style.height = 'auto';
+    removeFile(); lastUserMsg = t;
+    _doSend(t);
+}
+function _doSend(t){
+    isStreaming = true; sendBtn.disabled = true;
+    var bubble = addAIMessage('<div class="typing-dots"><span></span><span></span><span></span></div>');
+    fetch('/api/ai-stream/', {
+        method:'POST',
+        headers:{'Content-Type':'application/json', 'X-CSRFToken': getCookie('csrftoken')},
+        body: JSON.stringify({message: t, session_key: currentChatId || ''})
+    }).then(function(resp){
+        if(!resp.ok) throw new Error(resp.status);
+        var reader = resp.body.getReader();
+        var decoder = new TextDecoder();
+        var full = '';
+        function readChunk(){
+            return reader.read().then(function(result){
+                if(result.done){
+                    if(!full) bubble.innerHTML = '<span style="color:var(--t3)">' + escapeHtml(I.empty) + '</span>';
+                    else renderMarkdownFinal(bubble, full);
+                    saveChatSession(t, full || '');
+                    isStreaming = false; sendBtn.disabled = false; inputEl.focus();
+                    return;
+                }
+                var chunk = decoder.decode(result.value, {stream:true});
+                var lines = chunk.split('\n');
+                for(var li = 0; li < lines.length; li++){
+                    var line = lines[li];
+                    if(!line.startsWith('data: ')) continue;
+                    var data = line.slice(6);
+                    if(data === '[DONE]') continue;
+                    try {
+                        var p = JSON.parse(data);
+                        if(p.token){ full += p.token; renderMarkdown(bubble, full); scrollB(); }
+                        else if(p.error){ bubble.innerHTML = '<span style="color:var(--err)">' + escapeHtml(p.error) + '</span>'; }
+                    } catch(e){ full += data; renderMarkdown(bubble, full); }
+                }
+                return readChunk();
+            });
+        }
+        return readChunk();
+    }).catch(function(e){
+        bubble.innerHTML = '<span style="color:var(--err)">' + escapeHtml(I.error) + ': ' + escapeHtml(e.message) + '</span>';
+        saveChatSession(t, 'Error');
+        isStreaming = false; sendBtn.disabled = false; inputEl.focus();
+    });
+}
+
+function useTool(tool){
+    var prompts = {test: I.tool_test, essay: I.tool_essay, mindmap: I.tool_mindmap, simplify: I.tool_simplify};
+    inputEl.value = prompts[tool] || ''; inputEl.focus();
+    inputEl.dispatchEvent(new Event('input'));
+}
+
+renderHistory();
+})();
+</script>
+{% endblock %}

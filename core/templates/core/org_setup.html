@@ -1,0 +1,93 @@
+{% extends 'core/base.html' %}
+{% block title %}{{ t.org_setup_title|default:"Регистрация школы" }}{% endblock %}
+{% block content %}
+<div class="auth-page">
+    <div class="hero-orb hero-orb-1"></div>
+    <div class="hero-orb hero-orb-2"></div>
+    <div class="hero-orb hero-orb-3"></div>
+
+    <div class="auth-card" style="max-width:520px">
+        <div class="auth-logo">
+            <div class="logo-mark" style="background:var(--g-3)"><i class="fas fa-building"></i></div>
+            <span class="logo-wordmark">Edu<b>AI</b></span>
+        </div>
+        <h2 class="auth-title">{{ t.org_setup_heading|default:"Регистрация школы" }}</h2>
+        <p class="auth-subtitle">{{ t.org_setup_sub|default:"Введите мастер-ключ, полученный от администратора платформы, и создайте аккаунт администратора школы." }}</p>
+
+        {% if errors %}
+        <div class="form-error">{% for e in errors %}<i class="fas fa-exclamation-circle"></i> {{ e }}<br>{% endfor %}</div>
+        {% endif %}
+
+        <form method="post" action="{% url 'org_setup' %}" autocomplete="off">
+            {% csrf_token %}
+            <div class="form-group">
+                <label class="form-label">{{ t.org_setup_master_key|default:"Мастер-ключ" }}</label>
+                <div class="input-icon-wrap">
+                    <i class="fas fa-key"></i>
+                    <input type="text" name="master_key" class="form-input" placeholder="{{ t.org_setup_key_placeholder|default:'Вставьте ключ от администратора' }}" value="{{ master_key|default:'' }}" required autofocus>
+                </div>
+                <small style="color:var(--t3);font-size:.73rem;margin-top:.25rem;display:block"><i class="fas fa-info-circle"></i> {{ t.org_setup_key_hint|default:"Ключ выдаётся администратором платформы при создании организации" }}</small>
+            </div>
+            <div class="grid-2">
+                <div class="form-group">
+                    <label class="form-label">{{ t.auth_first_name }}</label>
+                    <div class="input-icon-wrap">
+                        <i class="fas fa-user"></i>
+                        <input type="text" name="first_name" class="form-input" placeholder="{{ t.auth_first_name }}" value="{{ first_name|default:'' }}">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">{{ t.auth_last_name }}</label>
+                    <div class="input-icon-wrap">
+                        <i class="fas fa-user"></i>
+                        <input type="text" name="last_name" class="form-input" placeholder="{{ t.auth_last_name }}" value="{{ last_name|default:'' }}">
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">{{ t.auth_username }}</label>
+                <div class="input-icon-wrap">
+                    <i class="fas fa-at"></i>
+                    <input type="text" name="username" class="form-input" placeholder="{{ t.auth_unique_login }}" value="{{ username|default:'' }}" required>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">{{ t.auth_email }}</label>
+                <div class="input-icon-wrap">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" name="email" class="form-input" placeholder="admin@school.edu" value="{{ email|default:'' }}" required>
+                </div>
+            </div>
+            <div class="grid-2">
+                <div class="form-group">
+                    <label class="form-label">{{ t.auth_password }}</label>
+                    <div class="input-icon-wrap">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" name="password" class="form-input" placeholder="{{ t.auth_enter_password }}" minlength="6" required>
+                    </div>
+                    <small style="color:var(--t3);font-size:.75rem;margin-top:.25rem;display:block"><i class="fas fa-info-circle"></i> {{ t.auth_min_chars }}</small>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">{{ t.auth_confirm_password }}</label>
+                    <div class="input-icon-wrap">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" name="password_confirm" class="form-input" placeholder="{{ t.auth_repeat_password }}" required>
+                    </div>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary btn-glow w-full" style="margin-top:.5rem"><i class="fas fa-building"></i> {{ t.org_setup_btn|default:"Зарегистрировать школу" }}</button>
+        </form>
+
+        <div class="auth-alt-links">
+            <p style="text-align:center;margin-top:1.25rem;font-size:.85rem;color:var(--t2)">
+                {{ t.auth_have_account|default:"Уже есть аккаунт?" }} <a href="{% url 'login' %}" style="font-weight:600">{{ t.auth_login_link }}</a>
+            </p>
+            <p style="text-align:center;margin-top:.35rem;font-size:.8rem;color:var(--t3)">
+                <a href="{% url 'teacher_signup' %}" style="color:var(--c2)"><i class="fas fa-chalkboard-teacher"></i> {{ t.auth_teacher_link|default:"Регистрация учителя" }}</a>
+                &nbsp;·&nbsp;
+                <a href="{% url 'signup' %}" style="color:var(--c3)"><i class="fas fa-user-graduate"></i> {{ t.auth_student_link|default:"Регистрация ученика" }}</a>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,15 @@
+{% extends 'core/base.html' %}
+{% block title %}403 — {{ t.err_403_title }}{% endblock %}
+{% block content %}
+<div class="auth-page">
+    <div class="auth-card" style="text-align:center;max-width:480px">
+        <div style="font-size:5rem;font-weight:800;background:var(--g-3);-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1">403</div>
+        <h1 style="margin:0.5rem 0">{{ t.err_403_title }}</h1>
+        <p style="color:var(--t2);margin-bottom:1.5rem">{{ t.err_403_desc }}</p>
+        <div style="display:flex;gap:0.75rem;justify-content:center">
+            <a href="{% url 'login' %}" class="btn btn-primary"><i class="fas fa-sign-in-alt"></i> {{ t.auth_login_btn }}</a>
+            <a href="{% url 'home' %}" class="btn btn-secondary"><i class="fas fa-home"></i> {{ t.err_go_home }}</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,90 @@
+{% extends "core/base.html" %}
+{% load custom_filters %}
+{% block title %}{% if editing %}{{ t.ae_edit|default:"Редактировать" }}{% else %}{{ t.al_create|default:"Создать задание" }}{% endif %}{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+    <div class="hero-orb hero-orb-1"></div>
+    <div class="hero-orb hero-orb-2"></div>
+    <div class="container" style="position:relative;z-index:1;text-align:center">
+        <div class="page-hero-icon" style="background:var(--c3-100)"><i class="fas fa-edit" style="color:var(--c3)"></i></div>
+        <h1>{% if editing %}{{ t.ae_edit|default:"Редактировать задание" }}{% else %}{{ t.al_create|default:"Создать задание" }}{% endif %}</h1>
+    </div>
+</section>
+
+<section class="section" style="padding-top:1.5rem">
+    <div class="container" style="max-width:820px">
+        {% if errors %}
+        <div class="result-box err" style="margin-bottom:1rem">
+            {% for e in errors %}<div>{{ e }}</div>{% endfor %}
+        </div>
+        {% endif %}
+        {% if success %}
+        <div class="result-box ok" style="margin-bottom:1rem"><i class="fas fa-check"></i> {{ success }}</div>
+        {% endif %}
+
+        <form method="post" enctype="multipart/form-data" class="card-elevated" style="padding:1.5rem">
+            {% csrf_token %}
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.75rem;margin-bottom:1rem">
+                <div class="form-group" style="margin:0">
+                    <label class="form-label">{{ t.ta_subject|default:"Предмет" }}</label>
+                    <select name="subject_id" class="form-select">
+                        {% for s in subjects %}<option value="{{ s.id }}" {% if editing and assignment.subject_id == s.id %}selected{% elif form and form.subject_id == s.id|stringformat:"d" %}selected{% endif %}>{{ s.icon }} {{ s|localized_name:lang }}</option>{% endfor %}
+                    </select>
+                </div>
+                <div class="form-group" style="margin:0">
+                    <label class="form-label">{{ t.ta_grade|default:"Класс" }}</label>
+                    <select name="grade_level" class="form-select">
+                        {% for g in "12345678910" %}<option value="{{ forloop.counter }}" {% if editing and assignment.grade_level == forloop.counter %}selected{% endif %}>{{ forloop.counter }} {{ t.ta_grade_suffix|default:"класс" }}</option>{% endfor %}
+                        <option value="11" {% if editing and assignment.grade_level == 11 %}selected{% endif %}>11 {{ t.ta_grade_suffix|default:"класс" }}</option>
+                    </select>
+                </div>
+                <div class="form-group" style="margin:0">
+                    <label class="form-label">{{ t.ae_max_score|default:"Макс. балл" }}</label>
+                    <input type="number" name="max_score" class="form-input" value="{% if editing %}{{ assignment.max_score }}{% else %}100{% endif %}" min="1" max="1000">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">{{ t.ae_title|default:"Название задания" }}</label>
+                <input type="text" name="title" class="form-input" value="{% if editing %}{{ assignment.title }}{% elif form %}{{ form.title }}{% endif %}" required placeholder="{{ t.ae_title|default:'Название задания' }}">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">{{ t.ae_description|default:"Описание задания" }}</label>
+                <textarea name="description" class="form-input" style="min-height:200px;font-family:inherit;line-height:1.7" required placeholder="{{ t.ae_desc_hint|default:'Подробно опишите задание, требования и критерии оценки' }}">{% if editing %}{{ assignment.description }}{% elif form %}{{ form.description }}{% endif %}</textarea>
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:1rem">
+                <div class="form-group" style="margin:0">
+                    <label class="form-label">{{ t.ae_due_date|default:"Срок сдачи" }} <span style="font-size:.72rem;color:var(--t3)">({{ t.ae_optional|default:"необязательно" }})</span></label>
+                    <input type="datetime-local" name="due_date" class="form-input" {% if editing and assignment.due_date %}value="{{ assignment.due_date|date:'Y-m-d\TH:i' }}"{% endif %}>
+                </div>
+                <div class="form-group" style="margin:0;display:flex;align-items:flex-end">
+                    <label class="form-label" style="display:flex;align-items:center;gap:.4rem;cursor:pointer">
+                        <input type="checkbox" name="is_published" {% if not editing or assignment.is_published %}checked{% endif %} style="width:18px;height:18px">
+                        {{ t.les_published|default:"Опубликовать" }}
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">{{ t.ae_attachment|default:"Прикрепить файл" }} <span style="font-size:.72rem;color:var(--t3)">({{ t.les_upload_hint|default:"до 20 МБ" }})</span></label>
+                {% if editing and assignment.attachment and assignment.attachment_name %}
+                <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.5rem;padding:.4rem .6rem;background:var(--bg2);border-radius:var(--r-sm)">
+                    <i class="fas fa-file" style="color:var(--c1)"></i>
+                    <span style="font-size:.82rem;font-weight:600">{{ assignment.attachment_name }}</span>
+                    <a href="{{ assignment.attachment.url }}" target="_blank" class="btn btn-ghost btn-sm" style="font-size:.7rem"><i class="fas fa-download"></i></a>
+                </div>
+                {% endif %}
+                <input type="file" name="attachment" class="form-input" style="padding:.4rem">
+            </div>
+
+            <div style="display:flex;gap:.5rem;justify-content:flex-end;margin-top:1rem">
+                <a href="{% url 'assignment_list' %}" class="btn btn-ghost">{{ t.btn_cancel|default:"Отмена" }}</a>
+                <button type="submit" class="btn btn-primary btn-glow"><i class="fas fa-save"></i> {{ t.btn_save|default:"Сохранить" }}</button>
+            </div>
+        </form>
+    </div>
+</section>
+{% endblock %}

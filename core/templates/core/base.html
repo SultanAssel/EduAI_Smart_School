@@ -1,0 +1,316 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="{{ current_lang|default:'ru' }}" data-theme="{{ request.session.theme|default:'light' }}"{% if acc_font_size and acc_font_size != 16 %} data-font-size="{{ acc_font_size }}"{% endif %}{% if acc_font_family and acc_font_family != 'default' %} data-font="{{ acc_font_family }}"{% endif %}{% if acc_high_contrast %} data-high-contrast="true"{% endif %}{% if acc_easy_read %} data-easy-read="true"{% endif %}{% if acc_tts %} data-tts="true"{% endif %}{% if acc_zen %} data-zen="true"{% endif %}>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    <title>{% block title %}EduAI{% endblock %} — EduAI</title>
+    <link rel="stylesheet" href="{% static 'core/css/tokens.css' %}">
+    <link rel="stylesheet" href="{% static 'core/css/base.css' %}">
+    <link rel="stylesheet" href="{% static 'core/css/navbar.css' %}">
+    <link rel="stylesheet" href="{% static 'core/css/components.css' %}">
+    <link rel="stylesheet" href="{% static 'core/css/pages.css' %}">
+    <link rel="stylesheet" href="{% static 'core/css/responsive.css' %}">
+    <!-- Non-critical CSS: deferred to not block first render -->
+    <link rel="stylesheet" href="{% static 'core/css/animations.css' %}" media="print" onload="this.media='all'">
+    <!-- Dark & Accessibility must load synchronously if active -->
+    <link rel="stylesheet" href="{% static 'core/css/dark.css' %}">
+    <link rel="stylesheet" href="{% static 'core/css/accessibility.css' %}">
+    <noscript>
+        <link rel="stylesheet" href="{% static 'core/css/animations.css' %}">
+    </noscript>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"></noscript>
+    <script>/* Inline theme + font + font-size detection to prevent FOUC */
+    (function(){var d=document.documentElement;var s=localStorage.getItem('theme');var p=window.matchMedia('(prefers-color-scheme:dark)').matches;d.setAttribute('data-theme',s||(p?'dark':'light'));{% if request.session.user_id %}var lf=localStorage.getItem('eduai_font');if(lf&&lf!=='default')d.setAttribute('data-font',lf);var ls=localStorage.getItem('eduai_font_size');if(ls&&ls!=='16'){d.style.fontSize=ls+'px';d.setAttribute('data-font-size',ls)}else{var fs=d.getAttribute('data-font-size');if(fs&&fs!=='16')d.style.fontSize=fs+'px'}{% else %}localStorage.removeItem('eduai_font');localStorage.removeItem('eduai_font_size');localStorage.removeItem('eduai_fab_pos');{% endif %}})()
+    </script>
+    {% block extra_head %}{% endblock %}
+    <!-- KaTeX for math rendering -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"></noscript>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false},{left:'\\(',right:'\\)',display:false},{left:'\\[',right:'\\]',display:true}],throwOnError:false});"></script>
+</head>
+<body>
+
+<!-- Skip to content -->
+<a href="#main-content" class="skip-link">Перейти к содержимому</a>
+
+<!-- Navbar -->
+<nav class="navbar">
+    <div class="nav-inner">
+        <a href="{% url 'home' %}" class="nav-logo">
+            <div class="logo-mark"><i class="fas fa-graduation-cap"></i></div>
+            <span class="logo-wordmark">Edu<b>AI</b></span>
+        </a>
+
+        <div class="nav-center" id="navLinks">
+            <a href="{% url 'home' %}" class="nav-link {% if request.path == '/' %}active{% endif %}">
+                <i class="fas fa-home"></i> {{ t.nav_home }}
+            </a>
+
+            {% if request.session.user_id %}
+            <a href="{% url 'dashboard' %}" class="nav-link {% if 'dashboard' in request.path %}active{% endif %}">
+                <i class="fas fa-chart-line"></i> {{ t.nav_dashboard }}
+            </a>
+
+            {% if request.session.user_role == 'admin' or request.session.user_role == 'school_admin' %}
+            <a href="{% url 'admin_panel' %}" class="nav-link {% if 'admin-panel' in request.path %}active{% endif %}">
+                <i class="fas fa-shield-alt"></i> {{ t.admin_title }}
+            </a>
+            {% endif %}
+
+            <div class="nav-dropdown">
+                <span class="nav-link nav-dropdown-trigger">
+                    <i class="fas fa-cube"></i> {{ t.nav_modules }} <i class="fas fa-chevron-down" style="font-size:.65em;opacity:.5"></i>
+                </span>
+                <div class="nav-dd-menu">
+                    <div style="padding:.25rem .75rem;font-size:.65rem;font-weight:700;text-transform:uppercase;color:var(--t3);letter-spacing:.04em">{{ t.nav_group_learning|default:"Обучение" }}</div>
+                    <a href="{% url 'lessons' %}" class="nav-dd-item">
+                        <div class="nav-dd-icon emerald"><i class="fas fa-book-open"></i></div>
+                        <div><div class="nav-dd-title">{{ t.nav_lessons }}</div><div class="nav-dd-desc">{{ t.nav_lessons_desc }}</div></div>
+                    </a>
+                    <a href="{% url 'test_list' %}" class="nav-dd-item">
+                        <div class="nav-dd-icon sky"><i class="fas fa-spell-check"></i></div>
+                        <div><div class="nav-dd-title">{{ t.nav_tests|default:"Тесты" }}</div><div class="nav-dd-desc">{{ t.nav_tests_desc|default:"Проходите тесты и проверяйте знания" }}</div></div>
+                    </a>
+                    <a href="{% url 'assignment_list' %}" class="nav-dd-item">
+                        <div class="nav-dd-icon orange"><i class="fas fa-tasks"></i></div>
+                        <div><div class="nav-dd-title">{{ t.nav_assignments|default:"Задания" }}</div><div class="nav-dd-desc">{{ t.nav_assignments_desc|default:"Выполняйте задания и получайте оценки" }}</div></div>
+                    </a>
+                    <a href="{% url 'my_results' %}" class="nav-dd-item">
+                        <div class="nav-dd-icon emerald"><i class="fas fa-chart-bar"></i></div>
+                        <div><div class="nav-dd-title">{{ t.nav_results|default:"Результаты" }}</div><div class="nav-dd-desc">{{ t.nav_results_desc|default:"Просмотр оценок и достижений" }}</div></div>
+                    </a>
+                    <div style="border-top:1px solid var(--border);margin:.3rem .75rem"></div>
+                    <div style="padding:.25rem .75rem;font-size:.65rem;font-weight:700;text-transform:uppercase;color:var(--t3);letter-spacing:.04em">{{ t.nav_group_tools|default:"Инструменты" }}</div>
+                    <a href="{% url 'personalization' %}" class="nav-dd-item">
+                        <div class="nav-dd-icon orange"><i class="fas fa-brain"></i></div>
+                        <div><div class="nav-dd-title">{{ t.nav_personalization }}</div><div class="nav-dd-desc">{{ t.nav_personalization_desc }}</div></div>
+                    </a>
+                    <a href="{% url 'feedback' %}" class="nav-dd-item">
+                        <div class="nav-dd-icon sky"><i class="fas fa-check-double"></i></div>
+                        <div><div class="nav-dd-title">{{ t.nav_feedback }}</div><div class="nav-dd-desc">{{ t.nav_feedback_desc }}</div></div>
+                    </a>
+                    <a href="{% url 'accessibility' %}" class="nav-dd-item">
+                        <div class="nav-dd-icon emerald"><i class="fas fa-universal-access"></i></div>
+                        <div><div class="nav-dd-title">{{ t.nav_accessibility }}</div><div class="nav-dd-desc">{{ t.nav_accessibility_desc }}</div></div>
+                    </a>
+                    {% if request.session.user_role == 'teacher' %}
+                    <div style="border-top:1px solid var(--border);margin:.3rem .75rem"></div>
+                    <div style="padding:.25rem .75rem;font-size:.65rem;font-weight:700;text-transform:uppercase;color:var(--t3);letter-spacing:.04em">{{ t.nav_group_teacher|default:"Учителю" }}</div>
+                    <a href="{% url 'teacher_assistant' %}" class="nav-dd-item">
+                        <div class="nav-dd-icon violet"><i class="fas fa-chalkboard-teacher"></i></div>
+                        <div><div class="nav-dd-title">{{ t.nav_teacher }}</div><div class="nav-dd-desc">{{ t.nav_teacher_desc }}</div></div>
+                    </a>
+                    <a href="{% url 'test_manage' %}" class="nav-dd-item">
+                        <div class="nav-dd-icon violet"><i class="fas fa-clipboard-list"></i></div>
+                        <div><div class="nav-dd-title">{{ t.nav_test_manage|default:"Управление тестами" }}</div><div class="nav-dd-desc">{{ t.nav_test_manage_desc|default:"Создание и редактирование тестов" }}</div></div>
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <a href="{% url 'copilot' %}" class="nav-link {% if 'copilot' in request.path %}active{% endif %}">
+                <i class="fas fa-robot"></i> {{ t.nav_copilot }}
+            </a>
+            {% endif %}
+
+            <a href="{% url 'subscription' %}" class="nav-link {% if 'subscription' in request.path %}active{% endif %}">
+                <i class="fas fa-tag"></i> {{ t.nav_pricing }}
+            </a>
+            <a href="{% url 'about' %}" class="nav-link {% if 'about' in request.path %}active{% endif %}">
+                <i class="fas fa-info-circle"></i> {{ t.nav_about }}
+            </a>
+            <a href="{% url 'faq' %}" class="nav-link {% if 'faq' in request.path %}active{% endif %}">
+                <i class="fas fa-circle-question"></i> {{ t.nav_faq }}
+            </a>
+            <a href="{% url 'contact' %}" class="nav-link {% if 'contact' in request.path %}active{% endif %}">
+                <i class="fas fa-envelope"></i> {{ t.nav_contact }}
+            </a>
+        </div>
+
+        <div class="nav-right">
+            <!-- Language selector -->
+            <div class="nav-dropdown" id="langDropdown">
+                <button class="theme-toggle" title="Язык" style="font-size:.78rem;font-weight:700;letter-spacing:.02em">
+                    <span id="currentLangFlag">{% if request.session.language == 'kk' %}KZ{% elif request.session.language == 'en' %}EN{% else %}RU{% endif %}</span>
+                </button>
+                <div class="nav-dd-menu" style="min-width:180px;right:0;left:auto">
+                    <a href="#" class="nav-dd-item lang-option" data-lang="ru" style="padding:.5rem .75rem">
+                        <span style="font-size:1.1rem">🇷🇺</span>
+                        <div><div class="nav-dd-title">Русский</div></div>
+                    </a>
+                    <a href="#" class="nav-dd-item lang-option" data-lang="kk" style="padding:.5rem .75rem">
+                        <span style="font-size:1.1rem">🇰🇿</span>
+                        <div><div class="nav-dd-title">Қазақша</div></div>
+                    </a>
+                    <a href="#" class="nav-dd-item lang-option" data-lang="en" style="padding:.5rem .75rem">
+                        <span style="font-size:1.1rem">🇬🇧</span>
+                        <div><div class="nav-dd-title">English</div></div>
+                    </a>
+                </div>
+            </div>
+
+            <button class="theme-toggle" id="themeToggle" title="Сменить тему">
+                <i class="fas fa-moon"></i>
+            </button>
+
+            {% if request.session.user_id %}
+            <!-- Settings button -->
+            <a href="{% url 'profile' %}" class="theme-toggle" title="Настройки" style="text-decoration:none">
+                <i class="fas fa-cog"></i>
+            </a>
+
+            <div class="nav-user-dropdown">
+                <button class="nav-user-btn">
+                    {% if request.session.user_avatar %}
+                        <img src="{{ request.session.user_avatar }}" alt="" class="nav-avatar">
+                    {% else %}
+                        <div class="nav-avatar-placeholder">{{ request.session.username|first|upper }}</div>
+                    {% endif %}
+                    <span class="nav-username">{{ request.session.username }}</span>
+                    <i class="fas fa-chevron-down" style="font-size:.65em;color:var(--t3)"></i>
+                </button>
+                <div class="nav-user-dropdown-content">
+                    <div class="dropdown-user-info">
+                        <span class="dropdown-role">{{ request.session.user_role|default:"student" }}</span>
+                    </div>
+                    <a href="{% url 'profile' %}"><i class="fas fa-user-cog"></i> {{ t.nav_profile }}</a>
+                    <a href="{% url 'dashboard' %}"><i class="fas fa-chart-line"></i> {{ t.nav_dashboard }}</a>
+                    {% if request.session.user_role == 'admin' or request.session.user_role == 'school_admin' %}
+                    <a href="{% url 'admin_panel' %}"><i class="fas fa-shield-alt"></i> {{ t.admin_title }}</a>
+                    {% endif %}
+                    <hr>
+                    <a href="{% url 'logout' %}" class="logout-link"><i class="fas fa-sign-out-alt"></i> {{ t.nav_logout }}</a>
+                </div>
+            </div>
+            {% else %}
+            <a href="{% url 'login' %}" class="btn btn-ghost btn-sm">{{ t.nav_login }}</a>
+            <a href="{% url 'signup' %}" class="btn btn-primary btn-sm">{{ t.nav_signup }}</a>
+            {% endif %}
+
+            <button class="mobile-toggle" id="mobileToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </div>
+</nav>
+
+<!-- Main -->
+<main id="main-content">{% block content %}{% endblock %}</main>
+
+<!-- Footer -->
+<footer class="footer">
+    <div class="footer-main">
+        <div class="container-wide">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <a href="{% url 'home' %}" class="nav-logo" style="margin-bottom:.5rem">
+                        <div class="logo-mark"><i class="fas fa-graduation-cap"></i></div>
+                        <span class="logo-wordmark" style="color:rgba(255,255,255,.9)">Edu<b style="color:var(--c1)">AI</b></span>
+                    </a>
+                    <p>{{ t.footer_desc }}</p>
+                    <div class="footer-social">
+                        <a href="https://t.me/eduai_platform" target="_blank" rel="noopener" title="Telegram"><i class="fab fa-telegram-plane"></i></a>
+                        <a href="{% url 'contact' %}" title="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="{% url 'contact' %}" title="YouTube"><i class="fab fa-youtube"></i></a>
+                        <a href="{% url 'about' %}" title="GitHub"><i class="fab fa-github"></i></a>
+                    </div>
+                </div>
+                <div class="footer-col">
+                    <h4>{{ t.footer_platform }}</h4>
+                    <a href="{% url 'home' %}">{{ t.footer_home }}</a>
+                    <a href="{% url 'about' %}">{{ t.footer_about }}</a>
+                    <a href="{% url 'subscription' %}">{{ t.footer_pricing }}</a>
+                    <a href="{% url 'faq' %}">{{ t.footer_faq }}</a>
+                    <a href="{% url 'contact' %}">{{ t.footer_contact }}</a>
+                </div>
+                <div class="footer-col">
+                    <h4>{{ t.footer_features }}</h4>
+                    <a href="{% url 'lessons' %}">{{ t.nav_lessons }}</a>
+                    <a href="{% url 'accessibility' %}">{{ t.nav_accessibility }}</a>
+                    <a href="{% url 'personalization' %}">{{ t.nav_personalization }}</a>
+                    <a href="{% url 'feedback' %}">{{ t.nav_feedback }}</a>
+                    <a href="{% url 'copilot' %}">{{ t.nav_copilot }}</a>
+                </div>
+                <div class="footer-col">
+                    <h4>{{ t.footer_support }}</h4>
+                    <a href="{% url 'contact' %}">{{ t.footer_contacts }}</a>
+                    <a href="{% url 'faq' %}">{{ t.footer_help }}</a>
+                    <a href="{% url 'about' %}">{{ t.footer_docs }}</a>
+                    <a href="{% url 'faq' %}">{{ t.footer_privacy }}</a>
+                    <a href="{% url 'faq' %}">{{ t.footer_terms }}</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 EduAI. {{ t.footer_rights }}</p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script>window._i18n={email_invalid:"{{ t.js_email_invalid|default:'Enter a valid email' }}",subscribed:"{{ t.js_subscribed|default:'Subscribed!' }}",subscribe_success:"{{ t.js_subscribe_success|default:'Successfully subscribed!' }}",subscribe_btn:"{{ t.js_subscribe_btn|default:'Subscribe' }}",lang_changed:"{{ t.js_lang_changed|default:'Language changed!' }}",copied:"{{ t.js_copied|default:'Copied!' }}",settings_reset:"{{ t.js_settings_reset|default:'Settings reset' }}",stt_no_speech:"{{ t.js_stt_no_speech|default:'No speech detected. Try again.' }}",stt_fail:"{{ t.js_stt_fail|default:'Could not recognize speech' }}",stt_error:"{{ t.js_stt_error|default:'Speech recognition error' }}",mic_denied:"{{ t.js_mic_denied|default:'No microphone access. Allow in browser settings.' }}",stt_unsupported:"{{ t.js_stt_unsupported|default:'Voice input is not supported in this browser.' }}"};</script>
+
+<!-- Floating Accessibility Toolbar -->
+{% if request.session.user_id %}
+<div class="a11y-fab" id="a11yFab">
+    <div class="a11y-panel" id="a11yPanel">
+        <div class="a11y-panel-title"><i class="fas fa-universal-access" style="color:var(--c3)"></i> {{ t.fab_title|default:"Доступность" }}</div>
+
+        <div style="font-size:.7rem;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.04em;margin-bottom:.35rem">{{ t.fab_font|default:"Шрифт" }}</div>
+        <div class="a11y-font-pills" id="a11yFontPills">
+            <button class="a11y-font-pill{% if not acc_font_family or acc_font_family == 'default' %} active{% endif %}" data-font="default">Inter</button>
+            <button class="a11y-font-pill{% if acc_font_family == 'opendyslexic' %} active{% endif %}" data-font="opendyslexic">OpenDyslexic</button>
+            <button class="a11y-font-pill{% if acc_font_family == 'comfortaa' %} active{% endif %}" data-font="comfortaa">Comfortaa</button>
+            <button class="a11y-font-pill{% if acc_font_family == 'ptsans' %} active{% endif %}" data-font="ptsans">PT Sans</button>
+            <button class="a11y-font-pill{% if acc_font_family == 'pangolin' %} active{% endif %}" data-font="pangolin">Pangolin</button>
+            <button class="a11y-font-pill{% if acc_font_family == 'arial' %} active{% endif %}" data-font="arial">Arial</button>
+            <button class="a11y-font-pill{% if acc_font_family == 'verdana' %} active{% endif %}" data-font="verdana">Verdana</button>
+            <button class="a11y-font-pill{% if acc_font_family == 'georgia' %} active{% endif %}" data-font="georgia">Georgia</button>
+            <button class="a11y-font-pill{% if acc_font_family == 'times' %} active{% endif %}" data-font="times">Times NR</button>
+            <button class="a11y-font-pill{% if acc_font_family == 'courier' %} active{% endif %}" data-font="courier">Courier</button>
+        </div>
+
+        <div class="a11y-row">
+            <span class="a11y-row-label"><i class="fas fa-text-height"></i> {{ t.fab_font_size|default:"Размер" }}: <span id="fabFontVal">{{ acc_font_size|default:16 }}px</span></span>
+        </div>
+        <input type="range" class="a11y-size-slider" id="fabFontSize" min="14" max="32" step="2" value="{{ acc_font_size|default:16 }}">
+
+        <div class="a11y-row">
+            <span class="a11y-row-label"><i class="fas fa-adjust"></i> {{ t.fab_contrast|default:"Контраст" }}</span>
+            <label class="a11y-toggle"><input type="checkbox" id="fabContrast" {% if acc_high_contrast %}checked{% endif %}><span class="a11y-toggle-slider"></span></label>
+        </div>
+        <div class="a11y-row">
+            <span class="a11y-row-label"><i class="fas fa-book-reader"></i> {{ t.fab_easy_read|default:"Лёгкое чтение" }}</span>
+            <label class="a11y-toggle"><input type="checkbox" id="fabEasyRead" {% if acc_easy_read %}checked{% endif %}><span class="a11y-toggle-slider"></span></label>
+        </div>
+        <div class="a11y-row">
+            <span class="a11y-row-label"><i class="fas fa-spa"></i> {{ t.fab_zen|default:"Дзен (СДВГ)" }}</span>
+            <label class="a11y-toggle"><input type="checkbox" id="fabZen" {% if acc_zen %}checked{% endif %}><span class="a11y-toggle-slider"></span></label>
+        </div>
+        <div class="a11y-row">
+            <span class="a11y-row-label"><i class="fas fa-microphone"></i> {{ t.fab_voice|default:"Голосовой ввод" }}</span>
+            <label class="a11y-toggle"><input type="checkbox" id="fabVoice" {% if acc_voice_input %}checked{% endif %}><span class="a11y-toggle-slider"></span></label>
+        </div>
+        <div class="a11y-row">
+            <span class="a11y-row-label"><i class="fas fa-volume-up"></i> {{ t.fab_tts|default:"Озвучка" }}</span>
+            <label class="a11y-toggle"><input type="checkbox" id="fabTts" {% if acc_tts %}checked{% endif %}><span class="a11y-toggle-slider"></span></label>
+        </div>
+
+        <div style="margin-top:.6rem">
+            <button class="btn btn-sm btn-ghost" id="fabReset" style="width:100%;font-size:.75rem"><i class="fas fa-undo"></i> {{ t.fab_reset|default:"Сбросить" }}</button>
+        </div>
+    </div>
+    <button class="a11y-fab-btn" id="a11yFabBtn" title="{{ t.fab_title|default:'Доступность' }}" aria-label="{{ t.fab_title|default:'Доступность' }}">
+        <i class="fas fa-universal-access"></i>
+    </button>
+</div>
+{% endif %}
+
+<script src="{% static 'core/js/main.js' %}"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,158 @@
+{% extends "core/base.html" %}
+{% load custom_filters %}
+{% block title %}{{ t.res_title|default:"Результаты" }}{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+    <div class="hero-orb hero-orb-1"></div>
+    <div class="hero-orb hero-orb-2"></div>
+    <div class="container" style="position:relative;z-index:1;text-align:center">
+        <div class="page-hero-icon" style="background:var(--c1-100)"><i class="fas fa-chart-bar" style="color:var(--c1)"></i></div>
+        <h1>{{ t.res_hero_1|default:"Мои" }} <span class="grad-text">{{ t.res_hero_2|default:"результаты" }}</span></h1>
+    </div>
+</section>
+
+<section class="section" style="padding-top:1.5rem">
+    <div class="container-wide">
+        {% if user.is_student %}
+        <!-- Student: tabs -->
+        <div class="tabs reveal">
+            <button class="tab-btn active" data-tab="tests"><i class="fas fa-spell-check"></i> {{ t.res_tests|default:"Тесты" }}</button>
+            <button class="tab-btn" data-tab="assignments"><i class="fas fa-tasks"></i> {{ t.res_assignments|default:"Задания" }}</button>
+            <button class="tab-btn" data-tab="essays"><i class="fas fa-file-alt"></i> {{ t.res_essays|default:"Эссе" }}</button>
+        </div>
+
+        <div class="tab-content active" id="tab-tests">
+            {% if attempts %}
+            <div class="card-elevated">
+                <table class="dtable">
+                    <thead><tr><th>{{ t.ta_name|default:"Тест" }}</th><th>{{ t.ta_subject|default:"Предмет" }}</th><th>{{ t.tl_score|default:"Баллы" }}</th><th>%</th><th>{{ t.ta_date|default:"Дата" }}</th><th></th></tr></thead>
+                    <tbody>
+                    {% for a in attempts %}
+                    <tr>
+                        <td><strong>{{ a.test.title }}</strong></td>
+                        <td>{{ a.test.subject|localized_name:lang }}</td>
+                        <td>{{ a.score }}/{{ a.max_score }}</td>
+                        <td><span class="badge {% if a.percentage >= 70 %}badge-primary{% endif %}">{{ a.percentage|floatformat:0 }}%</span></td>
+                        <td>{{ a.started_at|date:"d.m.Y" }}</td>
+                        <td><a href="{% url 'test_result' a.id %}" class="btn btn-ghost btn-sm"><i class="fas fa-eye"></i></a></td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="card-elevated"><div class="empty"><i class="fas fa-spell-check"></i><h3>{{ t.res_no_tests|default:"Нет результатов" }}</h3><p>{{ t.res_no_tests_desc|default:"Вы ещё не проходили тесты" }}</p></div></div>
+            {% endif %}
+        </div>
+
+        <div class="tab-content" id="tab-assignments">
+            {% if submissions %}
+            <div class="card-elevated">
+                <table class="dtable">
+                    <thead><tr><th>{{ t.ae_title|default:"Задание" }}</th><th>{{ t.ta_subject|default:"Предмет" }}</th><th>{{ t.tm_status|default:"Статус" }}</th><th>{{ t.tl_score|default:"Балл" }}</th><th>{{ t.ta_date|default:"Дата" }}</th></tr></thead>
+                    <tbody>
+                    {% for s in submissions %}
+                    <tr>
+                        <td><a href="{% url 'assignment_detail' s.assignment.id %}"><strong>{{ s.assignment.title }}</strong></a></td>
+                        <td>{{ s.assignment.subject|localized_name:lang }}</td>
+                        <td><span class="badge {% if s.status == 'graded' %}badge-primary{% endif %}">{% if s.status == 'graded' %}{{ t.ad_graded|default:"Оценено" }}{% else %}{{ t.ad_pending|default:"На проверке" }}{% endif %}</span></td>
+                        <td>{% if s.score is not None %}{{ s.score }}/{{ s.assignment.max_score }}{% else %}—{% endif %}</td>
+                        <td>{{ s.submitted_at|date:"d.m.Y" }}</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="card-elevated"><div class="empty"><i class="fas fa-tasks"></i><h3>{{ t.res_no_assign|default:"Нет сданных заданий" }}</h3></div></div>
+            {% endif %}
+        </div>
+
+        <div class="tab-content" id="tab-essays">
+            {% if essays %}
+            <div class="card-elevated">
+                <table class="dtable">
+                    <thead><tr><th>{{ t.ta_subject|default:"Предмет" }}</th><th>{{ t.res_essay_text|default:"Текст" }}</th><th>{{ t.tl_score|default:"Оценка" }}</th><th>{{ t.ta_date|default:"Дата" }}</th></tr></thead>
+                    <tbody>
+                    {% for e in essays %}
+                    <tr>
+                        <td>{{ e.subject|localized_name:lang }}</td>
+                        <td>{{ e.text|truncatechars:60 }}</td>
+                        <td>{% if e.score %}<span class="badge badge-primary">{{ e.score }}/{{ e.max_score }}</span>{% else %}—{% endif %}</td>
+                        <td>{{ e.created_at|date:"d.m.Y" }}</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="card-elevated"><div class="empty"><i class="fas fa-file-alt"></i><h3>{{ t.res_no_essays|default:"Нет эссе" }}</h3></div></div>
+            {% endif %}
+        </div>
+
+        {% elif user.is_teacher %}
+        <!-- Teacher: student results -->
+        <div class="tabs reveal">
+            <button class="tab-btn active" data-tab="t_tests"><i class="fas fa-spell-check"></i> {{ t.res_student_tests|default:"Тесты учеников" }}</button>
+            <button class="tab-btn" data-tab="t_assignments"><i class="fas fa-tasks"></i> {{ t.res_student_assign|default:"Задания учеников" }}</button>
+        </div>
+
+        <div class="tab-content active" id="tab-t_tests">
+            {% if test_attempts %}
+            <div class="card-elevated">
+                <table class="dtable">
+                    <thead><tr><th>{{ t.res_student|default:"Ученик" }}</th><th>{{ t.ta_name|default:"Тест" }}</th><th>{{ t.tl_score|default:"Баллы" }}</th><th>%</th><th>{{ t.ta_date|default:"Дата" }}</th><th></th></tr></thead>
+                    <tbody>
+                    {% for a in test_attempts %}
+                    <tr>
+                        <td>{{ a.student.full_name }}</td>
+                        <td>{{ a.test.title }}</td>
+                        <td>{{ a.score }}/{{ a.max_score }}</td>
+                        <td><span class="badge {% if a.percentage >= 70 %}badge-primary{% endif %}">{{ a.percentage|floatformat:0 }}%</span></td>
+                        <td>{{ a.started_at|date:"d.m.Y" }}</td>
+                        <td><a href="{% url 'test_result' a.id %}" class="btn btn-ghost btn-sm"><i class="fas fa-eye"></i></a></td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="card-elevated"><div class="empty"><i class="fas fa-spell-check"></i><h3>{{ t.res_no_results|default:"Нет результатов" }}</h3></div></div>
+            {% endif %}
+        </div>
+
+        <div class="tab-content" id="tab-t_assignments">
+            {% if submissions %}
+            <div class="card-elevated">
+                <table class="dtable">
+                    <thead><tr><th>{{ t.res_student|default:"Ученик" }}</th><th>{{ t.ae_title|default:"Задание" }}</th><th>{{ t.tm_status|default:"Статус" }}</th><th>{{ t.tl_score|default:"Балл" }}</th><th>{{ t.ta_date|default:"Дата" }}</th><th></th></tr></thead>
+                    <tbody>
+                    {% for s in submissions %}
+                    <tr>
+                        <td>{{ s.student.full_name }}</td>
+                        <td>{{ s.assignment.title }}</td>
+                        <td><span class="badge {% if s.status == 'graded' %}badge-primary{% endif %}">{% if s.status == 'graded' %}{{ s.score }}{% else %}{{ t.ad_pending|default:"Ожидает" }}{% endif %}</span></td>
+                        <td>{% if s.score is not None %}{{ s.score }}/{{ s.assignment.max_score }}{% else %}—{% endif %}</td>
+                        <td>{{ s.submitted_at|date:"d.m.Y" }}</td>
+                        <td><a href="{% url 'assignment_detail' s.assignment.id %}" class="btn btn-ghost btn-sm"><i class="fas fa-eye"></i></a></td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="card-elevated"><div class="empty"><i class="fas fa-tasks"></i><h3>{{ t.res_no_assign|default:"Нет заданий" }}</h3></div></div>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% if page_obj %}{% include 'core/pagination.html' %}{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.querySelectorAll('.tab-btn').forEach(btn=>{btn.addEventListener('click',()=>{document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));btn.classList.add('active');document.getElementById('tab-'+btn.dataset.tab).classList.add('active')})});
+</script>
+{% endblock %}

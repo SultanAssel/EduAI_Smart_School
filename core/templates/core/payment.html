@@ -1,0 +1,106 @@
+{% extends "core/base.html" %}
+{% block title %}{{ t.pay_title }}{% endblock %}
+
+{% block content %}
+<section class="page-hero" style="padding:2.5rem 0 1.5rem">
+    <div class="hero-orb hero-orb-1"></div>
+    <div class="hero-orb hero-orb-2"></div>
+    <div class="container" style="position:relative;z-index:1;text-align:center">
+        <a href="{% url 'subscription' %}" class="btn btn-ghost-light btn-sm" style="margin-bottom:.75rem"><i class="fas fa-arrow-left"></i> {{ t.pay_back }}</a>
+        <h1>{{ t.pay_hero_1 }} <span class="grad-text">{{ t.pay_hero_2 }}</span> {{ t.pay_hero_3 }}</h1>
+    </div>
+</section>
+
+<section class="section" style="padding-top:1.5rem">
+    <div class="container" style="max-width:580px">
+        <!-- Order Summary -->
+        <div class="card-elevated reveal" style="margin-bottom:1.25rem;border-top:3px solid var(--c1)">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem">
+                <div>
+                    <h3 style="font-weight:700;font-size:1.05rem;margin-bottom:.1rem">
+                        {% if plan == 'pro' %}{{ t.pay_plan_pro }}{% elif plan == 'school' %}{{ t.pay_plan_school }}{% else %}{{ t.pay_plan_pro }}{% endif %}
+                    </h3>
+                    <p style="color:var(--t3);font-size:.84rem">{{ t.pay_monthly }}</p>
+                </div>
+                <div style="text-align:right">
+                    <div style="font-size:1.4rem;font-weight:800" class="grad-text">
+                        {% if plan == 'school' %}14 990 ₸{% else %}2 990 ₸{% endif %}
+                    </div>
+                    <div style="color:var(--t3);font-size:.78rem">{{ t.pay_per_month }}</div>
+                </div>
+            </div>
+            <div style="border-top:1px solid var(--border);padding-top:.75rem;display:flex;justify-content:space-between;font-weight:700">
+                <span>{{ t.pay_total }}</span>
+                <span style="color:var(--c1);font-size:1.05rem">{% if plan == 'school' %}14 990 ₸{% else %}2 990 ₸{% endif %}</span>
+            </div>
+        </div>
+
+        <!-- Payment Form -->
+        <div class="card-elevated reveal" style="padding:1.5rem">
+            <h3 style="font-weight:700;margin-bottom:1.25rem;display:flex;align-items:center;gap:.4rem;font-size:1rem"><i class="fas fa-credit-card" style="color:var(--c1)"></i> {{ t.pay_details }}</h3>
+
+            {% if error_message %}<div class="result-box err" style="margin-bottom:.75rem"><i class="fas fa-exclamation-circle"></i> {{ error_message }}</div>{% endif %}
+
+            <form method="POST" action="{% url 'payment' %}" id="paymentForm">
+                {% csrf_token %}
+                <input type="hidden" name="plan" value="{{ plan|default:'pro' }}">
+
+                <div class="form-group">
+                    <label class="form-label">{{ t.pay_card_number }}</label>
+                    <div class="input-icon-wrap"><i class="fas fa-credit-card"></i><input type="text" name="card_number" class="form-input" placeholder="0000 0000 0000 0000" maxlength="19" required autocomplete="cc-number" inputmode="numeric" oninput="formatCard(this)"></div>
+                </div>
+
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label class="form-label">{{ t.pay_expiry }}</label>
+                        <div class="input-icon-wrap"><i class="fas fa-calendar-alt"></i><input type="text" name="card_expiry" class="form-input" placeholder="{{ t.pay_expiry_ph }}" maxlength="5" required autocomplete="cc-exp" oninput="formatExpiry(this)"></div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">CVV</label>
+                        <div class="input-icon-wrap"><i class="fas fa-lock"></i><input type="password" name="card_cvv" class="form-input" placeholder="•••" maxlength="4" required autocomplete="cc-csc" inputmode="numeric"></div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">{{ t.pay_card_name }}</label>
+                    <div class="input-icon-wrap"><i class="fas fa-user"></i><input type="text" name="card_name" class="form-input" style="text-transform:uppercase" placeholder="IVAN IVANOV" required autocomplete="cc-name"></div>
+                </div>
+
+                <div style="margin-top:1.25rem">
+                    <button type="submit" class="btn btn-primary btn-lg btn-glow" style="width:100%;justify-content:center" id="payBtn">
+                        <i class="fas fa-lock"></i> {{ t.pay_submit }} {% if plan == 'school' %}14 990 ₸{% else %}2 990 ₸{% endif %}
+                    </button>
+                    <p style="text-align:center;font-size:.75rem;color:var(--t3);margin-top:.6rem">
+                        <i class="fas fa-shield-alt"></i> {{ t.pay_secure }}
+                    </p>
+                </div>
+            </form>
+        </div>
+
+        <div class="reveal" style="display:flex;justify-content:center;gap:1.25rem;margin-top:1.25rem;color:var(--t3);font-size:.82rem;align-items:center">
+            <span><i class="fab fa-cc-visa" style="font-size:1.4rem"></i></span>
+            <span><i class="fab fa-cc-mastercard" style="font-size:1.4rem"></i></span>
+            <span style="font-weight:600">Kaspi</span>
+            <span style="font-weight:600">Halyk</span>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function formatCard(el){let v=el.value.replace(/\D/g,'').substring(0,16);el.value=v.replace(/(.{4})/g,'$1 ').trim()}
+function formatExpiry(el){let v=el.value.replace(/\D/g,'').substring(0,4);if(v.length>=3)v=v.substring(0,2)+'/'+v.substring(2);el.value=v}
+document.getElementById('paymentForm').addEventListener('submit',function(e){
+    e.preventDefault();
+    const btn=document.getElementById('payBtn');
+    btn.disabled=true;btn.innerHTML='<span class="spinner"></span> {{ t.pay_processing }}';
+    setTimeout(()=>{
+        btn.innerHTML='<i class="fas fa-check-circle"></i> {{ t.pay_success }}';
+        btn.style.background='var(--ok)';btn.style.borderColor='var(--ok)';
+        showNotification('{{ t.pay_welcome }}','success');
+        setTimeout(()=>window.location.href='{% url "dashboard" %}',2000);
+    },2500);
+});
+</script>
+{% endblock %}

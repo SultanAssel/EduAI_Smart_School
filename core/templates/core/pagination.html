@@ -1,0 +1,41 @@
+{% if page_obj.has_other_pages %}
+{% with get_params=request.GET.urlencode %}
+{% comment %}Build query string preserving all GET params except 'page'{% endcomment %}
+<nav class="pagination-nav" aria-label="Pagination">
+  <ul class="pagination">
+    {% if page_obj.has_previous %}
+    <li><a href="?{% for k,v in request.GET.items %}{% if k != 'page' %}{{ k }}={{ v }}&{% endif %}{% endfor %}page={{ page_obj.previous_page_number }}" class="page-link">&laquo;</a></li>
+    {% else %}
+    <li><span class="page-link disabled">&laquo;</span></li>
+    {% endif %}
+
+    {% for num in page_obj.paginator.page_range %}
+      {% if page_obj.number == num %}
+      <li><span class="page-link active">{{ num }}</span></li>
+      {% elif num > page_obj.number|add:"-3" and num < page_obj.number|add:"3" %}
+      <li><a href="?{% for k,v in request.GET.items %}{% if k != 'page' %}{{ k }}={{ v }}&{% endif %}{% endfor %}page={{ num }}" class="page-link">{{ num }}</a></li>
+      {% elif num == 1 or num == page_obj.paginator.num_pages %}
+      <li><a href="?{% for k,v in request.GET.items %}{% if k != 'page' %}{{ k }}={{ v }}&{% endif %}{% endfor %}page={{ num }}" class="page-link">{{ num }}</a></li>
+      {% elif num == 2 or num == page_obj.paginator.num_pages|add:"-1" %}
+      <li><span class="page-link dots">&hellip;</span></li>
+      {% endif %}
+    {% endfor %}
+
+    {% if page_obj.has_next %}
+    <li><a href="?{% for k,v in request.GET.items %}{% if k != 'page' %}{{ k }}={{ v }}&{% endif %}{% endfor %}page={{ page_obj.next_page_number }}" class="page-link">&raquo;</a></li>
+    {% else %}
+    <li><span class="page-link disabled">&raquo;</span></li>
+    {% endif %}
+  </ul>
+</nav>
+{% endwith %}
+<style>
+.pagination-nav{text-align:center;margin:24px 0}
+.pagination{display:inline-flex;list-style:none;padding:0;gap:4px}
+.page-link{display:inline-block;padding:6px 12px;border:1px solid var(--border,#ddd);border-radius:6px;text-decoration:none;color:var(--text,#333);font-size:14px;transition:all .2s}
+.page-link:hover{background:var(--primary,#6366f1);color:#fff;border-color:var(--primary,#6366f1)}
+.page-link.active{background:var(--primary,#6366f1);color:#fff;border-color:var(--primary,#6366f1);font-weight:bold}
+.page-link.disabled{opacity:.4;pointer-events:none}
+.page-link.dots{border:none;background:none}
+</style>
+{% endif %}

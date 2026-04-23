@@ -1,0 +1,312 @@
+{% extends "core/base.html" %}
+{% load custom_filters %}
+{% block title %}{{ t.dash_title }}{% endblock %}
+
+{% block content %}
+<!-- Hero -->
+<section class="page-hero">
+    <div class="hero-orb hero-orb-1"></div>
+    <div class="hero-orb hero-orb-2"></div>
+    <div class="container-wide" style="position:relative;z-index:1">
+        <div class="dash-user-panel">
+            {% if user.avatar %}
+            <img src="{{ user.avatar.url }}" alt="" style="width:72px;height:72px;border-radius:50%;object-fit:cover;border:3px solid rgba(255,255,255,.2);flex-shrink:0">
+            {% else %}
+            <div class="dash-avatar-placeholder" style="width:72px;height:72px;font-size:1.8rem">{{ user.first_name|first|upper }}{{ user.last_name|first|upper }}</div>
+            {% endif %}
+            <div class="dash-user-info">
+                <h1>{% now "H" as hour %}{% if hour|add:"0" < 12 %}{{ t.dash_morning }}{% elif hour|add:"0" < 18 %}{{ t.dash_afternoon }}{% else %}{{ t.dash_evening }}{% endif %}, {{ user.first_name|default:user.username }}!</h1>
+                <p><i class="fas fa-{% if user.role == 'teacher' %}chalkboard-teacher{% else %}user-graduate{% endif %}"></i> {{ user.get_role_display }} · @{{ user.username }}{% if user.grade %} · {{ user.grade }} {{ t.profile_grade_suffix }}{% endif %}</p>
+                <p style="font-size:.75rem;color:rgba(255,255,255,.45);margin-top:.1rem"><i class="fas fa-calendar-alt" style="margin-right:.2rem"></i> {{ t.dash_on_platform }} {{ user.created_at|date:"d.m.Y" }}</p>
+            </div>
+            <div class="dash-stats">
+                {% if user.role == 'student' %}
+                <div class="dash-stat">
+                    <span class="dash-stat-num">{{ recent_attempts|length }}</span>
+                    <span class="dash-stat-lbl">{{ t.dash_attempts }}</span>
+                </div>
+                <div class="dash-stat">
+                    <span class="dash-stat-num">{{ essays|length }}</span>
+                    <span class="dash-stat-lbl">{{ t.dash_essays }}</span>
+                </div>
+                <div class="dash-stat">
+                    <span class="dash-stat-num">{{ subjects|length }}</span>
+                    <span class="dash-stat-lbl">{{ t.dash_subjects }}</span>
+                </div>
+                {% else %}
+                <div class="dash-stat">
+                    <span class="dash-stat-num">{{ my_tests|length }}</span>
+                    <span class="dash-stat-lbl">{{ t.dash_tests }}</span>
+                </div>
+                <div class="dash-stat">
+                    <span class="dash-stat-num">{{ my_lessons|length }}</span>
+                    <span class="dash-stat-lbl">{{ t.dash_lessons }}</span>
+                </div>
+                <div class="dash-stat">
+                    <span class="dash-stat-num">{{ recent_attempts|length }}</span>
+                    <span class="dash-stat-lbl">{{ t.dash_results }}</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container-wide">
+        <!-- Quick Actions -->
+        <h3 style="font-size:1rem;font-weight:700;margin-bottom:.75rem;display:flex;align-items:center;gap:.4rem"><i class="fas fa-bolt" style="color:var(--c1)"></i> {{ t.dash_quick_actions }}</h3>
+        <div class="action-grid">
+            {% if user.role == 'student' %}
+            <a href="{% url 'lessons' %}" class="action-card c3">
+                <div class="ac-icon stat-icon c3"><i class="fas fa-book-open"></i></div>
+                <div><div class="ac-title">{{ t.dash_lesson_catalog }}</div><div class="ac-desc">{{ t.dash_study_subjects }}</div></div>
+            </a>
+            <a href="{% url 'personalization' %}" class="action-card c1">
+                <div class="ac-icon stat-icon c1"><i class="fas fa-sliders-h"></i></div>
+                <div><div class="ac-title">{{ t.dash_personalization }}</div><div class="ac-desc">{{ t.dash_adaptive }}</div></div>
+            </a>
+            <a href="{% url 'feedback' %}" class="action-card c5">
+                <div class="ac-icon stat-icon c5"><i class="fas fa-clipboard-check"></i></div>
+                <div><div class="ac-title">{{ t.dash_review_works }}</div><div class="ac-desc">{{ t.dash_submit_essay }}</div></div>
+            </a>
+            <a href="{% url 'copilot' %}" class="action-card c2">
+                <div class="ac-icon stat-icon c2"><i class="fas fa-robot"></i></div>
+                <div><div class="ac-title">{{ t.dash_ai_assistant }}</div><div class="ac-desc">{{ t.dash_ask_ai }}</div></div>
+            </a>
+            {% else %}
+            <a href="{% url 'teacher_assistant' %}" class="action-card c2">
+                <div class="ac-icon stat-icon c2"><i class="fas fa-file-alt"></i></div>
+                <div><div class="ac-title">{{ t.dash_gen_tests }}</div><div class="ac-desc">{{ t.dash_create_test }}</div></div>
+            </a>
+            <a href="{% url 'lessons' %}" class="action-card c3">
+                <div class="ac-icon stat-icon c3"><i class="fas fa-book-open"></i></div>
+                <div><div class="ac-title">{{ t.dash_lesson_catalog }}</div><div class="ac-desc">{{ t.dash_manage_materials }}</div></div>
+            </a>
+            <a href="{% url 'feedback' %}" class="action-card c5">
+                <div class="ac-icon stat-icon c5"><i class="fas fa-clipboard-check"></i></div>
+                <div><div class="ac-title">{{ t.dash_review_works }}</div><div class="ac-desc">{{ t.dash_check_students }}</div></div>
+            </a>
+            <a href="{% url 'copilot' %}" class="action-card c1">
+                <div class="ac-icon stat-icon c1"><i class="fas fa-robot"></i></div>
+                <div><div class="ac-title">{{ t.dash_ai_assistant }}</div><div class="ac-desc">{{ t.dash_ask_ai }}</div></div>
+            </a>
+            {% endif %}
+        </div>
+
+        <!-- Bento Grid -->
+        <div class="bento">
+            {% if user.role == 'student' %}
+            <!-- Learning Profile -->
+            <div class="bento-item b-4">
+                <h4 style="font-size:.88rem;font-weight:700;margin-bottom:.75rem;display:flex;align-items:center;gap:.4rem">
+                    <i class="fas fa-fingerprint" style="color:var(--c2)"></i> {{ t.dash_learning_profile }}
+                </h4>
+                {% if learning_profile %}
+                <div style="display:flex;flex-direction:column;gap:.6rem">
+                    <div>
+                        <div style="display:flex;justify-content:space-between;font-size:.78rem;margin-bottom:.25rem">
+                            <span style="font-weight:600">{{ t.dash_difficulty }}</span>
+                            <span style="color:var(--c1);font-weight:700">{{ learning_profile.difficulty_level }}</span>
+                        </div>
+                        <div class="progress-track"><div class="progress-fill c1" style="width:{% if learning_profile.difficulty_level == 'easy' %}33{% elif learning_profile.difficulty_level == 'medium' %}66{% else %}100{% endif %}%"></div></div>
+                    </div>
+                    <div>
+                        <div style="display:flex;justify-content:space-between;font-size:.78rem;margin-bottom:.25rem">
+                            <span style="font-weight:600">{{ t.dash_avg_score|default:"Средний балл" }}</span>
+                            <span style="color:var(--c2);font-weight:700">{{ learning_profile.avg_score|floatformat:0 }}%</span>
+                        </div>
+                        <div class="progress-track"><div class="progress-fill c2" style="width:{{ learning_profile.avg_score|floatformat:0 }}%"></div></div>
+                    </div>
+                    <div style="font-size:.78rem;color:var(--t3);margin-top:.2rem">
+                        <i class="fas fa-brain"></i> {{ t.dash_style }}: <strong>{{ learning_profile.learning_style }}</strong>
+                        &middot; 🔥 {{ t.per_streak|default:"Дней подряд" }}: <strong>{{ learning_profile.streak_days }}</strong>
+                    </div>
+                </div>
+                {% else %}
+                <div class="empty">
+                    <i class="fas fa-user-cog"></i>
+                    <h3>{{ t.dash_no_data }}</h3>
+                    <p>{{ t.dash_use_personalization }}</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Recent Attempts -->
+            <div class="bento-item b-8">
+                <h4 style="font-size:.88rem;font-weight:700;margin-bottom:.75rem;display:flex;align-items:center;gap:.4rem">
+                    <i class="fas fa-history" style="color:var(--c1)"></i> {{ t.dash_recent_results }}
+                </h4>
+                {% if recent_attempts %}
+                <table class="dtable">
+                    <thead><tr><th>{{ t.dash_subject_col }}</th><th>{{ t.dash_topic_col }}</th><th>{{ t.dash_score_col }}</th><th>{{ t.dash_date_col }}</th></tr></thead>
+                    <tbody>
+                    {% for a in recent_attempts %}
+                    <tr>
+                        <td><span class="badge badge-primary">{{ a.test.subject|localized_name:lang }}</span></td>
+                        <td style="font-weight:600">{{ a.test.title|truncatechars:35 }}</td>
+                        <td>
+                            <span style="font-weight:800;color:{% if a.percentage >= 80 %}var(--ok){% elif a.percentage >= 50 %}var(--warn){% else %}var(--err){% endif %}">{{ a.percentage|floatformat:0 }}%</span>
+                        </td>
+                        <td style="color:var(--t3);font-size:.78rem">{{ a.started_at|date:"d.m.Y" }}</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="empty">
+                    <i class="fas fa-clipboard-list"></i>
+                    <h3>{{ t.dash_no_attempts }}</h3>
+                    <p>{{ t.dash_pass_tests }}</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Essays -->
+            <div class="bento-item b-6">
+                <h4 style="font-size:.88rem;font-weight:700;margin-bottom:.75rem;display:flex;align-items:center;gap:.4rem">
+                    <i class="fas fa-pen-fancy" style="color:var(--c5)"></i> {{ t.dash_my_essays }}
+                </h4>
+                {% if essays %}
+                {% for e in essays %}
+                <div style="padding:.5rem 0;border-bottom:1px solid var(--border);{% if forloop.last %}border-bottom:none{% endif %}">
+                    <div style="display:flex;justify-content:space-between;align-items:center">
+                        <span style="font-weight:600;font-size:.84rem">{{ e.subject|localized_name:lang }}</span>
+                        {% if e.score %}<span class="badge badge-ok">{{ e.score|floatformat:0 }}/100</span>{% else %}<span class="badge">{{ t.dash_awaiting }}</span>{% endif %}
+                    </div>
+                    <div style="color:var(--t3);font-size:.76rem;margin-top:.1rem">{{ e.created_at|date:"d.m.Y H:i" }}</div>
+                </div>
+                {% endfor %}
+                {% else %}
+                <div class="empty">
+                    <i class="fas fa-pen-fancy"></i>
+                    <h3>{{ t.dash_no_essays }}</h3>
+                    <p>{{ t.dash_submit_in_module }}</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Subjects -->
+            <div class="bento-item b-6">
+                <h4 style="font-size:.88rem;font-weight:700;margin-bottom:.75rem;display:flex;align-items:center;gap:.4rem">
+                    <i class="fas fa-book" style="color:var(--c3)"></i> {{ t.dash_subjects_title }}
+                </h4>
+                <div style="display:flex;flex-wrap:wrap;gap:.35rem">
+                    {% for s in subjects %}
+                    <span class="badge">{{ s|localized_name:lang }}</span>
+                    {% empty %}
+                    <div class="empty"><p>{{ t.dash_not_added }}</p></div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            {% else %}
+            <!-- Teacher: Alerts row -->
+            {% if ungraded_submissions or upcoming_deadlines or struggling_students %}
+            <div class="bento-item b-12">
+                <h4 style="font-size:.88rem;font-weight:700;margin-bottom:.75rem;display:flex;align-items:center;gap:.4rem">
+                    <i class="fas fa-bell" style="color:var(--warn)"></i> {{ t.dash_alerts|default:"Требует внимания" }}
+                </h4>
+                <div style="display:flex;flex-wrap:wrap;gap:.75rem">
+                    {% if ungraded_submissions %}
+                    <div style="flex:1;min-width:220px;background:rgba(234,179,8,0.06);padding:.75rem;border-radius:var(--r-sm);border-left:3px solid var(--warn)">
+                        <div style="font-weight:700;font-size:.82rem;margin-bottom:.4rem"><i class="fas fa-inbox"></i> {{ t.dash_ungraded|default:"Непроверенные работы" }} ({{ ungraded_submissions|length }})</div>
+                        {% for s in ungraded_submissions %}
+                        <div style="font-size:.78rem;padding:.15rem 0;color:var(--t2)">{{ s.student.full_name }} — {{ s.assignment.title|truncatechars:25 }}</div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    {% if upcoming_deadlines %}
+                    <div style="flex:1;min-width:220px;background:rgba(99,102,241,0.06);padding:.75rem;border-radius:var(--r-sm);border-left:3px solid var(--c1)">
+                        <div style="font-weight:700;font-size:.82rem;margin-bottom:.4rem"><i class="fas fa-clock"></i> {{ t.dash_deadlines|default:"Дедлайны на неделе" }}</div>
+                        {% for a in upcoming_deadlines %}
+                        <div style="font-size:.78rem;padding:.15rem 0;color:var(--t2)">{{ a.title|truncatechars:25 }} — {{ a.due_date|date:"d.m H:i" }}</div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    {% if struggling_students %}
+                    <div style="flex:1;min-width:220px;background:rgba(239,68,68,0.06);padding:.75rem;border-radius:var(--r-sm);border-left:3px solid var(--err)">
+                        <div style="font-weight:700;font-size:.82rem;margin-bottom:.4rem"><i class="fas fa-exclamation-triangle"></i> {{ t.dash_struggling|default:"Нужна помощь (<50%)" }}</div>
+                        {% for a in struggling_students %}
+                        <div style="font-size:.78rem;padding:.15rem 0;color:var(--t2)">{{ a.student.full_name }} — {{ a.test.title|truncatechars:20 }} <span style="color:var(--err);font-weight:700">{{ a.percentage|floatformat:0 }}%</span></div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Teacher: Tests -->
+            <div class="bento-item b-6">
+                <h4 style="font-size:.88rem;font-weight:700;margin-bottom:.75rem;display:flex;align-items:center;gap:.4rem">
+                    <i class="fas fa-file-alt" style="color:var(--c2)"></i> {{ t.dash_my_tests }}
+                </h4>
+                {% if my_tests %}
+                <table class="dtable">
+                    <thead><tr><th>{{ t.dash_subject_col }}</th><th>{{ t.dash_topic_col }}</th><th>{{ t.dash_questions_col }}</th></tr></thead>
+                    <tbody>
+                    {% for tst in my_tests %}
+                    <tr>
+                        <td><span class="badge badge-violet">{{ tst.subject|localized_name:lang }}</span></td>
+                        <td style="font-weight:600">{{ tst.title|truncatechars:30 }}</td>
+                        <td>{{ tst.question_count }}</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="empty">
+                    <i class="fas fa-file-alt"></i>
+                    <h3>{{ t.dash_no_tests }}</h3>
+                    <p>{{ t.dash_create_first }}</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Teacher: Recent Student Results -->
+            <div class="bento-item b-6">
+                <h4 style="font-size:.88rem;font-weight:700;margin-bottom:.75rem;display:flex;align-items:center;gap:.4rem">
+                    <i class="fas fa-chart-bar" style="color:var(--c1)"></i> {{ t.dash_student_results }}
+                </h4>
+                {% if recent_attempts %}
+                <table class="dtable">
+                    <thead><tr><th>{{ t.dash_student_col }}</th><th>{{ t.dash_test_col }}</th><th>{{ t.dash_score_col }}</th></tr></thead>
+                    <tbody>
+                    {% for a in recent_attempts %}
+                    <tr>
+                        <td style="font-weight:600">{{ a.student.first_name }} {{ a.student.last_name|first }}.</td>
+                        <td>{{ a.test.title|truncatechars:25 }}</td>
+                        <td>
+                            <span style="font-weight:800;color:{% if a.percentage >= 80 %}var(--ok){% elif a.percentage >= 50 %}var(--warn){% else %}var(--err){% endif %}">{{ a.percentage|floatformat:0 }}%</span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="empty">
+                    <i class="fas fa-users"></i>
+                    <h3>{{ t.dash_no_data }}</h3>
+                    <p>{{ t.dash_when_students }}</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Subjects -->
+            <div class="bento-item b-12">
+                <h4 style="font-size:.88rem;font-weight:700;margin-bottom:.75rem;display:flex;align-items:center;gap:.4rem">
+                    <i class="fas fa-book" style="color:var(--c3)"></i> {{ t.dash_your_subjects }}
+                </h4>
+                <div style="display:flex;flex-wrap:wrap;gap:.35rem">
+                    {% for s in subjects %}
+                    <span class="badge">{{ s|localized_name:lang }}</span>
+                    {% empty %}
+                    <div class="empty"><p>{{ t.dash_not_added }}</p></div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}

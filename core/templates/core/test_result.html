@@ -1,0 +1,63 @@
+{% extends "core/base.html" %}
+{% load custom_filters %}
+{% block title %}{{ t.tr_title|default:"Результат теста" }}{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+    <div class="hero-orb hero-orb-1"></div>
+    <div class="hero-orb hero-orb-2"></div>
+    <div class="container" style="position:relative;z-index:1;text-align:center">
+        <div class="page-hero-icon" style="background:{% if attempt.percentage >= 70 %}var(--c3-100){% else %}var(--err-bg, #fee){% endif %}">
+            <i class="fas {% if attempt.percentage >= 70 %}fa-trophy{% else %}fa-chart-bar{% endif %}" style="color:{% if attempt.percentage >= 70 %}var(--c3){% else %}var(--err){% endif %}"></i>
+        </div>
+        <h1>{{ attempt.test.title }}</h1>
+        <div style="display:flex;align-items:center;justify-content:center;gap:1.5rem;margin-top:.75rem">
+            <div style="text-align:center">
+                <div style="font-size:2.5rem;font-weight:800;{% if attempt.percentage >= 70 %}color:var(--ok){% elif attempt.percentage >= 40 %}color:var(--warn, orange){% else %}color:var(--err){% endif %}">{{ attempt.percentage|floatformat:0 }}%</div>
+                <div style="font-size:.82rem;color:var(--t3)">{{ t.tr_percentage|default:"Процент" }}</div>
+            </div>
+            <div style="text-align:center">
+                <div style="font-size:2rem;font-weight:700">{{ attempt.score }}/{{ attempt.max_score }}</div>
+                <div style="font-size:.82rem;color:var(--t3)">{{ t.tl_score|default:"Баллы" }}</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section" style="padding-top:1.5rem">
+    <div class="container" style="max-width:820px">
+        <div class="card-elevated reveal" style="padding:1rem;margin-bottom:1rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap">
+            <span style="font-size:.85rem;color:var(--t3)"><i class="fas fa-book"></i> {{ attempt.test.subject.icon }} {{ attempt.test.subject|localized_name:lang }}</span>
+            {% if attempt.test.teacher %}<span style="font-size:.85rem;color:var(--t3)"><i class="fas fa-user"></i> {{ attempt.test.teacher.full_name }}</span>{% endif %}
+            <span style="font-size:.85rem;color:var(--t3)"><i class="fas fa-calendar"></i> {{ attempt.finished_at|date:"d.m.Y H:i" }}</span>
+            <a href="{% url 'test_list' %}" class="btn btn-ghost btn-sm" style="margin-left:auto"><i class="fas fa-arrow-left"></i> {{ t.tr_back|default:"К тестам" }}</a>
+        </div>
+
+        {% for a in answers %}
+        <div class="card-elevated reveal" style="padding:1.1rem;margin-bottom:.75rem;border-left:3px solid {% if a.is_correct %}var(--ok){% else %}var(--err){% endif %}">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.5rem">
+                <h3 style="font-size:.92rem;line-height:1.5">
+                    {% if a.is_correct %}<i class="fas fa-check-circle" style="color:var(--ok)"></i>{% else %}<i class="fas fa-times-circle" style="color:var(--err)"></i>{% endif %}
+                    {{ a.question.question_text }}
+                </h3>
+                <span class="badge {% if a.is_correct %}badge-primary{% endif %}" style="font-size:.72rem;white-space:nowrap">{{ a.points_earned }}/{{ a.question.points }}</span>
+            </div>
+            <div style="font-size:.85rem;margin-bottom:.3rem">
+                <span style="color:var(--t3)">{{ t.tr_your_answer|default:"Ваш ответ" }}:</span>
+                <strong style="{% if not a.is_correct %}color:var(--err){% endif %}">{{ a.answer_text|default:"—" }}</strong>
+            </div>
+            {% if not a.is_correct %}
+            <div style="font-size:.85rem;color:var(--ok)">
+                <span>{{ t.tr_correct|default:"Правильный ответ" }}:</span> <strong>{{ a.correct_answer_text }}</strong>
+            </div>
+            {% endif %}
+            {% if a.question.explanation %}
+            <div style="font-size:.82rem;color:var(--t3);margin-top:.4rem;font-style:italic">
+                <i class="fas fa-lightbulb" style="color:var(--warn,orange)"></i> {{ a.question.explanation }}
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

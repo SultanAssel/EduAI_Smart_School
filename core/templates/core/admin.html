@@ -1,0 +1,454 @@
+{% extends "core/base.html" %}
+{% load custom_filters %}
+{% block title %}{{ t.admin_title }}{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+    <div class="hero-orb hero-orb-1"></div>
+    <div class="hero-orb hero-orb-2"></div>
+    <div class="container-wide" style="position:relative;z-index:1">
+        <div class="dash-user-panel">
+            <div class="dash-avatar-placeholder" style="width:72px;height:72px;font-size:1.8rem"><i class="fas fa-shield-alt"></i></div>
+            <div class="dash-user-info">
+                <h1>{{ t.admin_title }}</h1>
+                <p style="opacity:.7">{{ t.admin_overview }}</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container-wide">
+        <!-- Stats Grid -->
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:.75rem;margin-bottom:1.5rem">
+            <div class="card" style="text-align:center;padding:1rem"><div style="font-size:1.6rem;font-weight:800;color:var(--c1)">{{ total_users }}</div><div style="font-size:.78rem;color:var(--t3);font-weight:600">{{ t.admin_users }}</div></div>
+            <div class="card" style="text-align:center;padding:1rem"><div style="font-size:1.6rem;font-weight:800;color:var(--c2)">{{ total_students }}</div><div style="font-size:.78rem;color:var(--t3);font-weight:600">{{ t.admin_students }}</div></div>
+            <div class="card" style="text-align:center;padding:1rem"><div style="font-size:1.6rem;font-weight:800;color:var(--c3)">{{ total_teachers }}</div><div style="font-size:.78rem;color:var(--t3);font-weight:600">{{ t.admin_teachers }}</div></div>
+            <div class="card" style="text-align:center;padding:1rem"><div style="font-size:1.6rem;font-weight:800;color:var(--c5)">{{ total_tests }}</div><div style="font-size:.78rem;color:var(--t3);font-weight:600">{{ t.admin_tests }}</div></div>
+            <div class="card" style="text-align:center;padding:1rem"><div style="font-size:1.6rem;font-weight:800;color:var(--c1)">{{ total_lessons }}</div><div style="font-size:.78rem;color:var(--t3);font-weight:600">{{ t.admin_lessons }}</div></div>
+            <div class="card" style="text-align:center;padding:1rem"><div style="font-size:1.6rem;font-weight:800;{% if unread_messages %}color:var(--err){% else %}color:var(--c5){% endif %}">{{ unread_messages }}<span style="font-size:.8rem;color:var(--t3)">/{{ total_messages }}</span></div><div style="font-size:.78rem;color:var(--t3);font-weight:600">{{ t.admin_messages }}</div></div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs reveal">
+            <button class="tab-btn active" data-tab="users"><i class="fas fa-users"></i> {{ t.admin_users }}</button>
+            <button class="tab-btn" data-tab="messages"><i class="fas fa-envelope"></i> {{ t.admin_messages }} {% if unread_messages %}<span class="badge badge-err" style="font-size:.6rem;margin-left:.2rem">{{ unread_messages }}</span>{% endif %}</button>
+            <button class="tab-btn" data-tab="results"><i class="fas fa-chart-bar"></i> {{ t.admin_recent_results }}</button>
+            <button class="tab-btn" data-tab="i18n"><i class="fas fa-language"></i> {{ t.admin_i18n_title }}</button>
+            {% if user.is_admin %}<button class="tab-btn" data-tab="orgs"><i class="fas fa-building"></i> {{ t.admin_orgs|default:"Организации" }}</button>{% endif %}
+            {% if user.is_school_admin %}<button class="tab-btn" data-tab="keys"><i class="fas fa-key"></i> {{ t.admin_keys|default:"Ключи" }}</button>{% endif %}
+        </div>
+
+        <!-- Tab: Users -->
+        <div class="tab-content active" id="tab-users">
+            <div class="card-elevated" style="padding:1rem">
+            {% if recent_users %}
+            <div style="overflow-x:auto">
+            <table class="dtable">
+                <thead><tr><th>{{ t.admin_name }}</th><th>{{ t.admin_email }}</th><th>{{ t.admin_role }}</th><th>{{ t.admin_status }}</th><th>{{ t.admin_date }}</th><th>{{ t.admin_actions }}</th></tr></thead>
+                <tbody>
+                {% for u in recent_users %}
+                <tr id="user-row-{{ u.id }}">
+                    <td style="font-weight:600">{{ u.full_name }}<div style="font-size:.72rem;color:var(--t3)">@{{ u.username }}</div></td>
+                    <td style="font-size:.8rem;color:var(--t2)">{{ u.email }}</td>
+                    <td>
+                        <select class="form-select" style="font-size:.75rem;padding:.2rem .4rem;width:auto" onchange="changeRole({{ u.id }}, this.value)" {% if u.id == user.id %}disabled{% endif %}>
+                            <option value="student" {% if u.role == 'student' %}selected{% endif %}>{{ t.role_student }}</option>
+                            <option value="teacher" {% if u.role == 'teacher' %}selected{% endif %}>{{ t.role_teacher }}</option>
+                            <option value="school_admin" {% if u.role == 'school_admin' %}selected{% endif %}>{{ t.role_school_admin|default:"Школьный админ" }}</option>
+                            <option value="admin" {% if u.role == 'admin' %}selected{% endif %}>Admin</option>
+                        </select>
+                    </td>
+                    <td>{% if u.is_active %}<span class="badge badge-ok">{{ t.admin_active }}</span>{% else %}<span class="badge badge-err">{{ t.admin_inactive }}</span>{% endif %}</td>
+                    <td style="color:var(--t3);font-size:.78rem">{{ u.created_at|date:"d.m.Y" }}</td>
+                    <td>
+                        {% if u.id != user.id %}
+                        <button class="btn btn-ghost btn-sm" onclick="toggleUser({{ u.id }})" style="font-size:.72rem">
+                            {% if u.is_active %}<i class="fas fa-ban"></i>{% else %}<i class="fas fa-check"></i>{% endif %}
+                        </button>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            </div>
+            {% endif %}
+            </div>
+        </div>
+
+        <!-- Tab: Messages -->
+        <div class="tab-content" id="tab-messages">
+            <div class="card-elevated" style="padding:1rem">
+            {% for m in recent_messages %}
+            <div id="msg-{{ m.id }}" style="padding:.65rem 0;border-bottom:1px solid var(--border);{% if forloop.last %}border-bottom:none{% endif %}{% if m.is_read %};opacity:.5{% endif %}">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start">
+                    <div>
+                        <span style="font-weight:700;font-size:.88rem">{{ m.name }}</span>
+                        <span style="font-size:.75rem;color:var(--t3);margin-left:.3rem">{{ m.email }}</span>
+                        {% if m.is_resolved %}<span class="badge badge-ok" style="font-size:.65rem;margin-left:.3rem">✓ {{ t.admin_resolved|default:"Решено" }}</span>{% endif %}
+                    </div>
+                    <div style="display:flex;gap:.3rem;align-items:center">
+                        <span class="badge" style="font-size:.65rem">{{ m.get_category_display }}</span>
+                        <span style="font-size:.72rem;color:var(--t3)">{{ m.created_at|date:"d.m.Y H:i" }}</span>
+                        <button class="btn btn-ghost btn-sm" onclick="markRead({{ m.id }})" style="font-size:.65rem" title="{{ t.admin_mark_read|default:'Прочитано' }}"><i class="fas fa-check"></i></button>
+                    </div>
+                </div>
+                <div style="font-weight:600;font-size:.84rem;margin-top:.2rem">{{ m.subject }}</div>
+                <div style="font-size:.82rem;color:var(--t2);margin-top:.15rem;line-height:1.5">{{ m.message|truncatechars:300 }}</div>
+                {% if m.admin_reply %}
+                <div style="margin-top:.4rem;padding:.5rem;background:var(--c1-50);border-radius:var(--r-sm);font-size:.82rem">
+                    <strong><i class="fas fa-reply"></i> {{ t.admin_reply_label|default:"Ответ" }}:</strong> {{ m.admin_reply }}
+                    <div style="font-size:.7rem;color:var(--t3);margin-top:.2rem">{{ m.replied_at|date:"d.m.Y H:i" }}</div>
+                </div>
+                {% else %}
+                <div style="margin-top:.4rem;display:flex;gap:.3rem" id="reply-form-{{ m.id }}">
+                    <input type="text" class="form-input" id="reply-input-{{ m.id }}" placeholder="{{ t.admin_reply_placeholder|default:'Введите ответ...' }}" style="font-size:.8rem;flex:1">
+                    <button class="btn btn-primary btn-sm" onclick="replyMessage({{ m.id }})" style="font-size:.75rem"><i class="fas fa-reply"></i> {{ t.admin_reply_btn|default:"Ответить" }}</button>
+                </div>
+                {% endif %}
+            </div>
+            {% empty %}
+            <div class="empty"><i class="fas fa-check-circle" style="color:var(--ok)"></i><p>{{ t.admin_no_messages }}</p></div>
+            {% endfor %}
+            </div>
+        </div>
+
+        <!-- Tab: Results -->
+        <div class="tab-content" id="tab-results">
+            <div class="card-elevated" style="padding:1rem">
+            {% if recent_attempts %}
+            <div style="overflow-x:auto">
+            <table class="dtable">
+                <thead><tr><th>{{ t.admin_student }}</th><th>{{ t.admin_test }}</th><th>{{ t.admin_score }}</th><th>{{ t.admin_date }}</th></tr></thead>
+                <tbody>
+                {% for a in recent_attempts %}
+                <tr>
+                    <td style="font-weight:600">{{ a.student.full_name }}</td>
+                    <td>{{ a.test.title|truncatechars:35 }}</td>
+                    <td><span style="font-weight:800;color:{% if a.percentage >= 80 %}var(--ok){% elif a.percentage >= 50 %}var(--warn){% else %}var(--err){% endif %}">{{ a.percentage|floatformat:0 }}%</span></td>
+                    <td style="color:var(--t3);font-size:.78rem">{{ a.started_at|date:"d.m.Y H:i" }}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            </div>
+            {% else %}
+            <div class="empty"><i class="fas fa-chart-bar"></i><p>{{ t.admin_no_results }}</p></div>
+            {% endif %}
+            </div>
+        </div>
+
+        <!-- Tab: Organizations (Platform Admin) -->
+        {% if user.is_admin %}
+        <div class="tab-content" id="tab-orgs">
+            <div class="card-elevated" style="padding:1rem">
+                <h3 style="margin-bottom:1rem;font-size:1rem"><i class="fas fa-building" style="color:var(--c1)"></i> {{ t.admin_create_org|default:"Создать организацию" }}</h3>
+                <div style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:flex-end;margin-bottom:1.5rem">
+                    <div class="form-group" style="margin:0;flex:1;min-width:180px">
+                        <label class="form-label">{{ t.admin_org_name|default:"Название" }}</label>
+                        <input type="text" id="orgName" class="form-input" placeholder="Школа №1">
+                    </div>
+                    <div class="form-group" style="margin:0;flex:1;min-width:180px">
+                        <label class="form-label">{{ t.admin_org_address|default:"Адрес" }}</label>
+                        <input type="text" id="orgAddress" class="form-input" placeholder="г. Алматы, ул. ...">
+                    </div>
+                    <div class="form-group" style="margin:0;flex:1;min-width:180px">
+                        <label class="form-label">Email</label>
+                        <input type="email" id="orgEmail" class="form-input" placeholder="school@mail.kz">
+                    </div>
+                    <button class="btn btn-primary" onclick="createOrg()"><i class="fas fa-plus"></i> {{ t.btn_create|default:"Создать" }}</button>
+                </div>
+                <div id="orgCreatedResult" style="margin-bottom:1rem"></div>
+                {% if organizations %}
+                <h4 style="font-size:.9rem;margin-bottom:.5rem">{{ t.admin_org_list|default:"Все организации" }}</h4>
+                <div style="overflow-x:auto">
+                <table class="dtable">
+                    <thead><tr><th>{{ t.admin_name }}</th><th>{{ t.admin_org_address|default:"Адрес" }}</th><th>Email</th><th>{{ t.admin_status }}</th><th>{{ t.admin_actions }}</th></tr></thead>
+                    <tbody>
+                    {% for o in organizations %}
+                    <tr id="org-row-{{ o.id }}">
+                        <td style="font-weight:600"><span id="org-name-{{ o.id }}">{{ o.name }}</span></td>
+                        <td><span id="org-addr-{{ o.id }}">{{ o.address }}</span></td>
+                        <td><span id="org-email-{{ o.id }}">{{ o.contact_email }}</span></td>
+                        <td>{% if o.is_active %}<span class="badge badge-ok">{{ t.admin_active }}</span>{% else %}<span class="badge badge-err">{{ t.admin_inactive }}</span>{% endif %}</td>
+                        <td style="display:flex;gap:.3rem">
+                            <button class="btn btn-ghost btn-sm" onclick="editOrg({{ o.id }})" style="font-size:.72rem" title="{{ t.btn_edit|default:'Редактировать' }}"><i class="fas fa-edit"></i></button>
+                            <button class="btn btn-ghost btn-sm" onclick="regenMasterKey({{ o.id }})" style="font-size:.72rem" title="{{ t.admin_regen_key|default:'Новый мастер-ключ' }}"><i class="fas fa-redo"></i></button>
+                            <button class="btn btn-ghost btn-sm" onclick="deleteOrg({{ o.id }})" style="font-size:.72rem;color:var(--err)" title="{{ t.btn_delete|default:'Удалить' }}"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                </div>
+                <div id="orgKeyResult" style="margin-top:.5rem"></div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Tab: Teacher Keys (School Admin) -->
+        {% if user.is_school_admin %}
+        <div class="tab-content" id="tab-keys">
+            <div class="card-elevated" style="padding:1rem">
+                <h3 style="margin-bottom:.3rem;font-size:1rem"><i class="fas fa-key" style="color:var(--c5)"></i> {{ t.admin_gen_key|default:"Сгенерировать ключ" }}</h3>
+                <p style="color:var(--t3);font-size:.82rem;margin-bottom:1rem">{{ t.admin_gen_key_desc|default:"Ключ позволяет учителю или ученику зарегистрироваться в вашей организации" }}</p>
+                <div style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:flex-end;margin-bottom:1rem">
+                    <div class="form-group" style="margin:0;min-width:130px">
+                        <label class="form-label">{{ t.admin_key_type|default:"Тип ключа" }}</label>
+                        <select id="keyType" class="form-select">
+                            <option value="teacher">{{ t.role_teacher|default:"Учитель" }}</option>
+                            <option value="student">{{ t.role_student|default:"Ученик" }}</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin:0;min-width:150px" id="keySubjectGroup">
+                        <label class="form-label">{{ t.fb_subject }}</label>
+                        <select id="keySubject" class="form-select">
+                            <option value="">—</option>
+                            {% for s in subjects %}<option value="{{ s.id }}">{{ s.icon }} {{ s|localized_name:lang }}</option>{% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin:0" id="keyGradesGroup">
+                        <label class="form-label">{{ t.admin_key_grades|default:"Классы" }}</label>
+                        <input type="text" id="keyGrades" class="form-input" placeholder="5,6,7" style="width:120px">
+                    </div>
+                    <button class="btn btn-primary" onclick="generateKey()"><i class="fas fa-plus"></i> {{ t.btn_generate|default:"Сгенерировать" }}</button>
+                </div>
+                <div id="keyGenResult" style="margin-bottom:1rem"></div>
+
+                <!-- Teacher Keys -->
+                {% if teacher_keys %}
+                <h4 style="font-size:.9rem;margin-bottom:.5rem">{{ t.admin_teacher_keys|default:"Ключи учителей" }}</h4>
+                <div style="overflow-x:auto;margin-bottom:1.5rem">
+                <table class="dtable">
+                    <thead><tr><th>{{ t.admin_key_code|default:"Ключ" }}</th><th>{{ t.fb_subject }}</th><th>{{ t.admin_key_grades|default:"Классы" }}</th><th>{{ t.admin_status }}</th><th>{{ t.admin_key_used_by|default:"Использован" }}</th><th>{{ t.admin_actions }}</th></tr></thead>
+                    <tbody>
+                    {% for k in teacher_keys %}
+                    <tr id="key-row-{{ k.id }}">
+                        <td style="font-family:monospace;font-size:.78rem">{{ k.key }}</td>
+                        <td>{{ k.subject|localized_name:lang|default:"—" }}</td>
+                        <td>{{ k.grades|default:"—" }}</td>
+                        <td>{% if k.is_used %}<span class="badge badge-ok">✓</span>{% else %}<span class="badge badge-primary">{{ t.admin_key_unused|default:"Свободный" }}</span>{% endif %}</td>
+                        <td>{% if k.used_by %}{{ k.used_by.full_name }}{% else %}—{% endif %}</td>
+                        <td>{% if not k.is_used %}<button class="btn btn-ghost btn-sm" onclick="revokeKey({{ k.id }})" style="font-size:.72rem;color:var(--err)"><i class="fas fa-trash"></i></button>{% endif %}</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                </div>
+                {% endif %}
+
+                <!-- Student Keys -->
+                {% if student_keys %}
+                <h4 style="font-size:.9rem;margin-bottom:.5rem">{{ t.admin_student_keys|default:"Ключи учеников" }}</h4>
+                <div style="overflow-x:auto">
+                <table class="dtable">
+                    <thead><tr><th>{{ t.admin_key_code|default:"Ключ" }}</th><th>{{ t.admin_status }}</th><th>{{ t.admin_key_used_by|default:"Использован" }}</th><th>{{ t.admin_actions }}</th></tr></thead>
+                    <tbody>
+                    {% for k in student_keys %}
+                    <tr id="key-row-{{ k.id }}">
+                        <td style="font-family:monospace;font-size:.78rem">{{ k.key }}</td>
+                        <td>{% if k.is_used %}<span class="badge badge-ok">✓</span>{% else %}<span class="badge badge-primary">{{ t.admin_key_unused|default:"Свободный" }}</span>{% endif %}</td>
+                        <td>{% if k.used_by %}{{ k.used_by.full_name }}{% else %}—{% endif %}</td>
+                        <td>{% if not k.is_used %}<button class="btn btn-ghost btn-sm" onclick="revokeKey({{ k.id }})" style="font-size:.72rem;color:var(--err)"><i class="fas fa-trash"></i></button>{% endif %}</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Tab: i18n Editor -->
+        <div class="tab-content" id="tab-i18n">
+            <div class="card-elevated" style="padding:1rem">
+                <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:1rem;flex-wrap:wrap">
+                    <label class="form-label" style="margin:0;font-weight:700"><i class="fas fa-language" style="color:var(--c1)"></i> {{ t.admin_i18n_title }}</label>
+                    <select id="i18nLang" class="form-select" style="width:auto;min-width:150px"></select>
+                    <input type="text" id="i18nSearch" class="form-input" placeholder="{{ t.admin_i18n_search }}" style="width:260px;font-size:.82rem">
+                    <button class="btn btn-primary btn-sm" id="i18nSaveBtn"><i class="fas fa-save"></i> {{ t.btn_save }}</button>
+                    <span id="i18nStatus" style="font-size:.78rem;color:var(--ok);display:none"><i class="fas fa-check"></i></span>
+                </div>
+                <div id="i18nEditor" style="max-height:500px;overflow-y:auto"></div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Tab switching
+document.querySelectorAll('.tab-btn').forEach(function(btn){
+    btn.addEventListener('click',function(){
+        document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active')});
+        document.querySelectorAll('.tab-content').forEach(function(c){c.classList.remove('active')});
+        btn.classList.add('active');
+        document.getElementById('tab-'+btn.dataset.tab).classList.add('active');
+    });
+});
+
+// Admin actions
+function toggleUser(id){
+    fetch('/api/admin/toggle-user/',{method:'POST',headers:{'Content-Type':'application/json','X-CSRFToken':getCookie('csrftoken')},body:JSON.stringify({user_id:id})})
+    .then(function(r){return r.json()}).then(function(d){if(d.success) location.reload()}).catch(function(){});
+}
+function changeRole(id, role){
+    fetch('/api/admin/change-role/',{method:'POST',headers:{'Content-Type':'application/json','X-CSRFToken':getCookie('csrftoken')},body:JSON.stringify({user_id:id,role:role})})
+    .then(function(r){return r.json()}).then(function(d){if(d.success) showNotification('Role changed','success')}).catch(function(){});
+}
+function markRead(id){
+    fetch('/api/admin/mark-read/',{method:'POST',headers:{'Content-Type':'application/json','X-CSRFToken':getCookie('csrftoken')},body:JSON.stringify({message_id:id})})
+    .then(function(r){return r.json()}).then(function(d){if(d.success){var el=document.getElementById('msg-'+id);if(el)el.style.opacity='.4'}}).catch(function(){});
+}
+function replyMessage(id){
+    var input=document.getElementById('reply-input-'+id);
+    var reply=input?input.value.trim():'';
+    if(!reply){showNotification('Введите ответ','error');return}
+    fetch('/api/admin/reply/',{method:'POST',headers:{'Content-Type':'application/json','X-CSRFToken':getCookie('csrftoken')},body:JSON.stringify({message_id:id,reply:reply})})
+    .then(function(r){return r.json()}).then(function(d){
+        if(d.success){
+            var form=document.getElementById('reply-form-'+id);
+            if(form) form.innerHTML='<div style="padding:.5rem;background:var(--c1-50);border-radius:var(--r-sm);font-size:.82rem"><strong><i class="fas fa-reply"></i> Ответ:</strong> '+_esc(reply)+'</div>';
+            showNotification('Ответ отправлен','success');
+        } else { showNotification(d.error||'Ошибка','error'); }
+    }).catch(function(e){showNotification(e.message,'error')});
+}
+
+// i18n Editor
+var i18nData = {};
+var i18nLang = 'ru';
+function loadI18n(lang){
+    i18nLang = lang;
+    fetch('/api/admin/i18n/?lang='+lang).then(function(r){return r.json()}).then(function(d){
+        i18nData = d.keys || {};
+        // Populate language selector
+        var sel = document.getElementById('i18nLang');
+        if(!sel.options.length && d.languages){
+            d.languages.forEach(function(l){
+                var opt = document.createElement('option');
+                opt.value = l; opt.textContent = l.toUpperCase();
+                if(l === lang) opt.selected = true;
+                sel.appendChild(opt);
+            });
+        }
+        renderI18nEditor('');
+    });
+}
+function renderI18nEditor(filter){
+    var el = document.getElementById('i18nEditor');
+    var keys = Object.keys(i18nData).sort();
+    var html = '<table class="dtable" style="font-size:.82rem"><thead><tr><th style="width:30%">Key</th><th>Value</th></tr></thead><tbody>';
+    var count = 0;
+    keys.forEach(function(k){
+        var v = i18nData[k] || '';
+        if(filter && k.indexOf(filter) === -1 && v.toLowerCase().indexOf(filter.toLowerCase()) === -1) return;
+        count++;
+        html += '<tr><td style="font-family:monospace;font-size:.76rem;color:var(--c1);word-break:break-all">'+k+'</td>';
+        html += '<td><input type="text" class="form-input" data-key="'+k+'" value="'+v.replace(/"/g,'&quot;')+'" style="font-size:.8rem;padding:.25rem .4rem"></td></tr>';
+    });
+    html += '</tbody></table>';
+    if(!count) html = '<div class="empty"><p>No matching keys</p></div>';
+    el.innerHTML = html;
+}
+document.getElementById('i18nLang').addEventListener('change',function(){loadI18n(this.value)});
+document.getElementById('i18nSearch').addEventListener('input',function(){renderI18nEditor(this.value)});
+document.getElementById('i18nSaveBtn').addEventListener('click',function(){
+    var inputs = document.querySelectorAll('#i18nEditor input[data-key]');
+    var data = {};
+    inputs.forEach(function(inp){ data[inp.dataset.key] = inp.value; });
+    // Merge with original (for filtered-out keys)
+    var merged = Object.assign({}, i18nData, data);
+    fetch('/api/admin/i18n/',{method:'POST',headers:{'Content-Type':'application/json','X-CSRFToken':getCookie('csrftoken')},body:JSON.stringify({lang:i18nLang,keys:merged})})
+    .then(function(r){return r.json()}).then(function(d){
+        if(d.success){
+            var s = document.getElementById('i18nStatus'); s.style.display = 'inline'; setTimeout(function(){s.style.display='none'},2000);
+            showNotification('Saved '+d.count+' keys','success');
+        }
+    });
+});
+loadI18n('ru');
+
+// Organization management (platform admin)
+function createOrg(){
+    var name=document.getElementById('orgName').value.trim();
+    var address=document.getElementById('orgAddress').value.trim();
+    var email=document.getElementById('orgEmail').value.trim();
+    if(!name){showNotification('Введите название','error');return}
+    fetch('/api/admin/create-org/',{method:'POST',headers:{'Content-Type':'application/json','X-CSRFToken':getCookie('csrftoken')},body:JSON.stringify({name:name,address:address,contact_email:email})})
+    .then(function(r){return r.json()}).then(function(d){
+        if(d.success){
+            document.getElementById('orgCreatedResult').innerHTML='<div class="result-box ok" style="padding:.6rem;font-size:.85rem"><strong>✅ '+_esc(d.org_name)+'</strong> — мастер-ключ: <code style="background:var(--bg2);padding:.15rem .4rem;border-radius:4px;font-size:.82rem;user-select:all">'+_esc(d.master_key)+'</code></div>';
+            showNotification('Организация создана','success');
+            setTimeout(function(){location.reload()},1500);
+        } else { showNotification(d.error||'Ошибка','error'); }
+    }).catch(function(e){showNotification(e.message,'error')});
+}
+function editOrg(id){
+    var name=prompt('Название:',document.getElementById('org-name-'+id).textContent);
+    if(name===null) return;
+    var address=prompt('Адрес:',document.getElementById('org-addr-'+id).textContent);
+    var email=prompt('Email:',document.getElementById('org-email-'+id).textContent);
+    fetch('/api/admin/edit-org/',{method:'POST',headers:{'Content-Type':'application/json','X-CSRFToken':getCookie('csrftoken')},body:JSON.stringify({org_id:id,name:name,address:address||'',contact_email:email||''})})
+    .then(function(r){return r.json()}).then(function(d){
+        if(d.success){showNotification('Сохранено','success');location.reload()}
+        else showNotification(d.error||'Ошибка','error');
+    }).catch(function(e){showNotification(e.message,'error')});
+}
+function deleteOrg(id){
+    if(!confirm('Удалить организацию? Участники будут откреплены.')) return;
+    fetch('/api/admin/delete-org/',{method:'POST',headers:{'Content-Type':'application/json','X-CSRFToken':getCookie('csrftoken')},body:JSON.stringify({org_id:id})})
+    .then(function(r){return r.json()}).then(function(d){
+        if(d.success){var row=document.getElementById('org-row-'+id);if(row)row.remove();showNotification('Организация удалена','success')}
+        else showNotification(d.error||'Ошибка','error');
+    }).catch(function(e){showNotification(e.message,'error')});
+}
+function regenMasterKey(id){
+    if(!confirm('Сгенерировать новый мастер-ключ? Старые неиспользованные будут отозваны.')) return;
+    fetch('/api/admin/regen-master-key/',{method:'POST',headers:{'Content-Type':'application/json','X-CSRFToken':getCookie('csrftoken')},body:JSON.stringify({org_id:id})})
+    .then(function(r){return r.json()}).then(function(d){
+        if(d.success){
+            var el=document.getElementById('orgKeyResult');
+            if(el) el.innerHTML='<div class="result-box ok" style="padding:.6rem;font-size:.85rem">Новый мастер-ключ: <code style="background:var(--bg2);padding:.15rem .4rem;border-radius:4px;font-size:.82rem;user-select:all">'+_esc(d.key)+'</code></div>';
+            showNotification('Ключ обновлён','success');
+        } else showNotification(d.error||'Ошибка','error');
+    }).catch(function(e){showNotification(e.message,'error')});
+}
+
+// Key management (school admin)
+(function(){
+    var typeSelect = document.getElementById('keyType');
+    if(typeSelect){
+        typeSelect.addEventListener('change',function(){
+            var isTeacher = this.value === 'teacher';
+            document.getElementById('keySubjectGroup').style.display = isTeacher ? '' : 'none';
+            document.getElementById('keyGradesGroup').style.display = isTeacher ? '' : 'none';
+        });
+    }
+})();
+function generateKey(){
+    var keyType=document.getElementById('keyType')?document.getElementById('keyType').value:'teacher';
+    var subjectId=document.getElementById('keySubject')?document.getElementById('keySubject').value:'';
+    var grades=document.getElementById('keyGrades')?document.getElementById('keyGrades').value.trim():'';
+    fetch('/api/school/generate-key/',{method:'POST',headers:{'Content-Type':'application/json','X-CSRFToken':getCookie('csrftoken')},body:JSON.stringify({key_type:keyType,subject_id:subjectId||null,grades:grades})})
+    .then(function(r){return r.json()}).then(function(d){
+        if(d.success){
+            var label = d.key_type === 'student' ? 'Ключ ученика' : 'Ключ учителя';
+            document.getElementById('keyGenResult').innerHTML='<div class="result-box ok" style="padding:.6rem;font-size:.85rem">'+label+': <code style="background:var(--bg2);padding:.15rem .4rem;border-radius:4px;font-size:.82rem;user-select:all">'+_esc(d.key)+'</code></div>';
+            showNotification('Ключ создан','success');
+        } else { showNotification(d.error||'Ошибка','error'); }
+    }).catch(function(e){showNotification(e.message,'error')});
+}
+function revokeKey(id){
+    if(!confirm('Удалить ключ?')) return;
+    fetch('/api/school/revoke-key/',{method:'POST',headers:{'Content-Type':'application/json','X-CSRFToken':getCookie('csrftoken')},body:JSON.stringify({key_id:id})})
+    .then(function(r){return r.json()}).then(function(d){
+        if(d.success){var row=document.getElementById('key-row-'+id);if(row)row.remove();showNotification('Ключ удалён','success')}
+        else showNotification(d.error||'Ошибка','error');
+    }).catch(function(e){showNotification(e.message,'error')});
+}
+</script>
+{% endblock %}

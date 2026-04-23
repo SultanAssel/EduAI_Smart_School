@@ -1,0 +1,155 @@
+{% extends "core/base.html" %}
+{% load custom_filters %}
+{% block title %}{% if editing %}{{ t.les_edit }}{% else %}{{ t.les_create }}{% endif %}{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+    <div class="hero-orb hero-orb-1"></div>
+    <div class="hero-orb hero-orb-2"></div>
+    <div class="container" style="position:relative;z-index:1;text-align:center">
+        <div class="page-hero-icon" style="background:var(--c2-100)"><i class="fas fa-edit" style="color:var(--c2)"></i></div>
+        <h1>{% if editing %}{{ t.les_edit }}{% else %}{{ t.les_create }}{% endif %}</h1>
+    </div>
+</section>
+
+<section class="section" style="padding-top:1.5rem">
+    <div class="container" style="max-width:820px">
+        {% if errors %}
+        <div class="result-box err" style="margin-bottom:1rem">
+            {% for e in errors %}<div>{{ e }}</div>{% endfor %}
+        </div>
+        {% endif %}
+        {% if success %}
+        <div class="result-box ok" style="margin-bottom:1rem"><i class="fas fa-check"></i> {{ success }}</div>
+        {% endif %}
+
+        <form method="post" enctype="multipart/form-data" class="card-elevated" style="padding:1.5rem">
+            {% csrf_token %}
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.75rem;margin-bottom:1rem">
+                <div class="form-group" style="margin:0">
+                    <label class="form-label">{{ t.les_subject }}</label>
+                    <select name="subject_id" class="form-select" id="lesSubject">
+                        {% for s in subjects %}<option value="{{ s.id }}" {% if editing and lesson.subject_id == s.id %}selected{% elif form.subject_id == s.id|stringformat:"d" %}selected{% endif %}>{{ s.icon }} {{ s|localized_name:lang }}</option>{% endfor %}
+                    </select>
+                </div>
+                <div class="form-group" style="margin:0">
+                    <label class="form-label">{{ t.les_grade }}</label>
+                    <select name="grade_level" class="form-select" id="lesGrade">
+                        {% for g in "1234567891011" %}{% if forloop.counter <= 11 %}<option value="{{ forloop.counter }}" {% if editing and lesson.grade_level == forloop.counter %}selected{% endif %}>{{ forloop.counter }} {{ t.ta_grade_suffix }}</option>{% endif %}{% endfor %}
+                    </select>
+                </div>
+                <div class="form-group" style="margin:0;display:flex;align-items:flex-end">
+                    <label class="form-label" style="display:flex;align-items:center;gap:.4rem;cursor:pointer">
+                        <input type="checkbox" name="is_published" {% if not editing or lesson.is_published %}checked{% endif %} style="width:18px;height:18px">
+                        {{ t.les_published }}
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">{{ t.les_title }}</label>
+                <input type="text" name="title" class="form-input" value="{% if editing %}{{ lesson.title }}{% elif form %}{{ form.title }}{% endif %}" required placeholder="{{ t.les_title }}">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" style="display:flex;justify-content:space-between;align-items:center">
+                    {{ t.les_content }}
+                    {% if ai_available %}
+                    <button type="button" class="btn btn-ghost btn-sm" id="aiGenBtn" style="font-size:.76rem"><i class="fas fa-magic"></i> {{ t.les_ai_generate }}</button>
+                    {% endif %}
+                </label>
+                <textarea name="content" class="form-input" style="min-height:320px;font-family:inherit;line-height:1.7" required placeholder="{{ t.les_content }}">{% if editing %}{{ lesson.content }}{% elif form %}{{ form.content }}{% endif %}</textarea>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">{{ t.les_attachment }} <span style="font-size:.72rem;color:var(--t3)">({{ t.les_upload_hint }})</span></label>
+                {% if editing and lesson.attachment and lesson.attachment_name %}
+                <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.5rem;padding:.4rem .6rem;background:var(--bg2);border-radius:var(--r-sm)">
+                    <i class="fas fa-file-pdf" style="color:var(--c1)"></i>
+                    <span style="font-size:.82rem;font-weight:600">{{ lesson.attachment_name }}</span>
+                    <a href="{{ lesson.attachment.url }}" target="_blank" class="btn btn-ghost btn-sm" style="font-size:.7rem"><i class="fas fa-download"></i></a>
+                    <label style="font-size:.72rem;display:flex;align-items:center;gap:.2rem;margin-left:auto;cursor:pointer;color:var(--err)">
+                        <input type="checkbox" name="remove_attachment" value="1"> {{ t.les_remove_file }}
+                    </label>
+                </div>
+                {% endif %}
+                <input type="file" name="attachment" class="form-input" accept=".pdf,.docx,.doc,.pptx,.txt,.xlsx" style="padding:.4rem">
+            </div>
+
+            <div style="display:flex;gap:.5rem;justify-content:flex-end;margin-top:1rem">
+                <a href="{% url 'lessons' %}" class="btn btn-ghost">{{ t.btn_cancel }}</a>
+                <button type="submit" class="btn btn-primary btn-glow"><i class="fas fa-save"></i> {{ t.btn_save }}</button>
+                <span id="autosave-indicator" style="font-size:.75rem;color:var(--t3);align-self:center"></span>
+            </div>
+        </form>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function(){
+    var draftKey = 'draft_lesson_{% if editing %}{{ lesson.id }}{% else %}new{% endif %}';
+    var content = document.querySelector('textarea[name=content]');
+    var title = document.querySelector('input[name=title]');
+    var ind = document.getElementById('autosave-indicator');
+    function loadDraft() {
+        try {
+            var d = JSON.parse(localStorage.getItem(draftKey));
+            if (d) {
+                if (d.content && !content.value) content.value = d.content;
+                if (d.title && title && !title.value) title.value = d.title;
+            }
+        } catch(e){}
+    }
+    var timer;
+    function scheduleSave() {
+        clearTimeout(timer);
+        timer = setTimeout(function() {
+            localStorage.setItem(draftKey, JSON.stringify({
+                content: content.value, title: title ? title.value : ''
+            }));
+            if (ind) { ind.textContent = '{{ t.ad_draft_saved|default:"Черновик сохранён" }}'; setTimeout(function(){ ind.textContent=''; }, 2000); }
+        }, 1000);
+    }
+    loadDraft();
+    if (content) content.addEventListener('input', scheduleSave);
+    if (title) title.addEventListener('input', scheduleSave);
+    var form = content && content.closest('form');
+    if (form) form.addEventListener('submit', function(){ localStorage.removeItem(draftKey); });
+})();
+</script>
+{% if ai_available %}
+<script>
+document.getElementById('aiGenBtn').addEventListener('click', function(){
+    var title = document.querySelector('input[name=title]').value.trim();
+    var subjectEl = document.getElementById('lesSubject');
+    var subjectText = subjectEl.options[subjectEl.selectedIndex] ? subjectEl.options[subjectEl.selectedIndex].textContent.trim() : '';
+    var grade = document.getElementById('lesGrade').value;
+    var contentArea = document.querySelector('textarea[name=content]');
+    if(!title){ showNotification('{{ t.les_title }}','error'); return; }
+    var btn = this;
+    btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> {{ t.les_generating }}';
+    fetch('/api/ai-lesson/', {
+        method:'POST',
+        headers:{'Content-Type':'application/json','X-CSRFToken':getCookie('csrftoken')},
+        body:JSON.stringify({topic:title, subject:subjectText, grade:parseInt(grade), prompt:contentArea.value.trim()})
+    }).then(function(r){return r.json()}).then(function(d){
+        if(d.success && d.content){
+            if(contentArea.value.trim()){
+                contentArea.value += '\n\n---\n\n' + d.content;
+            } else {
+                contentArea.value = d.content;
+            }
+            showNotification('{{ t.les_ai_done }}','success');
+        } else {
+            showNotification(d.error || 'Error','error');
+        }
+    }).catch(function(e){ showNotification(e.message,'error'); })
+    .finally(function(){
+        btn.disabled = false; btn.innerHTML = '<i class="fas fa-magic"></i> {{ t.les_ai_generate }}';
+    });
+});
+</script>
+{% endif %}
+{% endblock %}

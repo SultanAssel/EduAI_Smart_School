@@ -1,0 +1,83 @@
+/* ── Reset ─────────────────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;font-size:16px;scroll-padding-top:90px}
+body{font-family:var(--font);background:var(--bg);color:var(--t1);line-height:1.75;min-height:100vh;-webkit-font-smoothing:antialiased;overflow-x:hidden;font-size:1.05rem}
+a{color:var(--c1);text-decoration:none;transition:color var(--fast)}
+a:hover{color:var(--c1-d)}
+img{max-width:100%;display:block}
+button{font-family:var(--font);cursor:pointer;border:none;background:none}
+input,select,textarea{font-family:var(--font)}
+
+/* ── Layout ────────────────────────────────────────────── */
+.container{max-width:1200px;margin:0 auto;padding:0 2rem}
+.container-sm{max-width:720px;margin:0 auto;padding:0 1.5rem}
+.container-wide{max-width:1400px;margin:0 auto;padding:0 2rem}
+.container-xl{max-width:1600px;margin:0 auto;padding:0 3rem}
+.container-full{max-width:100%;padding:0 2rem}
+.section{padding:5.5rem 0;position:relative}
+.section-alt{background:var(--bg2);position:relative;overflow:hidden}
+.section-alt::before{
+    content:'';position:absolute;width:200px;height:200px;border-radius:50%;
+    background:radial-gradient(circle,rgba(255,107,53,.04),transparent 70%);
+    top:-60px;right:-60px;pointer-events:none;
+}
+.section-alt::after{
+    content:'';position:absolute;width:150px;height:150px;border-radius:50%;
+    background:radial-gradient(circle,rgba(124,58,237,.04),transparent 70%);
+    bottom:-40px;left:-40px;pointer-events:none;
+}
+.section-warm{background:var(--g-warm)}
+.section-dark{background:var(--g-hero);color:white}
+
+/* ── Card System ───────────────────────────────────────── */
+.card{
+    background:var(--card);border:1px solid var(--border);
+    border-radius:var(--r-lg);padding:1.5rem;transition:all var(--slow);
+}
+.card:hover{box-shadow:var(--sh-md)}
+.card-elevated{box-shadow:var(--sh-md);border-color:transparent}
+.card-elevated:hover{box-shadow:var(--sh-xl);transform:translateY(-4px)}
+.card-interactive{cursor:pointer}
+.card-interactive:hover{transform:translateY(-6px);box-shadow:var(--sh-xl)}
+.glass{
+    background:var(--glass);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+    border:1px solid rgba(255,255,255,.18);border-radius:var(--r-lg);
+}
+
+/* ── Buttons ───────────────────────────────────────────── */
+.btn{
+    display:inline-flex;align-items:center;gap:.5rem;
+    padding:.65rem 1.4rem;border-radius:var(--r);
+    font-weight:600;font-size:.9rem;letter-spacing:-.01em;
+    transition:all var(--med);border:1.5px solid transparent;
+    position:relative;overflow:hidden;white-space:nowrap;
+}
+.btn::after{
+    content:'';position:absolute;inset:0;
+    background:var(--g-shine);opacity:0;transition:all .4s ease;
+    transform:translateX(-100%);
+}
+.btn:hover::after{opacity:1;transform:translateX(100%)}
+.btn:active{transform:scale(.97)}
+
+.btn-primary{background:var(--g-1);color:var(--t-on)}
+.btn-primary:hover{box-shadow:var(--sh-c1);color:white;transform:translateY(-2px)}
+.btn-secondary{background:var(--card);color:var(--t1);border-color:var(--border)}
+.btn-secondary:hover{border-color:var(--c1);color:var(--c1);box-shadow:var(--sh-sm)}
+.btn-violet{background:var(--g-2);color:var(--t-on)}
+.btn-violet:hover{box-shadow:var(--sh-c2);color:white;transform:translateY(-2px)}
+.btn-ghost{background:transparent;color:var(--t2);border-color:var(--border)}
+.btn-ghost:hover{border-color:var(--c1);color:var(--c1)}
+.btn-ghost-light{background:rgba(255,255,255,.08);color:rgba(255,255,255,.9);border-color:rgba(255,255,255,.15)}
+.btn-ghost-light:hover{background:rgba(255,255,255,.16);border-color:rgba(255,255,255,.3);color:white}
+.btn-white{background:#fff;color:var(--c1);border-color:#fff;font-weight:700}
+.btn-white:hover{background:rgba(255,255,255,.92);transform:translateY(-2px);box-shadow:var(--sh-lg);color:var(--c1-d)}
+.btn-glow{animation:glowPulse 3s ease infinite}
+.btn-outline-c1{background:transparent;color:var(--c1);border-color:var(--c1)}
+.btn-outline-c1:hover{background:var(--c1-50);box-shadow:var(--sh-sm)}
+
+.btn-sm{padding:.4rem .85rem;font-size:.8rem;border-radius:var(--r-sm);gap:.35rem}
+.btn-lg{padding:.85rem 2rem;font-size:1rem}
+.btn-xl{padding:1rem 2.5rem;font-size:1.05rem;border-radius:var(--r-lg)}
+.btn-icon{width:40px;height:40px;padding:0;justify-content:center;border-radius:var(--r)}
+

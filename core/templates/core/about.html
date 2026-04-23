@@ -1,0 +1,122 @@
+{% extends "core/base.html" %}
+{% block title %}{{ t.about_title }}{% endblock %}
+
+{% block content %}
+<!-- Page Hero -->
+<section class="page-hero">
+    <div class="hero-orb hero-orb-1"></div>
+    <div class="hero-orb hero-orb-2"></div>
+    <div class="hero-orb hero-orb-3"></div>
+    <div class="container" style="position:relative;z-index:1">
+        <div class="page-hero-icon"><i class="fas fa-info-circle"></i></div>
+        <h1>{{ t.about_title }} EduAI</h1>
+        <p>{{ t.about_hero_sub }}</p>
+    </div>
+</section>
+
+<!-- Stats -->
+<section class="stats-strip">
+    <div class="container-wide">
+        <div class="stats-grid">
+            <div class="stat-chip reveal">
+                <div class="stat-icon c1"><i class="fas fa-brain"></i></div>
+                <div><div class="stat-num">4</div><div class="stat-label">{{ t.hero_ai_modules }}</div></div>
+            </div>
+            <div class="stat-chip reveal">
+                <div class="stat-icon c2"><i class="fas fa-book-open"></i></div>
+                <div><div class="stat-num">{{ subjects_count }}+</div><div class="stat-label">{{ t.hero_subjects }}</div></div>
+            </div>
+            <div class="stat-chip reveal">
+                <div class="stat-icon c3"><i class="fas fa-chalkboard-teacher"></i></div>
+                <div><div class="stat-num">{{ teachers_count }}</div><div class="stat-label">{{ t.hero_teachers }}</div></div>
+            </div>
+            <div class="stat-chip reveal">
+                <div class="stat-icon c5"><i class="fas fa-users"></i></div>
+                <div><div class="stat-num">{{ students_count }}</div><div class="stat-label">{{ t.hero_students }}</div></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Mission -->
+<section class="section section-green">
+    <div class="container">
+        <div class="sec-head">
+            <div class="sec-chip"><i class="fas fa-bullseye"></i> {{ t.about_mission_chip }}</div>
+            <h2 class="sec-title">{{ t.about_mission_title }}</h2>
+            <p class="sec-sub">{{ t.about_mission_sub }}</p>
+        </div>
+        <div class="grid-3" style="gap:1.25rem">
+            <div class="card card-elevated text-center reveal">
+                <div class="stat-icon c1" style="margin:0 auto .75rem"><i class="fas fa-heart"></i></div>
+                <h3 style="font-size:.95rem;font-weight:700;margin-bottom:.3rem">{{ t.about_value_knowledge }}</h3>
+                <p style="color:var(--t2);font-size:.84rem;line-height:1.7">{{ t.about_value_knowledge_desc }}</p>
+            </div>
+            <div class="card card-elevated text-center reveal">
+                <div class="stat-icon c2" style="margin:0 auto .75rem"><i class="fas fa-robot"></i></div>
+                <h3 style="font-size:.95rem;font-weight:700;margin-bottom:.3rem">{{ t.about_ai_tool }}</h3>
+                <p style="color:var(--t2);font-size:.84rem;line-height:1.7">{{ t.about_ai_tool_desc }}</p>
+            </div>
+            <div class="card card-elevated text-center reveal">
+                <div class="stat-icon c3" style="margin:0 auto .75rem"><i class="fas fa-universal-access"></i></div>
+                <h3 style="font-size:.95rem;font-weight:700;margin-bottom:.3rem">{{ t.about_inclusivity_val }}</h3>
+                <p style="color:var(--t2);font-size:.84rem;line-height:1.7">{{ t.about_inclusivity_desc }}</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Four Modules Detail -->
+<section class="section section-purple">
+    <div class="container-wide">
+        <div class="sec-head">
+            <div class="sec-chip"><i class="fas fa-cubes"></i> {{ t.about_modules_chip }}</div>
+            <h2 class="sec-title">{{ t.about_four_ai }}</h2>
+            <p class="sec-sub">{{ t.about_modules_sub }}</p>
+        </div>
+
+        <div class="about-modules">
+            <div class="about-mod-card reveal">
+                <div class="about-mod-num" style="background:var(--g-3)">1</div>
+                <div class="about-mod-icon" style="background:var(--c3-50);color:var(--c3)"><i class="fas fa-universal-access"></i></div>
+                <h3 style="font-size:1.05rem;font-weight:700;margin-bottom:.3rem">{{ t.about_accessible_env }}</h3>
+                <p style="color:var(--t2);font-size:.84rem;line-height:1.7">{{ t.about_accessible_desc }}</p>
+            </div>
+            <div class="about-mod-card reveal">
+                <div class="about-mod-num" style="background:var(--g-2)">2</div>
+                <div class="about-mod-icon" style="background:var(--c2-50);color:var(--c2)"><i class="fas fa-chalkboard-teacher"></i></div>
+                <h3 style="font-size:1.05rem;font-weight:700;margin-bottom:.3rem">{{ t.about_teacher_assistant }}</h3>
+                <p style="color:var(--t2);font-size:.84rem;line-height:1.7">{{ t.about_teacher_desc }}</p>
+            </div>
+            <div class="about-mod-card reveal">
+                <div class="about-mod-num" style="background:var(--g-1)">3</div>
+                <div class="about-mod-icon" style="background:var(--c1-50);color:var(--c1)"><i class="fas fa-sliders-h"></i></div>
+                <h3 style="font-size:1.05rem;font-weight:700;margin-bottom:.3rem">{{ t.about_personalization_title }}</h3>
+                <p style="color:var(--t2);font-size:.84rem;line-height:1.7">{{ t.about_personal_desc }}</p>
+            </div>
+            <div class="about-mod-card reveal">
+                <div class="about-mod-num" style="background:var(--g-4)">4</div>
+                <div class="about-mod-icon" style="background:var(--c5-50);color:var(--c5)"><i class="fas fa-clipboard-check"></i></div>
+                <h3 style="font-size:1.05rem;font-weight:700;margin-bottom:.3rem">{{ t.about_review_title }}</h3>
+                <p style="color:var(--t2);font-size:.84rem;line-height:1.7">{{ t.about_review_desc }}</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% if not request.session.user_id %}
+<!-- CTA -->
+<section class="cta-warm">
+    <div class="container">
+        <div class="cta-inner">
+            <h2><i class="fas fa-rocket"></i> {{ t.about_cta_title }}</h2>
+            <p>{{ t.about_cta_sub }}</p>
+            <div class="cta-btns">
+                <a href="{% url 'signup' %}" class="btn btn-white btn-xl"><i class="fas fa-user-plus"></i> {{ t.btn_create_account }}</a>
+                <a href="{% url 'contact' %}" class="btn btn-ghost-light btn-xl"><i class="fas fa-envelope"></i> {{ t.btn_contact }}</a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endif %}
+{% endblock %}

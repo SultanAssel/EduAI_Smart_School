@@ -1,0 +1,160 @@
+{% extends "core/base.html" %}
+{% block title %}{{ t.sub_title }}{% endblock %}
+
+{% block content %}
+<!-- Hero -->
+<section class="page-hero">
+    <div class="hero-orb hero-orb-1"></div>
+    <div class="hero-orb hero-orb-2"></div>
+    <div class="hero-orb hero-orb-3"></div>
+    <div class="container" style="position:relative;z-index:1">
+        <div class="page-hero-icon" style="background:var(--c1-100)"><i class="fas fa-tags" style="color:var(--c1)"></i></div>
+        <h1>{{ t.sub_hero_title_1 }} <span class="grad-text">{{ t.sub_hero_title_2 }}</span> {{ t.sub_hero_title_3 }}</h1>
+        <p style="max-width:520px;margin:0 auto;color:var(--t2)">{{ t.sub_hero_desc }}</p>
+        <div class="plan-pills">
+            <div class="plan-pill"><i class="fas fa-gift"></i> {{ t.sub_pill_free }}</div>
+            <div class="plan-pill"><i class="fas fa-credit-card"></i> {{ t.sub_pill_nocard }}</div>
+            <div class="plan-pill"><i class="fas fa-undo"></i> {{ t.sub_pill_cancel }}</div>
+        </div>
+    </div>
+</section>
+
+<!-- Pricing -->
+<section class="section section-purple" style="padding-top:2rem">
+    <div class="container-wide">
+        <div class="pricing-grid">
+            <!-- Free -->
+            <div class="pricing-card-wrap">
+            <div class="pricing-card pricing-free reveal">
+                <h3 class="pricing-name">{{ t.sub_starter }}</h3>
+                <div class="pricing-price"><span class="pricing-amount">0</span><span class="pricing-curr">{{ t.sub_month }}</span></div>
+                <p class="pricing-desc">{{ t.sub_starter_desc }}</p>
+                <ul class="pricing-list">
+                    <li><i class="fas fa-check"></i> {{ t.sub_ai_10 }}</li>
+                    <li><i class="fas fa-check"></i> {{ t.sub_essay_2 }}</li>
+                    <li><i class="fas fa-check"></i> {{ t.sub_basic_personal }}</li>
+                    <li><i class="fas fa-check"></i> {{ t.sub_lesson_catalog }}</li>
+                    <li><i class="fas fa-times"></i> {{ t.sub_test_gen }}</li>
+                    <li><i class="fas fa-times"></i> {{ t.sub_class_analytics }}</li>
+                </ul>
+                <a href="{% url 'signup' %}" class="btn btn-secondary btn-lg" style="width:100%;justify-content:center">{{ t.sub_start_free }}</a>
+            </div>
+            </div>
+            <!-- Pro -->
+            <div class="pricing-card-wrap">
+            <div class="pricing-pop-badge"><i class="fas fa-fire"></i> {{ t.sub_popular }}</div>
+            <div class="pricing-card pricing-pro pricing-popular reveal reveal-delay-1">
+                <div class="pricing-chip" style="background:var(--c1-100);color:var(--c1)">{{ t.sub_subscription }}</div>
+                <h3 class="pricing-name">{{ t.sub_pro }}</h3>
+                <div class="pricing-price"><span class="pricing-amount">2 990</span><span class="pricing-curr">{{ t.sub_month }}</span></div>
+                <p class="pricing-desc">{{ t.sub_pro_desc }}</p>
+                <ul class="pricing-list">
+                    <li><i class="fas fa-check"></i> {{ t.sub_unlimited_ai }}</li>
+                    <li><i class="fas fa-check"></i> {{ t.sub_unlimited_essay }}</li>
+                    <li><i class="fas fa-check"></i> {{ t.sub_full_personal }}</li>
+                    <li><i class="fas fa-check"></i> {{ t.sub_test_kim }}</li>
+                    <li><i class="fas fa-check"></i> {{ t.sub_accessible }}</li>
+                    <li><i class="fas fa-check"></i> {{ t.sub_priority }}</li>
+                </ul>
+                <a href="{% url 'payment' %}?plan=pro" class="btn btn-primary btn-lg" style="width:100%;justify-content:center"><i class="fas fa-bolt"></i> {{ t.sub_choose_pro }}</a>
+            </div>
+            </div>
+            <!-- School -->
+            <div class="pricing-card-wrap">
+            <div class="pricing-card pricing-school reveal reveal-delay-2">
+                <div class="pricing-chip" style="background:var(--c2-100);color:var(--c2)">{{ t.sub_org }}</div>
+                <h3 class="pricing-name">{{ t.sub_school }}</h3>
+                <div class="pricing-price"><span class="pricing-amount">14 990</span><span class="pricing-curr">{{ t.sub_month }}</span></div>
+                <p class="pricing-desc">{{ t.sub_school_desc }}</p>
+                <ul class="pricing-list">
+                    <li><i class="fas fa-check"></i> {{ t.sub_all_pro }}</li>
+                    <li><i class="fas fa-check"></i> {{ t.sub_50_teachers }}</li>
+                    <li><i class="fas fa-check"></i> {{ t.sub_unlimited_students }}</li>
+                    <li><i class="fas fa-check"></i> {{ t.sub_admin_panel }}</li>
+                    <li><i class="fas fa-check"></i> {{ t.sub_school_analytics }}</li>
+                    <li><i class="fas fa-check"></i> {{ t.sub_dedicated_support }}</li>
+                </ul>
+                <a href="{% url 'contact' %}" class="btn btn-violet btn-lg" style="width:100%;justify-content:center"><i class="fas fa-building"></i> {{ t.sub_contact_us }}</a>
+            </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Comparison table -->
+<section class="section section-blue">
+    <div class="container-wide">
+        <div class="sec-head reveal">
+            <div class="sec-chip">{{ t.sub_compare_chip }}</div>
+            <h2 class="sec-title">{{ t.sub_compare_title }}</h2>
+        </div>
+        <div class="card-elevated reveal" style="overflow-x:auto;">
+            <table class="cmp-table">
+                <thead>
+                    <tr><th>{{ t.sub_feature }}</th><th>{{ t.sub_starter }}</th><th style="color:var(--c1)">{{ t.sub_pro }}</th><th>{{ t.sub_school }}</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td style="font-weight:600">{{ t.sub_ai_assistant }}</td><td>{{ t.sub_10_day }}</td><td>{{ t.sub_unlimited }}</td><td>{{ t.sub_unlimited }}</td></tr>
+                    <tr><td style="font-weight:600">{{ t.sub_essay_check }}</td><td>{{ t.sub_2_month }}</td><td>{{ t.sub_unlimited }}</td><td>{{ t.sub_unlimited }}</td></tr>
+                    <tr><td style="font-weight:600">{{ t.sub_personalization }}</td><td>{{ t.sub_basic }}</td><td>{{ t.sub_full }}</td><td>{{ t.sub_full }}</td></tr>
+                    <tr><td style="font-weight:600">{{ t.sub_test_gen }}</td><td><span class="cmp-x"><i class="fas fa-times"></i></span></td><td><span class="cmp-check"><i class="fas fa-check"></i></span></td><td><span class="cmp-check"><i class="fas fa-check"></i></span></td></tr>
+                    <tr><td style="font-weight:600">{{ t.sub_accessible }}</td><td><span class="cmp-x"><i class="fas fa-times"></i></span></td><td><span class="cmp-check"><i class="fas fa-check"></i></span></td><td><span class="cmp-check"><i class="fas fa-check"></i></span></td></tr>
+                    <tr><td style="font-weight:600">{{ t.sub_lesson_catalog }}</td><td><span class="cmp-check"><i class="fas fa-check"></i></span></td><td><span class="cmp-check"><i class="fas fa-check"></i></span></td><td><span class="cmp-check"><i class="fas fa-check"></i></span></td></tr>
+                    <tr><td style="font-weight:600">{{ t.sub_class_analytics }}</td><td><span class="cmp-x"><i class="fas fa-times"></i></span></td><td><span class="cmp-x"><i class="fas fa-times"></i></span></td><td><span class="cmp-check"><i class="fas fa-check"></i></span></td></tr>
+                    <tr><td style="font-weight:600">{{ t.sub_admin_panel }}</td><td><span class="cmp-x"><i class="fas fa-times"></i></span></td><td><span class="cmp-x"><i class="fas fa-times"></i></span></td><td><span class="cmp-check"><i class="fas fa-check"></i></span></td></tr>
+                    <tr><td style="font-weight:600">{{ t.sub_teacher_accounts }}</td><td>1</td><td>1</td><td>{{ t.sub_up_to_50 }}</td></tr>
+                    <tr><td style="font-weight:600">{{ t.sub_support }}</td><td>{{ t.sub_email }}</td><td>{{ t.sub_priority_short }}</td><td>{{ t.sub_dedicated }}</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<!-- FAQ -->
+<section class="section section-warm">
+    <div class="container-sm">
+        <div class="sec-head reveal">
+            <div class="sec-chip">{{ t.sub_faq_chip }}</div>
+            <h2 class="sec-title">{{ t.sub_faq_title }}</h2>
+        </div>
+        <div class="faq-item reveal">
+            <button class="faq-question" onclick="this.closest('.faq-item').classList.toggle('open')">
+                {{ t.sub_faq1_q }} <i class="fas fa-chevron-down faq-icon"></i>
+            </button>
+            <div class="faq-answer">{{ t.sub_faq1_a }}</div>
+        </div>
+        <div class="faq-item reveal reveal-delay-1">
+            <button class="faq-question" onclick="this.closest('.faq-item').classList.toggle('open')">
+                {{ t.sub_faq2_q }} <i class="fas fa-chevron-down faq-icon"></i>
+            </button>
+            <div class="faq-answer">{{ t.sub_faq2_a }}</div>
+        </div>
+        <div class="faq-item reveal reveal-delay-2">
+            <button class="faq-question" onclick="this.closest('.faq-item').classList.toggle('open')">
+                {{ t.sub_faq3_q }} <i class="fas fa-chevron-down faq-icon"></i>
+            </button>
+            <div class="faq-answer">{{ t.sub_faq3_a }}</div>
+        </div>
+        <div class="faq-item reveal">
+            <button class="faq-question" onclick="this.closest('.faq-item').classList.toggle('open')">
+                {{ t.sub_faq4_q }} <i class="fas fa-chevron-down faq-icon"></i>
+            </button>
+            <div class="faq-answer">{{ t.sub_faq4_a }}</div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA -->
+{% if not request.session.user_id %}
+<section class="cta-warm">
+    <div class="container cta-inner">
+        <i class="fas fa-rocket" style="font-size:2.4rem;margin-bottom:.5rem"></i>
+        <h2>{{ t.sub_cta_title }}</h2>
+        <p>{{ t.sub_cta_desc }}</p>
+        <div class="cta-btns">
+            <a href="{% url 'signup' %}" class="btn btn-white btn-xl"><i class="fas fa-rocket"></i> {{ t.sub_cta_btn }}</a>
+        </div>
+    </div>
+</section>
+{% endif %}
+{% endblock %}

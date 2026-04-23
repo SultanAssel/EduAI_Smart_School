@@ -1,0 +1,695 @@
+{% extends "core/base.html" %}
+{% block title %}{{ t.nav_home }}{% endblock %}
+
+{% block content %}
+<!-- ═══ Hero — split layout with stats & trust merged ═══ -->
+<section class="hero hero-split">
+    <div class="hero-orb hero-orb-1"></div>
+    <div class="hero-orb hero-orb-2"></div>
+    <div class="hero-orb hero-orb-3"></div>
+    <!-- Floating decorative particles — bigger & more -->
+    <div class="hero-particles">
+        <span class="h-particle p1"></span><span class="h-particle p2"></span>
+        <span class="h-particle p3"></span><span class="h-particle p4"></span>
+        <span class="h-particle p5"></span><span class="h-particle p6"></span>
+        <span class="h-particle p7"></span><span class="h-particle p8"></span>
+        <span class="h-particle p9"></span><span class="h-particle p10"></span>
+        <span class="h-particle p11"></span><span class="h-particle p12"></span>
+        <span class="h-particle p13"></span><span class="h-particle p14"></span>
+        <span class="h-particle p15"></span><span class="h-particle p16"></span>
+        <span class="h-particle p17"></span><span class="h-particle p18"></span>
+        <span class="h-particle p19"></span><span class="h-particle p20"></span>
+        <span class="h-particle p21"></span><span class="h-particle p22"></span>
+        <span class="h-particle p23"></span><span class="h-particle p24"></span>
+        <span class="h-particle p25"></span><span class="h-particle p26"></span>
+        <span class="h-particle p27"></span><span class="h-particle p28"></span>
+        <span class="h-particle p29"></span><span class="h-particle p30"></span>
+        <span class="h-particle p31"></span><span class="h-particle p32"></span>
+        <span class="h-particle p33"></span><span class="h-particle p34"></span>
+        <span class="h-particle p35"></span>
+    </div>
+    <div class="container-hero">
+        <div class="hero-left">
+            <div class="hero-chip"><span class="dot"></span> {{ t.hero_chip }}</div>
+            <h1>{{ t.hero_title_1 }}<br><span class="grad-text">{{ t.hero_title_2 }}</span> {{ t.hero_title_3 }}</h1>
+            <p class="hero-sub">
+                {{ t.hero_sub }}
+            </p>
+            <div class="hero-actions">
+                <a href="{% url 'signup' %}" class="btn btn-primary btn-xl btn-glow"><i class="fas fa-bolt"></i> {{ t.hero_start_free }}</a>
+                <a href="{% url 'about' %}" class="btn btn-ghost-light btn-xl"><i class="fas fa-play-circle"></i> {{ t.hero_learn_more }}</a>
+            </div>
+        </div>
+        <div class="hero-right">
+            <div class="hero-ring-decor"></div>
+            <div class="hero-float-card hf-1">
+                <div class="hf-icon c3"><i class="fas fa-universal-access"></i></div>
+                <div class="hf-label">{{ t.hero_inclusivity }}</div>
+                <div class="hf-value c3">100%</div>
+            </div>
+            <div class="hero-float-card hf-2">
+                <div class="hf-icon c2"><i class="fas fa-chalkboard-teacher"></i></div>
+                <div class="hf-label">{{ t.hero_time_save }}</div>
+                <div class="hf-value c2">~80%</div>
+            </div>
+            <div class="hero-float-card hf-3">
+                <div class="hf-icon c1"><i class="fas fa-sliders-h"></i></div>
+                <div class="hf-label">{{ t.hero_personalization }}</div>
+                <div class="hf-value c1">{{ t.hero_ai_value }}</div>
+            </div>
+            <div class="hero-float-card hf-4">
+                <div class="hf-icon c5"><i class="fas fa-clipboard-check"></i></div>
+                <div class="hf-label">{{ t.hero_auto_check }}</div>
+                <div class="hf-value c5">24/7</div>
+            </div>
+            <div class="hero-visual-badge">
+                <i class="fas fa-graduation-cap"></i>
+                <span>EduAI</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats + Trust unified info bar -->
+    <div class="hero-info-bar">
+        <div class="container-xl">
+            <div class="hero-info-card">
+                <div class="hero-stats-row">
+                    <div class="hero-stat-item hsi-ai">
+                        <div class="hero-stat-num" data-count="4">4</div>
+                        <div class="hero-stat-label">{{ t.hero_ai_modules }}</div>
+                    </div>
+                    <div class="hero-stat-divider"></div>
+                    <div class="hero-stat-item hsi-content">
+                        <div class="hero-stat-num" data-count="{{ subjects_count }}">{{ subjects_count }}+</div>
+                        <div class="hero-stat-label">{{ t.hero_subjects }}</div>
+                    </div>
+                    <div class="hero-stat-divider"></div>
+                    <div class="hero-stat-item hsi-users">
+                        <div class="hero-stat-num" data-count="{{ teachers_count }}">{{ teachers_count }}</div>
+                        <div class="hero-stat-label">{{ t.hero_teachers }}</div>
+                    </div>
+                    <div class="hero-stat-divider"></div>
+                    <div class="hero-stat-item hsi-users">
+                        <div class="hero-stat-num" data-count="{{ students_count }}">{{ students_count }}</div>
+                        <div class="hero-stat-label">{{ t.hero_students }}</div>
+                    </div>
+                </div>
+                <div class="hero-badges-row">
+                    <span class="hero-badge hb-ai"><i class="fas fa-bolt"></i> {{ t.hero_badge_speed }}</span>
+                    <span class="hero-badge hb-ai"><i class="fas fa-server"></i> {{ t.hero_uptime }}</span>
+                    <span class="hero-badge hb-content"><i class="fas fa-language"></i> {{ t.hero_badge_lang }}</span>
+                    <span class="hero-badge hb-users"><i class="fas fa-headset"></i> {{ t.hero_support_247 }}</span>
+                    <span class="hero-badge hb-security"><i class="fas fa-shield-halved"></i> {{ t.hero_data_protect }}</span>
+                    <span class="hero-badge hb-security"><i class="fas fa-lock"></i> GDPR</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="scroll-cue"><i class="fas fa-chevron-down"></i></div>
+</section>
+
+<!-- ═══ Four Modules — Feature Rows ═══ -->
+<section class="section section-green">
+    <div class="container-xl">
+        <div class="sec-head">
+            <div class="sec-chip"><i class="fas fa-microchip"></i> {{ t.sec_modules_chip }}</div>
+            <h2 class="sec-title">{{ t.sec_modules_title }}</h2>
+            <p class="sec-sub">{{ t.sec_modules_sub }}</p>
+        </div>
+
+        <div class="mod-rows">
+            <div class="mod-row mod-row-1 reveal">
+                <div class="mod-row-icon">
+                    <div class="mr-ico c3"><i class="fas fa-universal-access"></i></div>
+                    <div class="mr-num">01</div>
+                </div>
+                <div class="mod-row-body">
+                    <h3>{{ t.mod1_title }}</h3>
+                    <p>{{ t.mod1_desc }}</p>
+                </div>
+                <div class="mod-row-tags">
+                    <span class="feat-pill"><i class="fas fa-volume-up"></i> TTS</span>
+                    <span class="feat-pill"><i class="fas fa-compress-alt"></i> Easy-Read</span>
+                    <span class="feat-pill"><i class="fas fa-project-diagram"></i> Mind Maps</span>
+                </div>
+                <a href="{% url 'accessibility' %}" class="mod-row-link"><i class="fas fa-arrow-right"></i></a>
+            </div>
+
+            <div class="mod-row mod-row-2 reveal">
+                <div class="mod-row-icon">
+                    <div class="mr-ico c2"><i class="fas fa-chalkboard-teacher"></i></div>
+                    <div class="mr-num">02</div>
+                </div>
+                <div class="mod-row-body">
+                    <h3>{{ t.mod2_title }}</h3>
+                    <p>{{ t.mod2_desc }}</p>
+                </div>
+                <div class="mod-row-tags">
+                    <span class="feat-pill"><i class="fas fa-file-alt"></i> {{ t.pill_kim }}</span>
+                    <span class="feat-pill"><i class="fas fa-sliders-h"></i> {{ t.pill_criteria }}</span>
+                    <span class="feat-pill"><i class="fas fa-comments"></i> {{ t.pill_feedback }}</span>
+                </div>
+                <a href="{% url 'teacher_assistant' %}" class="mod-row-link"><i class="fas fa-arrow-right"></i></a>
+            </div>
+
+            <div class="mod-row mod-row-3 reveal">
+                <div class="mod-row-icon">
+                    <div class="mr-ico c1"><i class="fas fa-sliders-h"></i></div>
+                    <div class="mr-num">03</div>
+                </div>
+                <div class="mod-row-body">
+                    <h3>{{ t.mod3_title }}</h3>
+                    <p>{{ t.mod3_desc }}</p>
+                </div>
+                <div class="mod-row-tags">
+                    <span class="feat-pill"><i class="fas fa-fingerprint"></i> {{ t.pill_adaptation }}</span>
+                    <span class="feat-pill"><i class="fas fa-brain"></i> {{ t.pill_analogies }}</span>
+                    <span class="feat-pill"><i class="fas fa-chart-line"></i> {{ t.pill_progress }}</span>
+                </div>
+                <a href="{% url 'personalization' %}" class="mod-row-link"><i class="fas fa-arrow-right"></i></a>
+            </div>
+
+            <div class="mod-row mod-row-4 reveal">
+                <div class="mod-row-icon">
+                    <div class="mr-ico c5"><i class="fas fa-clipboard-check"></i></div>
+                    <div class="mr-num">04</div>
+                </div>
+                <div class="mod-row-body">
+                    <h3>{{ t.mod4_title }}</h3>
+                    <p>{{ t.mod4_desc }}</p>
+                </div>
+                <div class="mod-row-tags">
+                    <span class="feat-pill"><i class="fas fa-spell-check"></i> {{ t.pill_semantics }}</span>
+                    <span class="feat-pill"><i class="fas fa-map"></i> {{ t.pill_error_map }}</span>
+                    <span class="feat-pill"><i class="fas fa-chart-bar"></i> {{ t.pill_analytics }}</span>
+                </div>
+                <a href="{% url 'feedback' %}" class="mod-row-link"><i class="fas fa-arrow-right"></i></a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══ How It Works — Center Timeline with Role Switch ═══ -->
+<section class="section section-purple">
+    <div class="container-xl">
+        <div class="sec-head">
+            <div class="sec-chip"><i class="fas fa-route"></i> {{ t.sec_how_chip }}</div>
+            <h2 class="sec-title">{{ t.sec_how_title }}</h2>
+            <p class="sec-sub">{{ t.sec_how_sub }}</p>
+        </div>
+
+        <div class="role-tabs">
+            <button class="role-tab active" data-role="student"><i class="fas fa-user-graduate"></i> {{ t.role_tab_student }}</button>
+            <button class="role-tab" data-role="teacher"><i class="fas fa-chalkboard-teacher"></i> {{ t.role_tab_teacher }}</button>
+            <button class="role-tab" data-role="org"><i class="fas fa-school"></i> {{ t.role_tab_org }}</button>
+        </div>
+
+        <!-- Student Timeline -->
+        <div class="center-tl active" data-tl="student">
+            <div class="ctl-line"></div>
+
+            <div class="ctl-item ctl-left">
+                <div class="ctl-content">
+                    <div class="ctl-title">{{ t.tl_s1_title }}</div>
+                    <div class="ctl-desc">{{ t.tl_s1_desc }}</div>
+                </div>
+                <div class="ctl-marker"><span>1</span></div>
+                <div class="ctl-visual">
+                    <div class="ctl-card ctl-card-c1">
+                        <div class="ctl-card-icon"><i class="fas fa-user-cog"></i></div>
+                        <div class="ctl-card-chip"><i class="fas fa-sliders-h"></i> {{ t.tl_s1_chip }}</div>
+                        <div class="ctl-card-name">{{ t.tl_s1_card }}</div>
+                        <a href="{% url 'signup' %}" class="ctl-card-btn">{{ t.tl_s1_btn }}</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="ctl-item ctl-right">
+                <div class="ctl-visual">
+                    <div class="ctl-card ctl-card-c3">
+                        <div class="ctl-card-icon"><i class="fas fa-brain"></i></div>
+                        <div class="ctl-card-chip"><i class="fas fa-book-open"></i> {{ t.tl_s2_chip }}</div>
+                        <div class="ctl-card-name">{{ t.tl_s2_card }}</div>
+                        <a href="{% url 'lessons' %}" class="ctl-card-btn">{{ t.tl_s2_btn }}</a>
+                    </div>
+                </div>
+                <div class="ctl-marker"><span>2</span></div>
+                <div class="ctl-content">
+                    <div class="ctl-title">{{ t.tl_s2_title }}</div>
+                    <div class="ctl-desc">{{ t.tl_s2_desc }}</div>
+                </div>
+            </div>
+
+            <div class="ctl-item ctl-left">
+                <div class="ctl-content">
+                    <div class="ctl-title">{{ t.tl_s3_title }}</div>
+                    <div class="ctl-desc">{{ t.tl_s3_desc }}</div>
+                </div>
+                <div class="ctl-marker"><span>3</span></div>
+                <div class="ctl-visual">
+                    <div class="ctl-card ctl-card-c2">
+                        <div class="ctl-card-icon"><i class="fas fa-robot"></i></div>
+                        <div class="ctl-card-chip"><i class="fas fa-comments"></i> {{ t.tl_s3_chip }}</div>
+                        <div class="ctl-card-name">{{ t.tl_s3_card }}</div>
+                        <a href="{% url 'copilot' %}" class="ctl-card-btn">{{ t.tl_s3_btn }}</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="ctl-item ctl-right">
+                <div class="ctl-visual">
+                    <div class="ctl-card ctl-card-c5">
+                        <div class="ctl-card-icon"><i class="fas fa-chart-line"></i></div>
+                        <div class="ctl-card-chip"><i class="fas fa-trophy"></i> {{ t.tl_s4_chip }}</div>
+                        <div class="ctl-card-name">{{ t.tl_s4_card }}</div>
+                        <a href="{% url 'feedback' %}" class="ctl-card-btn">{{ t.tl_s4_btn }}</a>
+                    </div>
+                </div>
+                <div class="ctl-marker"><span>4</span></div>
+                <div class="ctl-content">
+                    <div class="ctl-title">{{ t.tl_s4_title }}</div>
+                    <div class="ctl-desc">{{ t.tl_s4_desc }}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Teacher Timeline -->
+        <div class="center-tl" data-tl="teacher">
+            <div class="ctl-line"></div>
+
+            <div class="ctl-item ctl-left">
+                <div class="ctl-content">
+                    <div class="ctl-title">{{ t.tl_t1_title }}</div>
+                    <div class="ctl-desc">{{ t.tl_t1_desc }}</div>
+                </div>
+                <div class="ctl-marker"><span>1</span></div>
+                <div class="ctl-visual">
+                    <div class="ctl-card ctl-card-c2">
+                        <div class="ctl-card-icon"><i class="fas fa-file-import"></i></div>
+                        <div class="ctl-card-chip"><i class="fas fa-upload"></i> {{ t.tl_t1_chip }}</div>
+                        <div class="ctl-card-name">{{ t.tl_t1_card }}</div>
+                        <a href="{% url 'teacher_assistant' %}" class="ctl-card-btn">{{ t.tl_t1_btn }}</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="ctl-item ctl-right">
+                <div class="ctl-visual">
+                    <div class="ctl-card ctl-card-c1">
+                        <div class="ctl-card-icon"><i class="fas fa-magic"></i></div>
+                        <div class="ctl-card-chip"><i class="fas fa-wand-magic-sparkles"></i> {{ t.tl_t2_chip }}</div>
+                        <div class="ctl-card-name">{{ t.tl_t2_card }}</div>
+                        <a href="{% url 'teacher_assistant' %}" class="ctl-card-btn">{{ t.tl_t2_btn }}</a>
+                    </div>
+                </div>
+                <div class="ctl-marker"><span>2</span></div>
+                <div class="ctl-content">
+                    <div class="ctl-title">{{ t.tl_t2_title }}</div>
+                    <div class="ctl-desc">{{ t.tl_t2_desc }}</div>
+                </div>
+            </div>
+
+            <div class="ctl-item ctl-left">
+                <div class="ctl-content">
+                    <div class="ctl-title">{{ t.tl_t3_title }}</div>
+                    <div class="ctl-desc">{{ t.tl_t3_desc }}</div>
+                </div>
+                <div class="ctl-marker"><span>3</span></div>
+                <div class="ctl-visual">
+                    <div class="ctl-card ctl-card-c3">
+                        <div class="ctl-card-icon"><i class="fas fa-check-double"></i></div>
+                        <div class="ctl-card-chip"><i class="fas fa-clipboard-check"></i> {{ t.tl_t3_chip }}</div>
+                        <div class="ctl-card-name">{{ t.tl_t3_card }}</div>
+                        <a href="{% url 'feedback' %}" class="ctl-card-btn">{{ t.tl_t3_btn }}</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="ctl-item ctl-right">
+                <div class="ctl-visual">
+                    <div class="ctl-card ctl-card-c5">
+                        <div class="ctl-card-icon"><i class="fas fa-chart-pie"></i></div>
+                        <div class="ctl-card-chip"><i class="fas fa-chart-bar"></i> {{ t.tl_t4_chip }}</div>
+                        <div class="ctl-card-name">{{ t.tl_t4_card }}</div>
+                        <a href="{% url 'dashboard' %}" class="ctl-card-btn">{{ t.tl_t4_btn }}</a>
+                    </div>
+                </div>
+                <div class="ctl-marker"><span>4</span></div>
+                <div class="ctl-content">
+                    <div class="ctl-title">{{ t.tl_t4_title }}</div>
+                    <div class="ctl-desc">{{ t.tl_t4_desc }}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Organization Timeline -->
+        <div class="center-tl" data-tl="org">
+            <div class="ctl-line"></div>
+
+            <div class="ctl-item ctl-left">
+                <div class="ctl-content">
+                    <div class="ctl-title">{{ t.tl_o1_title }}</div>
+                    <div class="ctl-desc">{{ t.tl_o1_desc }}</div>
+                </div>
+                <div class="ctl-marker"><span>1</span></div>
+                <div class="ctl-visual">
+                    <div class="ctl-card ctl-card-c3">
+                        <div class="ctl-card-icon"><i class="fas fa-building"></i></div>
+                        <div class="ctl-card-chip"><i class="fas fa-school"></i> {{ t.tl_o1_chip }}</div>
+                        <div class="ctl-card-name">{{ t.tl_o1_card }}</div>
+                        <a href="{% url 'contact' %}" class="ctl-card-btn">{{ t.tl_o1_btn }}</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="ctl-item ctl-right">
+                <div class="ctl-visual">
+                    <div class="ctl-card ctl-card-c2">
+                        <div class="ctl-card-icon"><i class="fas fa-cogs"></i></div>
+                        <div class="ctl-card-chip"><i class="fas fa-users-cog"></i> {{ t.tl_o2_chip }}</div>
+                        <div class="ctl-card-name">{{ t.tl_o2_card }}</div>
+                        <a href="{% url 'dashboard' %}" class="ctl-card-btn">{{ t.tl_o2_btn }}</a>
+                    </div>
+                </div>
+                <div class="ctl-marker"><span>2</span></div>
+                <div class="ctl-content">
+                    <div class="ctl-title">{{ t.tl_o2_title }}</div>
+                    <div class="ctl-desc">{{ t.tl_o2_desc }}</div>
+                </div>
+            </div>
+
+            <div class="ctl-item ctl-left">
+                <div class="ctl-content">
+                    <div class="ctl-title">{{ t.tl_o3_title }}</div>
+                    <div class="ctl-desc">{{ t.tl_o3_desc }}</div>
+                </div>
+                <div class="ctl-marker"><span>3</span></div>
+                <div class="ctl-visual">
+                    <div class="ctl-card ctl-card-c1">
+                        <div class="ctl-card-icon"><i class="fas fa-chart-area"></i></div>
+                        <div class="ctl-card-chip"><i class="fas fa-signal"></i> {{ t.tl_o3_chip }}</div>
+                        <div class="ctl-card-name">{{ t.tl_o3_card }}</div>
+                        <a href="{% url 'dashboard' %}" class="ctl-card-btn">{{ t.tl_o3_btn }}</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="ctl-item ctl-right">
+                <div class="ctl-visual">
+                    <div class="ctl-card ctl-card-c5">
+                        <div class="ctl-card-icon"><i class="fas fa-code"></i></div>
+                        <div class="ctl-card-chip"><i class="fas fa-plug"></i> {{ t.tl_o4_chip }}</div>
+                        <div class="ctl-card-name">{{ t.tl_o4_card }}</div>
+                        <a href="{% url 'contact' %}" class="ctl-card-btn">{{ t.tl_o4_btn }}</a>
+                    </div>
+                </div>
+                <div class="ctl-marker"><span>4</span></div>
+                <div class="ctl-content">
+                    <div class="ctl-title">{{ t.tl_o4_title }}</div>
+                    <div class="ctl-desc">{{ t.tl_o4_desc }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══ Benefits — Grouped Layout ═══ -->
+<section class="section section-blue">
+    <div class="container-xl">
+        <div class="sec-head">
+            <div class="sec-chip"><i class="fas fa-gem"></i> {{ t.sec_benefits_chip }}</div>
+            <h2 class="sec-title">{{ t.sec_benefits_title }}</h2>
+            <p class="sec-sub">{{ t.sec_benefits_sub }}</p>
+        </div>
+
+        <div class="ben-groups">
+            <div class="ben-group ben-color-1">
+                <div class="ben-group-header">
+                    <div class="ben-group-icon c1"><i class="fas fa-bolt"></i></div>
+                    <h3>{{ t.ben_speed }}</h3>
+                </div>
+                <div class="ben-group-cards">
+                    <div class="ben-card-v2 reveal">
+                        <i class="fas fa-bolt"></i>
+                        <div>
+                            <div class="ben-title">{{ t.ben_instant }}</div>
+                            <div class="ben-desc">{{ t.ben_instant_desc }}</div>
+                        </div>
+                    </div>
+                    <div class="ben-card-v2 reveal">
+                        <i class="fas fa-robot"></i>
+                        <div>
+                            <div class="ben-title">{{ t.ben_ai_assistant }}</div>
+                            <div class="ben-desc">{{ t.ben_ai_assistant_desc }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="ben-group ben-color-2">
+                <div class="ben-group-header">
+                    <div class="ben-group-icon c2"><i class="fas fa-user-graduate"></i></div>
+                    <h3>{{ t.ben_personal }}</h3>
+                </div>
+                <div class="ben-group-cards">
+                    <div class="ben-card-v2 reveal">
+                        <i class="fas fa-fingerprint"></i>
+                        <div>
+                            <div class="ben-title">{{ t.ben_personalized }}</div>
+                            <div class="ben-desc">{{ t.ben_personalized_desc }}</div>
+                        </div>
+                    </div>
+                    <div class="ben-card-v2 reveal">
+                        <i class="fas fa-chart-line"></i>
+                        <div>
+                            <div class="ben-title">{{ t.ben_analytics }}</div>
+                            <div class="ben-desc">{{ t.ben_analytics_desc }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="ben-group ben-color-3">
+                <div class="ben-group-header">
+                    <div class="ben-group-icon c3"><i class="fas fa-shield-halved"></i></div>
+                    <h3>{{ t.ben_safety }}</h3>
+                </div>
+                <div class="ben-group-cards">
+                    <div class="ben-card-v2 reveal">
+                        <i class="fas fa-universal-access"></i>
+                        <div>
+                            <div class="ben-title">{{ t.ben_inclusive }}</div>
+                            <div class="ben-desc">{{ t.ben_inclusive_desc }}</div>
+                        </div>
+                    </div>
+                    <div class="ben-card-v2 reveal">
+                        <i class="fas fa-shield-halved"></i>
+                        <div>
+                            <div class="ben-title">{{ t.ben_secure }}</div>
+                            <div class="ben-desc">{{ t.ben_secure_desc }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══ Platform Demo — Improved ═══ -->
+<section class="section section-warm">
+    <div class="container-xl">
+        <div class="sec-head">
+            <div class="sec-chip"><i class="fas fa-flask"></i> {{ t.sec_demo_chip }}</div>
+            <h2 class="sec-title">{{ t.sec_demo_title }}</h2>
+            <p class="sec-sub">{{ t.sec_demo_sub }}</p>
+        </div>
+
+        <div class="demo-showcase">
+            <!-- Main demo: Copilot chat -->
+            <div class="demo-main reveal" data-demo="copilot">
+                <div class="demo-card demo-card-featured">
+                    <div class="demo-card-head">
+                        <div class="demo-card-ico stat-icon c5"><i class="fas fa-robot"></i></div>
+                        <div class="demo-card-title">{{ t.demo_copilot }}</div>
+                        <span class="demo-tag live" style="margin-top:0;margin-left:auto"><span></span> Online</span>
+                    </div>
+                    <div class="demo-preview" style="font-size:.92rem">
+                        <div class="demo-chat-msg demo-msg-user" style="display:flex;gap:.6rem;margin-bottom:.6rem;align-items:flex-start;opacity:0">
+                            <span style="color:var(--c2);font-weight:700;font-size:1.1rem"><i class="fas fa-user"></i></span>
+                            <span style="background:var(--c2-50);padding:.5rem .8rem;border-radius:var(--r) var(--r) var(--r) 0;max-width:85%">{{ t.demo_user_msg }}</span>
+                        </div>
+                        <div class="demo-chat-msg demo-msg-bot" style="display:flex;gap:.6rem;align-items:flex-start;opacity:0">
+                            <span style="color:var(--c1);font-weight:700;font-size:1.1rem"><i class="fas fa-robot"></i></span>
+                            <span id="copilotDemo" style="background:var(--c1-50);padding:.5rem .8rem;border-radius:var(--r) var(--r) var(--r) 0;max-width:85%"><span class="demo-typed-text">{{ t.demo_bot_msg }}</span><span class="demo-typing"></span></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Secondary demos row -->
+            <div class="demo-grid-secondary">
+                <div class="demo-card reveal" data-demo="test-gen">
+                    <div class="demo-card-head">
+                        <div class="demo-card-ico stat-icon c2"><i class="fas fa-file-alt"></i></div>
+                        <div class="demo-card-title">{{ t.demo_test_gen }}</div>
+                    </div>
+                    <div class="demo-preview">
+                        <div class="demo-reveal-item" style="color:var(--t3);font-size:.7rem;margin-bottom:.5rem"><i class="fas fa-upload"></i> {{ t.demo_test_source }}</div>
+                        <div class="demo-reveal-item" style="margin-bottom:.4rem"><strong style="color:var(--t1)">{{ t.demo_test_q1 }}</strong> <code>{{ t.demo_test_type }}</code></div>
+                        <div class="demo-reveal-item">{{ t.demo_test_q1_text }}</div>
+                        <div class="demo-reveal-item" style="margin-top:.4rem;display:flex;flex-direction:column;gap:.2rem">
+                            <span style="color:var(--ok);font-weight:600"><i class="fas fa-check-circle"></i> {{ t.demo_test_a }}</span>
+                            <span>{{ t.demo_test_b }}</span>
+                            <span>{{ t.demo_test_c }}</span>
+                        </div>
+                        <span class="demo-tag live"><span></span> {{ t.demo_test_speed }}</span>
+                    </div>
+                </div>
+
+                <div class="demo-card reveal" data-demo="essay">
+                    <div class="demo-card-head">
+                        <div class="demo-card-ico stat-icon c1"><i class="fas fa-pen-fancy"></i></div>
+                        <div class="demo-card-title">{{ t.demo_essay }}</div>
+                    </div>
+                    <div class="demo-preview">
+                        <div style="color:var(--t3);font-size:.7rem;margin-bottom:.6rem"><i class="fas fa-file-alt"></i> {{ t.demo_essay_title }}</div>
+                        <div class="demo-score-ring">
+                            <svg viewBox="0 0 64 64"><circle class="track" cx="32" cy="32" r="28"/><circle class="fill" cx="32" cy="32" r="28"/></svg>
+                            <div class="demo-score-num">82%</div>
+                        </div>
+                        <div class="demo-bar">
+                            <span title="{{ t.demo_essay_logic }}" style="flex:4.2"></span>
+                            <span title="{{ t.demo_essay_structure }}" style="flex:3.8"></span>
+                            <span title="{{ t.demo_essay_argum }}" style="flex:3.5"></span>
+                            <span title="{{ t.demo_essay_literacy }}" style="flex:4.5"></span>
+                        </div>
+                        <div style="margin-top:.5rem;font-size:.7rem;display:flex;justify-content:space-between;color:var(--t3)">
+                            <span>{{ t.demo_essay_logic }}</span><span>{{ t.demo_essay_structure }}</span><span>{{ t.demo_essay_argum }}</span><span>{{ t.demo_essay_literacy }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="demo-card reveal" data-demo="mindmap">
+                    <div class="demo-card-head">
+                        <div class="demo-card-ico stat-icon c3"><i class="fas fa-project-diagram"></i></div>
+                        <div class="demo-card-title">{{ t.demo_mindmap }}</div>
+                    </div>
+                    <div class="demo-preview" style="text-align:center">
+                        <div style="color:var(--t3);font-size:.7rem;margin-bottom:.6rem"><i class="fas fa-brain"></i> {{ t.demo_mm_topic }}</div>
+                        <div class="mm-tree">
+                            <div class="mm-row-1">
+                                <div class="mm-node mm-n1">☀️ {{ t.demo_mm_light }}</div>
+                            </div>
+                            <div class="mm-arrow"><i class="fas fa-arrow-down"></i></div>
+                            <div class="mm-row-2">
+                                <div class="mm-node mm-n2">🌿 {{ t.demo_mm_chlorophyll }}</div>
+                            </div>
+                            <div class="mm-arrow"><i class="fas fa-arrow-down"></i></div>
+                            <div class="mm-row-3">
+                                <div class="mm-node mm-n3">💧 H₂O</div>
+                                <div class="mm-node mm-n4">🫧 CO₂</div>
+                            </div>
+                            <div class="mm-arrow"><i class="fas fa-arrow-down"></i></div>
+                            <div class="mm-row-4">
+                                <div class="mm-node mm-n5">⚡ {{ t.demo_mm_glucose }}</div>
+                            </div>
+                        </div>
+                        <div style="margin-top:.8rem;padding:.4rem .6rem;background:var(--c3-50);border-radius:var(--r-sm);font-size:.72rem;color:var(--c3);display:inline-flex;align-items:center;gap:.3rem">
+                            <i class="fas fa-magic"></i> {{ t.demo_mm_nodes }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══ Pricing ═══ -->
+<section class="section section-warm">
+    <div class="container-xl">
+        <div class="sec-head">
+            <div class="sec-chip"><i class="fas fa-tag"></i> {{ t.sec_pricing_chip }}</div>
+            <h2 class="sec-title">{{ t.sec_pricing_title }}</h2>
+            <p class="sec-sub">{{ t.sec_pricing_sub }}</p>
+        </div>
+
+        <div class="pricing-grid">
+            <div class="pricing-card-wrap">
+            <div class="pricing-card pricing-free reveal">
+                <div class="pricing-chip">{{ t.pricing_basic }}</div>
+                <div class="pricing-name">{{ t.pricing_starter }}</div>
+                <div class="pricing-price">
+                    <span class="pricing-amount">0</span><span class="pricing-curr">{{ t.pricing_curr }}</span>
+                </div>
+                <p class="pricing-desc">{{ t.pricing_starter_desc }}</p>
+                <ul class="pricing-list">
+                    <li><i class="fas fa-check"></i> {{ t.pl_5_requests }}</li>
+                    <li><i class="fas fa-check"></i> {{ t.pl_lesson_catalog }}</li>
+                    <li><i class="fas fa-check"></i> {{ t.pl_basic_personal }}</li>
+                    <li class="no"><i class="fas fa-times"></i> {{ t.pl_tts }}</li>
+                    <li class="no"><i class="fas fa-times"></i> {{ t.pl_teacher_assist }}</li>
+                    <li class="no"><i class="fas fa-times"></i> {{ t.pl_progress_analytics }}</li>
+                </ul>
+                <a href="{% url 'signup' %}" class="btn btn-secondary w-full">{{ t.pricing_start_free }}</a>
+            </div>
+            </div>
+
+            <div class="pricing-card-wrap">
+            <div class="pricing-pop-badge"><i class="fas fa-fire"></i> {{ t.pricing_popular }}</div>
+            <div class="pricing-card pricing-pro pricing-popular reveal">
+                <div class="pricing-chip">{{ t.pricing_recommended }}</div>
+                <div class="pricing-name">{{ t.pricing_pro }}</div>
+                <div class="pricing-price">
+                    <span class="pricing-amount">2 990</span><span class="pricing-curr">{{ t.pricing_curr }}</span>
+                </div>
+                <p class="pricing-desc">{{ t.pricing_pro_desc }}</p>
+                <ul class="pricing-list">
+                    <li><i class="fas fa-check"></i> {{ t.pl_unlimited }}</li>
+                    <li><i class="fas fa-check"></i> {{ t.pl_all_modules }}</li>
+                    <li><i class="fas fa-check"></i> {{ t.pl_full_personal }}</li>
+                    <li><i class="fas fa-check"></i> {{ t.pl_tts }}</li>
+                    <li><i class="fas fa-check"></i> {{ t.pl_copilot }}</li>
+                    <li><i class="fas fa-check"></i> {{ t.pl_detail_analytics }}</li>
+                </ul>
+                <a href="{% url 'subscription' %}" class="btn btn-primary w-full btn-glow">{{ t.pricing_select_pro }}</a>
+            </div>
+            </div>
+
+            <div class="pricing-card-wrap">
+            <div class="pricing-card pricing-school reveal">
+                <div class="pricing-chip">{{ t.pricing_school_chip }}</div>
+                <div class="pricing-name">{{ t.pricing_school }}</div>
+                <div class="pricing-price">
+                    <span class="pricing-amount">14 990</span><span class="pricing-curr">{{ t.pricing_curr }}</span>
+                </div>
+                <p class="pricing-desc">{{ t.pricing_school_desc }}</p>
+                <ul class="pricing-list">
+                    <li><i class="fas fa-check"></i> {{ t.pl_all_pro }}</li>
+                    <li><i class="fas fa-check"></i> {{ t.pl_admin_panel }}</li>
+                    <li><i class="fas fa-check"></i> {{ t.pl_school_analytics }}</li>
+                    <li><i class="fas fa-check"></i> {{ t.pl_priority_support }}</li>
+                    <li><i class="fas fa-check"></i> {{ t.pl_group_reports }}</li>
+                    <li><i class="fas fa-check"></i> {{ t.pl_api }}</li>
+                </ul>
+                <a href="{% url 'contact' %}" class="btn btn-violet w-full">{{ t.pricing_contact }}</a>
+            </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% if not request.session.user_id %}
+<!-- ═══ CTA ═══ -->
+<section class="cta-warm">
+    <div class="container-xl">
+        <div class="cta-inner">
+            <h2><i class="fas fa-graduation-cap"></i> {{ t.cta_title }}</h2>
+            <p>{{ t.cta_sub }}</p>
+            <div class="cta-btns">
+                <a href="{% url 'signup' %}" class="btn btn-white btn-xl"><i class="fas fa-rocket"></i> {{ t.cta_create }}</a>
+                <a href="{% url 'about' %}" class="btn btn-ghost-light btn-xl"><i class="fas fa-info-circle"></i> {{ t.cta_about }}</a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endif %}
+{% endblock %}

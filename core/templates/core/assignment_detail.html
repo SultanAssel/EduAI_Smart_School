@@ -1,0 +1,293 @@
+{% extends "core/base.html" %}
+{% load custom_filters %}
+{% block title %}{{ assignment.title }}{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+    <div class="hero-orb hero-orb-1"></div>
+    <div class="hero-orb hero-orb-2"></div>
+    <div class="container" style="position:relative;z-index:1;text-align:center">
+        <div class="page-hero-icon" style="background:var(--c3-100)"><i class="fas fa-tasks" style="color:var(--c3)"></i></div>
+        <h1>{{ assignment.title }}</h1>
+        <div style="display:flex;align-items:center;justify-content:center;gap:1rem;margin-top:.5rem;font-size:.85rem;color:var(--t3)">
+            <span>{{ assignment.subject.icon }} {{ assignment.subject|localized_name:lang }}</span>
+            <span><i class="fas fa-star"></i> {{ t.al_max|default:"макс" }} {{ assignment.max_score }}</span>
+            {% if assignment.due_date %}<span><i class="fas fa-calendar"></i> {{ assignment.due_date|date:"d.m.Y H:i" }}</span>{% endif %}
+        </div>
+    </div>
+</section>
+
+<section class="section" style="padding-top:1.5rem">
+    <div class="container" style="max-width:900px">
+        {% if error %}<div class="result-box err" style="margin-bottom:1rem">{{ error }}</div>{% endif %}
+        {% if success %}<div class="result-box ok" style="margin-bottom:1rem"><i class="fas fa-check"></i> {{ success }}</div>{% endif %}
+
+        <!-- Assignment description -->
+        <div class="card-elevated reveal" style="padding:1.5rem;margin-bottom:1rem">
+            <h3 style="font-size:1rem;margin-bottom:.75rem"><i class="fas fa-file-alt"></i> {{ t.ad_description|default:"Описание задания" }}</h3>
+            <div style="line-height:1.8;color:var(--t2);white-space:pre-wrap">{{ assignment.description }}</div>
+            {% if assignment.attachment and assignment.attachment_name %}
+            <div style="margin-top:1rem;padding-top:.75rem;border-top:1px solid var(--border)">
+                <a href="{{ assignment.attachment.url }}" target="_blank" class="btn btn-ghost btn-sm"><i class="fas fa-download"></i> {{ assignment.attachment_name }}</a>
+            </div>
+            {% endif %}
+            {% if is_owner %}
+            <div style="margin-top:1rem;padding-top:.75rem;border-top:1px solid var(--border);display:flex;gap:.5rem">
+                <a href="{% url 'assignment_edit' assignment.id %}" class="btn btn-ghost btn-sm"><i class="fas fa-edit"></i> {{ t.btn_edit|default:"Редактировать" }}</a>
+                <button class="btn btn-ghost btn-sm" style="color:var(--err)" onclick="deleteAssignment()"><i class="fas fa-trash"></i> {{ t.btn_delete|default:"Удалить" }}</button>
+            </div>
+            {% endif %}
+        </div>
+
+        {% if user.is_student %}
+        <!-- Student submission -->
+        {% if my_submission %}
+        <div class="card-elevated reveal" style="padding:1.25rem;border-left:3px solid {% if my_submission.status == 'graded' %}var(--ok){% else %}var(--c1){% endif %}">
+            <h3 style="font-size:1rem;margin-bottom:.75rem">
+                <i class="fas {% if my_submission.status == 'graded' %}fa-check-circle{% else %}fa-clock{% endif %}"></i>
+                {{ t.ad_your_submission|default:"Ваша работа" }}
+                <span class="badge {% if my_submission.status == 'graded' %}badge-primary{% endif %}" style="font-size:.72rem;margin-left:.3rem">
+                    {% if my_submission.status == 'graded' %}{{ t.ad_graded|default:"Оценено" }}{% elif my_submission.status == 'returned' %}{{ t.ad_returned|default:"Возвращено" }}{% else %}{{ t.ad_pending|default:"На проверке" }}{% endif %}
+                </span>
+            </h3>
+            {% if my_submission.text %}
+            <div style="background:var(--bg2);padding:.75rem;border-radius:var(--r-sm);margin-bottom:.5rem;font-size:.85rem;white-space:pre-wrap">{{ my_submission.text }}</div>
+            {% endif %}
+            {% for sf in my_submission.files.all %}
+            <div style="margin-bottom:.3rem"><a href="{{ sf.file.url }}" target="_blank" class="btn btn-ghost btn-sm"><i class="fas fa-download"></i> {{ sf.file_name }}</a></div>
+            {% endfor %}
+            {% if my_submission.file and my_submission.file_name %}
+            <div style="margin-bottom:.3rem"><a href="{{ my_submission.file.url }}" target="_blank" class="btn btn-ghost btn-sm"><i class="fas fa-download"></i> {{ my_submission.file_name }}</a></div>
+            {% endif %}
+            {% if my_submission.status == 'graded' %}
+            <div style="display:flex;gap:1rem;align-items:center;margin-top:.75rem;padding-top:.75rem;border-top:1px solid var(--border)">
+                <div><span style="font-size:1.5rem;font-weight:800;color:var(--ok)">{{ my_submission.score }}</span><span style="color:var(--t3)">/{{ assignment.max_score }}</span></div>
+                {% if my_submission.teacher_comment %}<div style="font-size:.85rem;color:var(--t2)"><i class="fas fa-comment"></i> {{ my_submission.teacher_comment }}</div>{% endif %}
+            </div>
+            {% endif %}
+        </div>
+        {% else %}
+        <div class="card-elevated reveal" style="padding:1.5rem;border:2px dashed var(--c3)">
+            <h3 style="font-size:1rem;margin-bottom:.75rem"><i class="fas fa-upload"></i> {{ t.ad_submit_work|default:"Сдать работу" }}</h3>
+            <form method="post" enctype="multipart/form-data" id="submit-form">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label class="form-label">{{ t.ad_text|default:"Текст ответа" }} <span style="font-size:.72rem;color:var(--t3)">({{ t.ae_optional|default:"необязательно" }})</span></label>
+                    <textarea name="text" class="form-input" style="min-height:150px;font-family:inherit;line-height:1.7" placeholder="{{ t.ad_text_hint|default:'Напишите ваш ответ...' }}"></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">{{ t.ad_files|default:"Прикрепить файлы" }} <span style="font-size:.72rem;color:var(--t3)">({{ t.les_upload_hint|default:"до 20 МБ" }})</span></label>
+                    <input type="file" name="files" class="form-input" style="padding:.4rem" multiple>
+                </div>
+                <button type="submit" class="btn btn-primary btn-glow"><i class="fas fa-paper-plane"></i> {{ t.ad_submit_btn|default:"Отправить" }}</button>                <span id="autosave-indicator" style="font-size:.75rem;color:var(--t3);margin-left:.5rem"></span>
+                <div id="upload-progress" style="display:none;margin-top:.75rem;width:100%">
+                    <div style="background:var(--bg2);border-radius:8px;overflow:hidden;height:6px">
+                        <div id="upload-bar" style="height:100%;width:0;background:var(--c1);transition:width .2s;border-radius:8px"></div>
+                    </div>
+                    <span id="upload-pct" style="font-size:.75rem;color:var(--t3)">0%</span>
+                </div>
+            </form>
+        </div>
+        {% endif %}
+        {% endif %}
+
+        {% if is_owner and submissions %}
+        <!-- Teacher: student submissions -->
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:1.5rem;margin-bottom:.75rem">
+            <h3 style="font-size:1.05rem;margin:0"><i class="fas fa-users"></i> {{ t.ad_submissions|default:"Работы учеников" }} ({{ submissions|length }})</h3>
+            <button class="btn btn-primary btn-sm" onclick="gradeAll()" id="gradeAllBtn"><i class="fas fa-check-double"></i> {{ t.ad_grade_all|default:"Оценить все" }}</button>
+        </div>
+        {% for sub in submissions %}
+        <div class="card-elevated reveal" style="padding:1.1rem;margin-bottom:.75rem;border-left:3px solid {% if sub.status == 'graded' %}var(--ok){% else %}var(--c1){% endif %}" id="sub-{{ sub.id }}">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem">
+                <strong>{{ sub.student.full_name }}</strong>
+                <div style="display:flex;align-items:center;gap:.4rem">
+                    <span class="badge {% if sub.status == 'graded' %}badge-primary{% endif %}" style="font-size:.72rem">
+                        {% if sub.status == 'graded' %}{{ sub.score }}/{{ assignment.max_score }}{% else %}{{ t.ad_pending|default:"На проверке" }}{% endif %}
+                    </span>
+                    <span style="font-size:.72rem;color:var(--t3)">{{ sub.submitted_at|date:"d.m.Y H:i" }}</span>
+                </div>
+            </div>
+            {% if sub.text %}<div style="background:var(--bg2);padding:.6rem;border-radius:var(--r-sm);margin-bottom:.5rem;font-size:.83rem;white-space:pre-wrap;max-height:150px;overflow:auto">{{ sub.text }}</div>{% endif %}
+            {% for sf in sub.files.all %}
+            <div style="margin-bottom:.4rem">
+                <a href="{{ sf.file.url }}" target="_blank" class="btn btn-ghost btn-sm" style="font-size:.75rem"><i class="fas fa-download"></i> {{ sf.file_name }}</a>
+                <button class="btn btn-ghost btn-sm" style="font-size:.7rem" onclick="togglePreview(this,'{{ sf.file.url }}','{{ sf.file_name }}')"><i class="fas fa-eye"></i></button>
+            </div>
+            {% endfor %}
+            {% if sub.file and sub.file_name %}
+            <div style="margin-bottom:.4rem">
+                <a href="{{ sub.file.url }}" target="_blank" class="btn btn-ghost btn-sm" style="font-size:.75rem"><i class="fas fa-download"></i> {{ sub.file_name }}</a>
+                <button class="btn btn-ghost btn-sm" style="font-size:.7rem" onclick="togglePreview(this,'{{ sub.file.url }}','{{ sub.file_name }}')"><i class="fas fa-eye"></i></button>
+            </div>
+            {% endif %}
+
+            <div style="display:flex;gap:.5rem;align-items:center;padding-top:.5rem;border-top:1px solid var(--border)" id="grade-form-{{ sub.id }}">
+                <input type="number" id="score-{{ sub.id }}" class="form-input" style="width:80px;padding:.3rem .5rem;font-size:.85rem" placeholder="{{ t.tl_score|default:'Балл' }}" value="{% if sub.score is not None %}{{ sub.score }}{% endif %}" min="0" max="{{ assignment.max_score }}">
+                <input type="text" id="comment-{{ sub.id }}" class="form-input" style="flex:1;padding:.3rem .5rem;font-size:.85rem" placeholder="{{ t.ad_comment|default:'Комментарий' }}" value="{{ sub.teacher_comment|default:'' }}">
+                <button class="btn btn-primary btn-sm" onclick="gradeSubmission({{ sub.id }})"><i class="fas fa-check"></i></button>
+            </div>
+        </div>
+        {% endfor %}
+        {% endif %}
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function(){
+    const form = document.getElementById('submit-form');
+    if (form) {
+        // Autosave draft to localStorage
+        const draftKey = 'draft_assignment_{{ assignment.id }}';
+        const textarea = form.querySelector('textarea[name=text]');
+        if (textarea) {
+            const saved = localStorage.getItem(draftKey);
+            if (saved && !textarea.value) textarea.value = saved;
+            let saveTimer;
+            textarea.addEventListener('input', function() {
+                clearTimeout(saveTimer);
+                saveTimer = setTimeout(function() {
+                    localStorage.setItem(draftKey, textarea.value);
+                    const ind = document.getElementById('autosave-indicator');
+                    if (ind) { ind.textContent = '{{ t.ad_draft_saved|default:"Черновик сохранён" }}'; setTimeout(function(){ ind.textContent = ''; }, 2000); }
+                }, 1000);
+            });
+        }
+        form.addEventListener('submit', function(e) {
+            // Check if files are large enough to warrant progress bar
+            const fileInput = form.querySelector('input[name=files]');
+            const hasLargeFiles = fileInput && fileInput.files.length > 0 && 
+                Array.from(fileInput.files).reduce(function(s,f){return s+f.size;}, 0) > 512 * 1024;
+            
+            if (hasLargeFiles) {
+                e.preventDefault();
+                localStorage.removeItem(draftKey);
+                const btn = form.querySelector('button[type=submit]');
+                const origHTML = btn.innerHTML;
+                btn.disabled = true;
+                btn.innerHTML = '<span class=\"spinner\"></span>';
+                
+                var progressWrap = document.getElementById('upload-progress');
+                var progressBar = document.getElementById('upload-bar');
+                var progressPct = document.getElementById('upload-pct');
+                progressWrap.style.display = 'block';
+                
+                var xhr = new XMLHttpRequest();
+                xhr.upload.addEventListener('progress', function(ev) {
+                    if (ev.lengthComputable) {
+                        var pct = Math.round(ev.loaded / ev.total * 100);
+                        progressBar.style.width = pct + '%';
+                        progressPct.textContent = pct + '%';
+                    }
+                });
+                xhr.addEventListener('load', function() { window.location.reload(); });
+                xhr.addEventListener('error', function() {
+                    btn.disabled = false; btn.innerHTML = origHTML;
+                    progressWrap.style.display = 'none';
+                    showNotification('Upload error', 'error');
+                });
+                xhr.open('POST', form.action || window.location.href);
+                xhr.send(new FormData(form));
+            } else {
+                localStorage.removeItem(draftKey);
+                const btn = form.querySelector('button[type=submit]');
+                const origHTML = btn.innerHTML;
+                btn.disabled = true;
+                btn.innerHTML = '<span class=\"spinner\"></span>';
+                setTimeout(function() {
+                    if (btn.disabled) { btn.disabled = false; btn.innerHTML = origHTML; }
+                }, 30000);
+            }
+        });
+    }
+})();
+
+function togglePreview(btn, url, name) {
+    var existing = btn.parentElement.querySelector('.file-preview');
+    if (existing) { existing.remove(); btn.querySelector('i').className = 'fas fa-eye'; return; }
+    btn.querySelector('i').className = 'fas fa-eye-slash';
+    var ext = name.split('.').pop().toLowerCase();
+    var wrap = document.createElement('div');
+    wrap.className = 'file-preview';
+    wrap.style.cssText = 'margin-top:.4rem;border:1px solid var(--border);border-radius:8px;overflow:hidden;max-height:500px';
+    if (['png','jpg','jpeg','gif','webp'].indexOf(ext) !== -1) {
+        wrap.innerHTML = '<img src="'+url+'" style="max-width:100%;max-height:480px;display:block;margin:auto">';
+    } else if (ext === 'pdf') {
+        wrap.innerHTML = '<iframe src="'+url+'" style="width:100%;height:480px;border:0"></iframe>';
+    } else if (['txt','csv'].indexOf(ext) !== -1) {
+        wrap.innerHTML = '<div style="padding:.75rem;font-size:.8rem;color:var(--t2)">{{ t.ad_loading|default:"Загрузка..." }}</div>';
+        fetch(url).then(function(r){return r.text()}).then(function(t){
+            var pre = document.createElement('pre');
+            pre.style.cssText = 'padding:.75rem;font-size:.8rem;max-height:460px;overflow:auto;margin:0;white-space:pre-wrap';
+            pre.textContent = t.substring(0, 50000);
+            wrap.innerHTML = '';
+            wrap.appendChild(pre);
+        });
+    } else {
+        wrap.innerHTML = '<div style="padding:1rem;text-align:center;font-size:.85rem;color:var(--t3)"><i class="fas fa-external-link-alt"></i> <a href="'+url+'" target="_blank">{{ t.ad_open_file|default:"Открыть файл" }}</a></div>';
+    }
+    btn.parentElement.appendChild(wrap);
+}
+
+async function gradeSubmission(subId) {
+    const score = document.getElementById('score-' + subId).value;
+    const comment = document.getElementById('comment-' + subId).value;
+    try {
+        const r = await fetch('/api/assignment/grade/' + subId + '/', {
+            method: 'POST',
+            headers: {'Content-Type':'application/json', 'X-CSRFToken': getCookie('csrftoken')},
+            body: JSON.stringify({ score: parseFloat(score), comment })
+        });
+        const d = await r.json();
+        if (d.success) {
+            showNotification('{{ t.ad_grade_saved|default:"Оценка сохранена" }}', 'success');
+            location.reload();
+        } else { showNotification(d.error, 'error'); }
+    } catch(e) { showNotification(e.message, 'error'); }
+}
+
+async function gradeAll() {
+    const btn = document.getElementById('gradeAllBtn');
+    const origHTML = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>';
+    const rows = document.querySelectorAll('[id^="grade-form-"]');
+    let ok = 0, fail = 0;
+    for (const row of rows) {
+        const subId = row.id.replace('grade-form-', '');
+        const scoreEl = document.getElementById('score-' + subId);
+        const commentEl = document.getElementById('comment-' + subId);
+        if (!scoreEl || !scoreEl.value) continue;
+        try {
+            const r = await fetch('/api/assignment/grade/' + subId + '/', {
+                method: 'POST',
+                headers: {'Content-Type':'application/json', 'X-CSRFToken': getCookie('csrftoken')},
+                body: JSON.stringify({ score: parseFloat(scoreEl.value), comment: commentEl ? commentEl.value : '' })
+            });
+            const d = await r.json();
+            if (d.success) ok++; else fail++;
+        } catch(e) { fail++; }
+    }
+    btn.disabled = false;
+    btn.innerHTML = origHTML;
+    if (ok > 0) showNotification(ok + ' {{ t.ad_graded_count|default:"оценок сохранено" }}', 'success');
+    if (fail > 0) showNotification(fail + ' {{ t.ad_grade_errors|default:"ошибок" }}', 'error');
+    if (ok > 0) setTimeout(function(){ location.reload(); }, 1000);
+}
+
+{% if is_owner %}
+async function deleteAssignment() {
+    if (!confirm('{{ t.ad_confirm_delete|default:"Удалить задание?" }}')) return;
+    try {
+        const r = await fetch('/api/assignment/{{ assignment.id }}/delete/', {
+            method: 'POST', headers: {'X-CSRFToken': getCookie('csrftoken')}
+        });
+        const d = await r.json();
+        if (d.success) window.location.href = '{% url "assignment_list" %}';
+    } catch(e) { showNotification(e.message, 'error'); }
+}
+{% endif %}
+</script>
+{% endblock %}

@@ -1,0 +1,82 @@
+# EduAI Smart School
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+.eggs/
+build/
+dist/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Django runtime
+db.sqlite3
+db.sqlite3-journal
+*.sqlite3-shm
+*.sqlite3-wal
+staticfiles/
+.cache/
+logs/*.log
+logs/*.log.*
+*.log
+*.pid
+
+# User uploads / generated media
+media/*
+!media/.gitkeep
+!media/avatars/
+!media/lessons/
+media/avatars/*
+!media/avatars/.gitkeep
+media/lessons/*
+!media/lessons/.gitkeep
+
+# Secrets and local files
+.env
+.env.*
+!.env.example
+cookies.txt
+
+# Test / coverage / tooling caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# Editors / IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.pydevproject
+
+# Temporary files
+*.bak
+*.orig
+*.tmp
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+Desktop.ini

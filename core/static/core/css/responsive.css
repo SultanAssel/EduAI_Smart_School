@@ -1,0 +1,92 @@
+/* ── Responsive ────────────────────────────────────────── */
+@media(max-width:1200px){
+    .container-xl{padding:0 2rem}
+    .container-hero{padding:0 2rem;gap:2rem}
+    .hero-right{width:440px;margin-right:0;margin-left:0}
+    .ben-groups{grid-template-columns:1fr}
+}
+@media(max-width:1024px){
+    .feat-grid,.about-modules{grid-template-columns:1fr}
+    .workspace{grid-template-columns:1fr}
+    .b-12,.b-8,.b-6,.b-4,.b-3{grid-column:span 12}
+    .contact-grid{grid-template-columns:1fr}
+    .footer-grid{grid-template-columns:1fr 1fr;gap:1.5rem}
+    .pricing-grid{grid-template-columns:1fr;max-width:400px;margin:0 auto}
+    .pricing-card-wrap:has(.pricing-popular){transform:scale(1)}.pricing-popular:hover{transform:translateY(-6px)}
+    .ctl-item{grid-template-columns:1fr;gap:1rem;text-align:center}
+    .ctl-left .ctl-content,.ctl-right .ctl-content{text-align:center}
+    .ctl-left .ctl-visual,.ctl-right .ctl-visual{justify-content:center}
+    .ctl-marker{margin:0 auto}
+    .ctl-line{display:none}
+    .ben-groups{grid-template-columns:1fr}
+    .testi-grid{grid-template-columns:1fr}
+    .demo-grid{grid-template-columns:1fr}
+    .demo-grid-secondary{grid-template-columns:1fr}
+    .stats-grid{grid-template-columns:repeat(2,1fr)}
+    .cmp-table{font-size:.78rem}.cmp-table th,.cmp-table td{padding:.5rem .5rem}
+    .container-hero{flex-direction:column;text-align:center}
+    .hero-split{text-align:center}
+    .hero-split .hero-sub{margin:0 auto 2.5rem}
+    .hero-split .hero-actions{justify-content:center}
+    .hero-right{width:100%;margin-right:0;margin-left:0;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:1.5rem}
+    .hero-float-card{animation-name:fadeUp}
+    .hero-visual-badge{display:none}
+    .hero-ring-decor{display:none}
+    .hero-info-bar{position:relative;bottom:auto;margin-top:2rem}
+    .hero-info-card{padding:1rem 1.5rem .75rem}
+    .hero-stats-row{gap:1.5rem;flex-wrap:wrap}
+    .hero-badges-row{gap:.5rem}
+    .hero{padding-bottom:2rem}
+    .mod-row{flex-direction:column;align-items:flex-start;gap:1rem}
+    .mod-row-tags{justify-content:flex-start}
+    .mod-row-link{position:absolute;top:1.5rem;right:1.5rem}
+}
+@media(max-width:768px){
+    .role-tabs{flex-direction:column;align-items:center;gap:.4rem}
+    .role-tab{width:100%;max-width:300px;justify-content:center}
+    .nav-center{
+        display:none;position:absolute;top:72px;left:0;right:0;
+        flex-direction:column;background:var(--card);
+        border-bottom:1px solid var(--border);padding:.6rem;
+        box-shadow:var(--sh-lg);z-index:999;
+    }
+    .nav-center.mobile-open{display:flex;animation:fadeUp .15s ease}
+    .mobile-toggle{display:flex}
+    .hero{min-height:auto;padding:6rem 0 3rem}
+    .hero h1{font-size:2rem}
+    .hero-sub{font-size:.95rem}
+    .hero-orb-1{width:280px;height:280px}
+    .hero-orb-2{width:220px;height:220px}
+    .hero-orb-3{width:170px;height:170px}
+    .stats-grid{grid-template-columns:1fr 1fr}
+    .stats-gradient-box{padding:1.25rem}
+    .sec-title{font-size:1.6rem}
+    .auth-card{padding:1.5rem}
+    .tabs{flex-wrap:wrap}
+    .tab-btn{font-size:.76rem;padding:.45rem .5rem}
+    .scores{grid-template-columns:repeat(2,1fr)}
+    .section{padding:3.5rem 0}
+    .cta-warm{padding:3.5rem 0}
+    .cta-warm h2{font-size:1.6rem}
+    .footer-grid{grid-template-columns:1fr;gap:1.5rem}
+    .mod-header .container,.mod-header .container-wide,.mod-header .container-xl{flex-direction:column;text-align:center}
+    .ben-grid{grid-template-columns:1fr}
+    .demo-grid{grid-template-columns:1fr}
+    .demo-grid-secondary{grid-template-columns:1fr}
+    .trust-row{gap:1.5rem}
+    .container-xl,.container-hero{padding:0 1.25rem}
+    .hero-stats-row{gap:1rem}
+    .hero-stat-num{font-size:1.6rem}
+    .hero-stat-label{font-size:.75rem}
+    .hero-badges-row{gap:.4rem}
+    .hero-badge{font-size:.65rem;padding:.2rem .5rem}
+}
+@media(max-width:480px){
+    .hero h1{font-size:1.7rem}
+    .hero-actions .btn{width:100%}
+    .hero-actions{flex-direction:column}
+    .stats-grid{grid-template-columns:1fr 1fr}
+    .cta-warm h2{font-size:1.4rem}
+    .hero-right{grid-template-columns:1fr}
+}
+

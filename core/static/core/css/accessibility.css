@@ -1,0 +1,585 @@
+/* ═══════════════════════════════════════════════════
+   Accessibility — data-attribute driven overrides
+   Applied via <html data-font-size/data-high-contrast/
+   data-easy-read/data-tts/data-font/data-zen> in base.html
+   ═══════════════════════════════════════════════════ */
+
+/* ── Accessibility Fonts (all support Cyrillic) ── */
+@import url('https://fonts.googleapis.com/css2?family=Comfortaa:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=PT+Sans:ital,wght@0,400;0,700;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Pangolin&display=swap');
+@import url('https://fonts.cdnfonts.com/css/open-dyslexic');
+
+/* ── Font Family Overrides ─────────────────────── */
+html[data-font="comfortaa"]    { --font: 'Comfortaa', cursive; }
+html[data-font="ptsans"]       { --font: 'PT Sans', sans-serif; }
+html[data-font="pangolin"]     { --font: 'Pangolin', cursive; }
+html[data-font="verdana"]      { --font: Verdana, Geneva, sans-serif; }
+html[data-font="georgia"]      { --font: Georgia, 'Times New Roman', serif; }
+html[data-font="arial"]        { --font: Arial, Helvetica, sans-serif; }
+html[data-font="times"]        { --font: 'Times New Roman', Times, serif; }
+html[data-font="courier"]      { --font: 'Courier New', Courier, monospace; }
+html[data-font="opendyslexic"] { --font: 'Open-Dyslexic', 'PT Sans', Arial, sans-serif; }
+
+/* Apply font to all elements EXCEPT icons (fa-*), math (katex), and font preview cards (.ff-lock) */
+html[data-font] body,
+html[data-font] body *:not(i):not([class*="fa-"]):not(.fas):not(.far):not(.fab):not(.fal):not(.fad):not([class*="katex"]):not([class*="KaTeX"]):not(.ff-lock) {
+    font-family: var(--font) !important;
+}
+
+/* Comfortaa specific tweaks — rounded, wider spacing helps */
+html[data-font="comfortaa"] {
+    letter-spacing: 0.03em;
+    word-spacing: 0.1em;
+}
+
+/* ── Font Size — applied via inline style by JS ── */
+
+/* ── Shared big-font overflow fixes ────────────── */
+html[data-font-size] body {
+    overflow-x: hidden;
+}
+html[data-font-size] .container,
+html[data-font-size] .container-wide,
+html[data-font-size] .container-xl,
+html[data-font-size] .container-sm {
+    max-width: 100vw;
+    overflow-x: hidden;
+    box-sizing: border-box;
+}
+html[data-font-size] section {
+    overflow: hidden;
+}
+html[data-font-size] .nav-link { font-size: clamp(11px, 0.84rem, 14px); padding: 0.35rem 0.5rem; }
+html[data-font-size] .nav-center { gap: 0.1rem; flex-wrap: wrap; }
+html[data-font-size] .hero-float-card { padding: 18px 16px; }
+html[data-font-size] .hf-value { font-size: clamp(20px, 2.4rem, 32px); }
+html[data-font-size] .sec-chip { font-size: 0.7rem; }
+html[data-font-size] .footer-grid { font-size: 0.85rem; }
+
+/* ── Navbar — adapt to larger fonts ────────────── */
+html[data-font-size] .navbar { min-height: auto; padding: 6px 0; }
+html[data-font-size] .nav-inner { flex-wrap: wrap; min-height: auto; }
+html[data-font-size] main { padding-top: 90px; }
+html[data-font-size] .logo-wordmark { font-size: clamp(14px, 1.2rem, 18px); }
+
+/* ── Hero section — prevent overflow at big font ── */
+html[data-font-size] .hero { min-height: auto; padding: 80px 0 48px; }
+html[data-font-size] .container-hero { flex-wrap: wrap; gap: 24px; padding: 0 24px; }
+html[data-font-size] .hero-left { max-width: 100%; }
+html[data-font-size] .hero-right { width: 100%; margin-right: 0; margin-left: 0; grid-template-columns: 1fr 1fr; gap: 12px; }
+html[data-font-size] .hf-icon { width: 44px; height: 44px; font-size: 1.2rem; }
+html[data-font-size] .hf-label { font-size: clamp(12px, 0.85rem, 15px); }
+html[data-font-size] .hero h1 { font-size: clamp(26px, 4vw, 44px); }
+html[data-font-size] .hero-sub { font-size: clamp(14px, 1.1vw, 18px); }
+html[data-font-size] .hero-chip { font-size: clamp(11px, 0.75rem, 13px); padding: 5px 12px; }
+
+/* ── Hero Info Bar — scale down stats & badges ──── */
+html[data-font-size] .hero-info-card { padding: 16px 24px 12px; }
+html[data-font-size] .hero-stats-row { gap: 24px; flex-wrap: wrap; }
+html[data-font-size] .hero-stat-num { font-size: clamp(20px, 2.2rem, 30px); }
+html[data-font-size] .hero-stat-label { font-size: clamp(11px, 0.88rem, 14px); }
+html[data-font-size] .hero-stat-divider { height: 24px; }
+html[data-font-size] .hero-badges-row { gap: 6px; }
+html[data-font-size] .hero-badge { font-size: clamp(10px, 0.65rem, 12px); padding: 3px 8px; }
+
+/* ── Sections & cards — prevent clipping ───────── */
+html[data-font-size] .sec-title { font-size: clamp(20px, 1.6rem, 26px); }
+html[data-font-size] .sec-sub { font-size: clamp(13px, 0.95rem, 16px); }
+html[data-font-size] .card-elevated,
+html[data-font-size] .card-interactive { overflow: visible; }
+html[data-font-size] .mod-row { flex-wrap: wrap; }
+html[data-font-size] .mod-row-body h3 { font-size: clamp(14px, 1.1rem, 18px); }
+html[data-font-size] .mod-row-body p { font-size: clamp(12px, 0.9rem, 15px); }
+html[data-font-size] .mr-ico { width: 48px; height: 48px; font-size: 1.1rem; }
+
+/* ── Buttons — clamp size ──────────────────────── */
+html[data-font-size] .btn { font-size: clamp(12px, 0.9rem, 15px); padding: 8px 16px; }
+html[data-font-size] .btn-xl { font-size: clamp(13px, 1rem, 17px); padding: 11px 24px; }
+html[data-font-size] .btn-sm { font-size: clamp(10px, 0.78rem, 13px); }
+
+/* ── Tables — prevent column overflow ──────────── */
+html[data-font-size] .dtable { font-size: clamp(11px, 0.85rem, 14px); }
+html[data-font-size] .dtable th,
+html[data-font-size] .dtable td { padding: 0.5rem 0.6rem; }
+
+/* ── Auth cards ────────────────────────────────── */
+html[data-font-size] .auth-card { max-width: 100%; }
+
+/* ── Stats grid ────────────────────────────────── */
+html[data-font-size] .stats-grid { gap: 0.75rem; }
+html[data-font-size] .stats-gradient-box { padding: 1rem; }
+
+/* ── Pricing ───────────────────────────────────── */
+html[data-font-size] .pricing-card { padding: 1.5rem; }
+html[data-font-size] .pricing-price { font-size: clamp(24px, 2.5rem, 36px); }
+
+/* ── Footer ────────────────────────────────────── */
+html[data-font-size] .footer-top { padding: 2rem 0; }
+
+/* ── CTA ───────────────────────────────────────── */
+html[data-font-size] .cta-warm h2 { font-size: clamp(20px, 1.8rem, 28px); }
+
+/* ── Badges ────────────────────────────────────── */
+html[data-font-size] .badge { font-size: clamp(10px, 0.75rem, 12px); }
+
+/* ── Timeline / comparison table ───────────────── */
+html[data-font-size] .ctl-item { gap: 0.75rem; }
+html[data-font-size] .cmp-table { font-size: clamp(10px, 0.78rem, 13px); }
+html[data-font-size] .cmp-table th,
+html[data-font-size] .cmp-table td { padding: 0.4rem 0.5rem; }
+
+/* ── Dashboard / form elements ─────────────────── */
+html[data-font-size] .form-input,
+html[data-font-size] .form-select,
+html[data-font-size] .form-textarea { font-size: inherit; }
+html[data-font-size] .tab-btn { font-size: clamp(11px, 0.8rem, 13px); padding: 6px 10px; }
+html[data-font-size] .tabs { flex-wrap: wrap; }
+
+/* ── High Contrast ─────────────────────────────── */
+html[data-high-contrast="true"] {
+    --t1: #000000;
+    --t2: #1a1a1a;
+    --t3: #333333;
+    --t4: #666666;
+    --bg: #ffffff;
+    --bg2: #f0f0f0;
+    --bg3: #e0e0e0;
+    --bg-warm: #ffffff;
+    --card: #ffffff;
+    --card-raised: #ffffff;
+    --glass: rgba(255,255,255,.95);
+    --glass2: rgba(255,255,255,.9);
+    --border: #000000;
+    --border2: #333333;
+    --border-l: #999999;
+    --c1: #c63300;
+    --c1-l: #e04400;
+    --c1-d: #a02800;
+    --c2: #5b21b6;
+    --c2-l: #7c3aed;
+    --c3: #047857;
+    --c3-l: #059669;
+    --c4: #be185d;
+    --c5: #0369a1;
+    --c1-50: rgba(198,51,0,.12);
+    --c1-100: rgba(198,51,0,.18);
+    --c2-50: rgba(91,33,182,.12);
+    --c3-50: rgba(4,120,87,.12);
+    --c5-50: rgba(3,105,161,.12);
+    --g-1: linear-gradient(135deg, #c63300, #e04400);
+    --g-3: linear-gradient(135deg, #047857, #059669);
+    --sh-glow: none;
+    --sh-c1: none;
+    --sh-c2: none;
+    --sh-xs: 0 1px 2px rgba(0,0,0,.15);
+    --sh-sm: 0 2px 4px rgba(0,0,0,.15);
+    --sh-md: 0 4px 8px rgba(0,0,0,.2);
+    --sh-lg: 0 8px 16px rgba(0,0,0,.2);
+}
+
+html[data-high-contrast="true"][data-theme="dark"] {
+    --t1: #ffffff;
+    --t2: #e0e0e0;
+    --t3: #cccccc;
+    --t4: #aaaaaa;
+    --bg: #000000;
+    --bg2: #0a0a0a;
+    --bg3: #1a1a1a;
+    --bg-warm: #0a0a0a;
+    --card: #111111;
+    --card-raised: #1a1a1a;
+    --glass: rgba(0,0,0,.95);
+    --glass2: rgba(0,0,0,.9);
+    --border: #ffffff;
+    --border2: #cccccc;
+    --border-l: #555555;
+    --c1: #ff8c5a;
+    --c1-l: #ffab80;
+    --c1-d: #ff6b35;
+    --c2: #a78bfa;
+    --c2-l: #c4b5fd;
+    --c3: #34d399;
+    --c3-l: #6ee7b7;
+    --c4: #f472b6;
+    --c5: #38bdf8;
+    --c1-50: rgba(255,140,90,.15);
+    --c1-100: rgba(255,140,90,.22);
+    --c2-50: rgba(167,139,250,.15);
+    --c3-50: rgba(52,211,153,.15);
+    --c5-50: rgba(56,189,248,.15);
+    --g-1: linear-gradient(135deg, #ff8c5a, #ffab80);
+    --g-3: linear-gradient(135deg, #34d399, #6ee7b7);
+    --sh-glow: none;
+    --sh-c1: none;
+    --sh-c2: none;
+    --sh-xs: 0 1px 2px rgba(255,255,255,.1);
+    --sh-sm: 0 2px 4px rgba(255,255,255,.1);
+    --sh-md: 0 4px 8px rgba(255,255,255,.12);
+    --sh-lg: 0 8px 16px rgba(255,255,255,.12);
+}
+
+/* Buttons in high contrast */
+html[data-high-contrast="true"] .btn-primary { color: #fff; }
+html[data-high-contrast="true"][data-theme="dark"] .btn-primary {
+    background: var(--c1) !important;
+    color: #000;
+}
+html[data-high-contrast="true"][data-theme="dark"] .btn-secondary {
+    background: var(--card);
+    color: var(--t1);
+    border-color: var(--border);
+}
+html[data-high-contrast="true"] .btn { border-width: 2px; }
+
+/* Glass fix */
+html[data-high-contrast="true"] .glass {
+    border-color: var(--border) !important;
+    background: var(--card) !important;
+}
+
+/* Flatten ONLY subtle/low-contrast backgrounds — NOT dark sections */
+html[data-high-contrast="true"] .section-warm::before,
+html[data-high-contrast="true"] .bg-warm {
+    background: var(--bg) !important;
+}
+html[data-high-contrast="true"] .section-green {
+    background: var(--bg) !important;
+}
+
+/*
+ * IMPORTANT: Do NOT flatten hero, page-hero, section-dark, mod-header,
+ * cta-warm, footer-top backgrounds in light mode. They already have
+ * maximum contrast (dark bg + white text). Flattening to light bg
+ * makes hardcoded white text invisible.
+ */
+
+/* In dark HC only: make dark sections even darker */
+html[data-high-contrast="true"][data-theme="dark"] .hero,
+html[data-high-contrast="true"][data-theme="dark"] .page-hero {
+    background: #000 !important;
+}
+
+/* grad-text — fix gradient text to solid color */
+html[data-high-contrast="true"] .grad-text {
+    background: none !important;
+    -webkit-background-clip: unset !important;
+    background-clip: unset !important;
+    -webkit-text-fill-color: var(--c1) !important;
+}
+/* In dark sections, grad-text stays bright (it's on dark bg) */
+html[data-high-contrast="true"] :is(.hero, .page-hero, .section-dark, .mod-header) .grad-text {
+    -webkit-text-fill-color: #ff9a56 !important;
+}
+html[data-high-contrast="true"][data-theme="dark"] .grad-text {
+    -webkit-text-fill-color: var(--c1) !important;
+}
+
+/* Links underline for visibility (not buttons) */
+html[data-high-contrast="true"] a { text-decoration: underline; text-underline-offset: 3px; }
+html[data-high-contrast="true"] .btn,
+html[data-high-contrast="true"] .nav-link.active,
+html[data-high-contrast="true"] .a11y-font-pill { text-decoration: none; }
+
+html[data-high-contrast="true"] img { outline: 2px solid var(--border); }
+
+html[data-high-contrast="true"] *:focus-visible {
+    outline: 3px solid var(--t1);
+    outline-offset: 2px;
+}
+
+/* Dark HC element fixes */
+html[data-high-contrast="true"][data-theme="dark"] .a11y-panel {
+    background: var(--card); border-color: var(--border);
+}
+html[data-high-contrast="true"][data-theme="dark"] .a11y-fab-btn {
+    background: var(--c3); color: #000;
+}
+html[data-high-contrast="true"][data-theme="dark"] .form-select,
+html[data-high-contrast="true"][data-theme="dark"] textarea,
+html[data-high-contrast="true"][data-theme="dark"] .form-input,
+html[data-high-contrast="true"][data-theme="dark"] input[type="text"],
+html[data-high-contrast="true"][data-theme="dark"] input[type="email"],
+html[data-high-contrast="true"][data-theme="dark"] input[type="password"] {
+    background: var(--bg3); color: var(--t1); border-color: var(--border);
+}
+html[data-high-contrast="true"] .card-interactive,
+html[data-high-contrast="true"] .card-elevated {
+    border-color: var(--border) !important;
+}
+
+/* ── Easy Read ─────────────────────────────────── */
+html[data-easy-read="true"] {
+    line-height: 1.9;
+    letter-spacing: 0.03em;
+    word-spacing: 0.12em;
+}
+html[data-easy-read="true"] p,
+html[data-easy-read="true"] li,
+html[data-easy-read="true"] td,
+html[data-easy-read="true"] label,
+html[data-easy-read="true"] .form-input { line-height: 2; }
+html[data-easy-read="true"] h1,
+html[data-easy-read="true"] h2,
+html[data-easy-read="true"] h3 { letter-spacing: 0.02em; margin-bottom: 1em; }
+html[data-easy-read="true"] .sec-sub,
+html[data-easy-read="true"] .pricing-desc,
+html[data-easy-read="true"] .benefit-desc { max-width: 55ch; }
+
+/* ── TTS indicator ─────────────────────────────── */
+html[data-tts="true"] [data-tts-text]::after {
+    content: '\f028';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    font-size: 0.7em;
+    margin-left: 0.4em;
+    opacity: 0.4;
+    vertical-align: middle;
+}
+
+/* ══════════════════════════════════════════════════
+   ZEN MODE — for ADHD / sensory overload
+   Removes decorative animations and flashy effects.
+   PRESERVES backgrounds, colors, layout, navbar.
+   ══════════════════════════════════════════════════ */
+html[data-zen="true"] {
+    scroll-behavior: auto !important;
+}
+
+/*
+ * Kill CSS ANIMATIONS only (decorative movement).
+ * CSS TRANSITIONS stay (toggles, menus, theme changes).
+ */
+html[data-zen="true"] *,
+html[data-zen="true"] *::before,
+html[data-zen="true"] *::after {
+    animation: none !important;
+}
+/* Exempt voice pulse */
+html[data-zen="true"] .voice-btn.recording {
+    animation: voicePulse 1.5s infinite !important;
+}
+
+/* Hide decorative elements */
+html[data-zen="true"] .hero-orb,
+html[data-zen="true"] .hero-orb-1,
+html[data-zen="true"] .hero-orb-2,
+html[data-zen="true"] .hero-orb-3,
+html[data-zen="true"] .hero-particles,
+html[data-zen="true"] .hero-ring-decor,
+html[data-zen="true"] .h-particle,
+html[data-zen="true"] .bg-grid,
+html[data-zen="true"] .bg-blobs { display: none !important; }
+
+/* No hover transforms on cards */
+html[data-zen="true"] .feat-card:hover,
+html[data-zen="true"] .stat-chip:hover,
+html[data-zen="true"] .pricing-card:hover,
+html[data-zen="true"] .ben-card:hover,
+html[data-zen="true"] .testi-card:hover,
+html[data-zen="true"] .card-elevated:hover,
+html[data-zen="true"] .card-interactive:hover,
+html[data-zen="true"] .bento-item:hover,
+html[data-zen="true"] .mod-row:hover,
+html[data-zen="true"] .ctl-card:hover,
+html[data-zen="true"] .ben-group:hover,
+html[data-zen="true"] .step-item:hover .step-num,
+html[data-zen="true"] .nav-logo:hover .logo-mark,
+html[data-zen="true"] .mod-row:hover .mr-ico,
+html[data-zen="true"] .ctl-item:hover .ctl-marker,
+html[data-zen="true"] .feat-card:hover .feat-ico,
+html[data-zen="true"] .btn:hover { transform: none !important; }
+html[data-zen="true"] .btn::after,
+html[data-zen="true"] .btn:hover::after { opacity: 0 !important; transform: none !important; }
+html[data-zen="true"] .feat-card,
+html[data-zen="true"] .pricing-card,
+html[data-zen="true"] .stat-chip,
+html[data-zen="true"] .ben-card,
+html[data-zen="true"] .testi-card { transform: none !important; }
+html[data-zen="true"] .hero-float-card:hover { transform: none !important; }
+
+html[data-zen="true"] .navbar.scrolled { box-shadow: none !important; }
+
+/* Force animation end-states for demo section (animations are killed) */
+html[data-zen="true"] .mm-node,
+html[data-zen="true"] .mm-arrow,
+html[data-zen="true"] .demo-node,
+html[data-zen="true"] .demo-connector,
+html[data-zen="true"] .demo-bar span { opacity: 1 !important; transform: none !important; }
+html[data-zen="true"] .demo-typed-text { visibility: visible !important; }
+html[data-zen="true"] .demo-score-ring .fill { stroke-dashoffset: 35 !important; }
+html[data-zen="true"] .demo-tag.live::before { opacity: 1; }
+
+/* ── Combined overrides ────────────────────────── */
+html[data-high-contrast="true"][data-easy-read="true"] { line-height: 2; letter-spacing: 0.04em; }
+
+/* ── Voice Input Button Styles ─────────────────── */
+.voice-btn {
+    width: 32px; height: 32px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--t3); cursor: pointer;
+    border-radius: var(--r-sm); transition: all .15s;
+    flex-shrink: 0; font-size: .85rem;
+    background: none; border: none; font-family: inherit;
+}
+.voice-btn:hover { color: var(--c1); background: var(--c1-50); }
+.voice-btn.recording { color: #ef4444; background: rgba(239,68,68,.1); animation: voicePulse 1.5s infinite; }
+.voice-btn.processing { color: var(--c2); background: rgba(124,58,237,.1); position: relative; }
+.voice-btn.processing i { opacity: 0; }
+.voice-btn.processing::after {
+    content: ''; position: absolute;
+    width: 14px; height: 14px;
+    border: 2px solid var(--c2); border-top-color: transparent;
+    border-radius: 50%; animation: voiceSpin .6s linear infinite;
+}
+@keyframes voiceSpin { to { transform: rotate(360deg); } }
+@keyframes voicePulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(239,68,68,.3); }
+    50% { box-shadow: 0 0 0 8px rgba(239,68,68,0); }
+}
+
+/* ── Floating Accessibility Toolbar (FAB) ──────── */
+.a11y-fab {
+    position: fixed; bottom: 20px; right: 20px; z-index: 9999;
+    pointer-events: none;
+    touch-action: none; /* prevent scroll during drag */
+}
+.a11y-fab-btn {
+    width: 44px; height: 44px; border-radius: 50%;
+    background: var(--g-3); color: #fff; border: none;
+    font-size: 1.1rem; cursor: grab;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 2px 8px rgba(16,185,129,.25);
+    transition: box-shadow .2s, opacity .3s;
+    opacity: 0.55;
+    pointer-events: auto;
+    user-select: none; -webkit-user-select: none;
+}
+.a11y-fab-btn:hover { opacity: 1; }
+.a11y-fab-btn.dragging { cursor: grabbing; opacity: .9; box-shadow: 0 4px 16px rgba(16,185,129,.35); }
+.a11y-fab:has(.a11y-panel.open) .a11y-fab-btn { opacity: 1; }
+html[data-zen="true"] .a11y-fab-btn { box-shadow: none; }
+html[data-zen="true"] .a11y-fab-btn:hover { transform: none; }
+
+.a11y-panel {
+    position: fixed;
+    width: 300px; max-height: 60vh; overflow-y: auto;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--r-xl);
+    box-shadow: 0 15px 40px rgba(0,0,0,.15);
+    padding: 1rem; display: none;
+    pointer-events: auto;
+    z-index: 9999;
+}
+.a11y-panel.open { display: block; }
+html[data-zen="true"] .a11y-panel { box-shadow: none !important; border-radius: var(--r); }
+
+.a11y-panel-title {
+    font-weight: 700; font-size: .9rem; margin-bottom: .75rem;
+    display: flex; align-items: center; gap: .4rem; color: var(--t1);
+}
+.a11y-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: .55rem 0; border-bottom: 1px solid var(--border-l); font-size: .82rem;
+}
+.a11y-row:last-child { border-bottom: none; }
+.a11y-row-label { display: flex; align-items: center; gap: .4rem; color: var(--t2); font-weight: 500; }
+
+/* Toggle switch */
+.a11y-toggle { position: relative; width: 40px; height: 22px; flex-shrink: 0; }
+.a11y-toggle input { opacity: 0; width: 0; height: 0; }
+.a11y-toggle-slider {
+    position: absolute; cursor: pointer; inset: 0;
+    background: var(--bg3); border-radius: 22px; transition: background .2s;
+}
+.a11y-toggle-slider::before {
+    content: ''; position: absolute; width: 16px; height: 16px;
+    left: 3px; bottom: 3px; background: #fff;
+    border-radius: 50%; transition: transform .2s;
+}
+.a11y-toggle input:checked + .a11y-toggle-slider { background: var(--c3); }
+.a11y-toggle input:checked + .a11y-toggle-slider::before { transform: translateX(18px); }
+
+/* Font pills */
+.a11y-font-pills { display: flex; flex-wrap: wrap; gap: .25rem; padding: .4rem 0; }
+.a11y-font-pill {
+    padding: .2rem .4rem; border-radius: var(--r-full);
+    border: 1px solid var(--border); background: var(--bg);
+    color: var(--t2); font-size: .62rem; cursor: pointer;
+    font-family: inherit; transition: all .15s; white-space: nowrap;
+}
+.a11y-font-pill:hover { border-color: var(--c1); color: var(--c1); }
+.a11y-font-pill.active { background: var(--c1); color: #fff; border-color: var(--c1); }
+.a11y-font-pill[data-font="comfortaa"] { font-family: 'Comfortaa', cursive; }
+.a11y-font-pill[data-font="ptsans"] { font-family: 'PT Sans', sans-serif; }
+.a11y-font-pill[data-font="pangolin"] { font-family: 'Pangolin', cursive; }
+.a11y-font-pill[data-font="opendyslexic"] { font-family: 'Open-Dyslexic', sans-serif; }
+
+/* Font size slider */
+.a11y-size-slider {
+    width: 100%; height: 4px;
+    -webkit-appearance: none; appearance: none;
+    background: var(--border); border-radius: 2px;
+    outline: none; margin-top: .2rem;
+}
+.a11y-size-slider::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 16px; height: 16px;
+    border-radius: 50%; background: var(--c3); cursor: pointer;
+}
+.a11y-size-slider::-moz-range-thumb {
+    width: 16px; height: 16px; border-radius: 50%;
+    background: var(--c3); cursor: pointer;
+}
+
+/* ── Mobile FAB ────────────────────────────────── */
+@media (max-width: 768px) {
+    .a11y-fab { bottom: 12px; right: 12px; }
+    .a11y-fab-btn { width: 38px; height: 38px; font-size: .95rem; }
+}
+
+/* ── Reduce motion (OS-level) ──────────────────── */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* ── Voice recording indicator ─────────────────── */
+.voice-indicator {
+    display: none; align-items: center; gap: .4rem;
+    padding: .3rem .6rem; border-radius: var(--r-full);
+    background: rgba(239,68,68,.08); color: #ef4444;
+    font-size: .75rem; font-weight: 600;
+}
+.voice-indicator.active { display: inline-flex; }
+.voice-indicator-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: #ef4444; animation: voicePulse 1.5s infinite;
+}
+
+/* ── Screen reader only ────────────────────────── */
+.sr-only {
+    position: absolute; width: 1px; height: 1px;
+    padding: 0; margin: -1px; overflow: hidden;
+    clip: rect(0,0,0,0); white-space: nowrap; border-width: 0;
+}
+
+/* ── Skip to content ───────────────────────────── */
+.skip-link {
+    position: fixed; top: -60px; left: 50%; transform: translateX(-50%);
+    background: var(--c1); color: #fff;
+    padding: .65rem 1.5rem; z-index: 100000;
+    font-weight: 700; text-decoration: none;
+    border-radius: 0 0 var(--r) var(--r);
+    transition: top .25s ease;
+    font-size: .95rem;
+    box-shadow: 0 4px 16px rgba(0,0,0,.25);
+}
+.skip-link:focus {
+    top: 0;
+    outline: 3px solid var(--c2);
+    outline-offset: 2px;
+}

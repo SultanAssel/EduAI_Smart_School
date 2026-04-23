@@ -1,0 +1,44 @@
+/* ── Additional Dark Theme Fixes ───────────────────────── */
+[data-theme="dark"] .cta-warm{background:linear-gradient(135deg,#c2410c 0%,#9333ea 100%)}
+[data-theme="dark"] .cta-warm::before{background:radial-gradient(circle at 30% 50%,rgba(255,255,255,.05),transparent 60%)}
+[data-theme="dark"] .section-warm::before{background:var(--bg2)}
+[data-theme="dark"] .footer-top{background:linear-gradient(135deg,#c2410c 0%,#6d28d9 100%)}
+[data-theme="dark"] .hero::after{background-image:
+    linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px)}
+[data-theme="dark"] .step-num{box-shadow:var(--sh-lg),0 0 20px rgba(255,107,53,.15)}
+[data-theme="dark"] .contact-card-icon{border-color:var(--border)}
+[data-theme="dark"] .auth-card .form-label{color:var(--t1)}
+[data-theme="dark"] .auth-card .auth-title{color:var(--t1)}
+[data-theme="dark"] .auth-card .auth-subtitle{color:var(--t2)}
+[data-theme="dark"] .auth-card .role-label{color:var(--t1)}
+[data-theme="dark"] .auth-card .role-desc{color:var(--t3)}
+[data-theme="dark"] .auth-card .role-icon{color:var(--t1)}
+[data-theme="dark"] .mod-header{background:linear-gradient(135deg,#0a0820 0%,#1a1145 50%,#0f172a 100%)}
+[data-theme="dark"] .dtable th{background:var(--bg3);color:var(--t3)}
+[data-theme="dark"] .dtable td{color:var(--t2)}
+[data-theme="dark"] .empty h3{color:var(--t1)}
+[data-theme="dark"] .empty p{color:var(--t2)}
+[data-theme="dark"] .timeline::before{background:var(--border)}
+[data-theme="dark"] .timeline-item::before{border-color:var(--bg)}
+[data-theme="dark"] .timeline-title{color:var(--t1)}
+[data-theme="dark"] .timeline-desc{color:var(--t2)}
+[data-theme="dark"] .progress-track{background:var(--bg3)}
+[data-theme="dark"] .mini-ring::before{border-color:var(--bg3)}
+[data-theme="dark"] .mini-bar span{background:rgba(255,107,53,.2)}
+[data-theme="dark"] .mini-bar span:nth-child(odd){background:rgba(255,107,53,.1)}
+[data-theme="dark"] .nav-dd-menu{background:var(--card);border-color:var(--border)}
+[data-theme="dark"] .nav-dd-item:hover{background:var(--bg3)}
+[data-theme="dark"] .nav-dd-title{color:var(--t1)}
+[data-theme="dark"] .nav-dd-desc{color:var(--t3)}
+[data-theme="dark"] .sec-chip{background:rgba(255,107,53,.12);color:var(--c1-l)}
+[data-theme="dark"] .pricing-name{color:var(--t1)}
+[data-theme="dark"] .pricing-amount{color:var(--t1)}
+[data-theme="dark"] .pricing-desc{color:var(--t3)}
+[data-theme="dark"] .pricing-list li{color:var(--t2)}
+[data-theme="dark"] .pricing-list li.no{color:var(--t4)}
+[data-theme="dark"] .feat-card::after,.pricing-card::after,.ben-card::after{background:linear-gradient(90deg,transparent,rgba(255,255,255,.03),transparent)}
+[data-theme="dark"] .footer-brand p{color:rgba(255,255,255,.4)}
+[data-theme="dark"] .footer-col a{color:rgba(255,255,255,.4)}
+[data-theme="dark"] .about-mod-card .feat-name,[data-theme="dark"] .about-mod-card h3{color:var(--t1)}
+[data-theme="dark"] .about-mod-card p{color:var(--t2)}

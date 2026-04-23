@@ -1,0 +1,81 @@
+{% extends "core/base.html" %}
+{% load custom_filters %}
+{% block title %}{{ t.tl_title|default:"Тесты" }}{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+    <div class="hero-orb hero-orb-1"></div>
+    <div class="hero-orb hero-orb-2"></div>
+    <div class="container" style="position:relative;z-index:1;text-align:center">
+        <div class="page-hero-icon" style="background:var(--c1-100)"><i class="fas fa-spell-check" style="color:var(--c1)"></i></div>
+        <h1>{{ t.tl_hero_1|default:"Доступные" }} <span class="grad-text">{{ t.tl_hero_2|default:"тесты" }}</span></h1>
+        <p style="color:var(--t2);font-size:1.05rem;max-width:520px;margin:0 auto">{{ t.tl_hero_desc|default:"Проходите тесты и проверяйте свои знания" }}</p>
+    </div>
+</section>
+
+<section class="section" style="padding-top:1.5rem">
+    <div class="container-wide">
+        <!-- Filter -->
+        <div class="card-elevated reveal" style="margin-bottom:1.25rem;padding:.85rem 1.1rem">
+            <div style="display:flex;align-items:center;gap:.6rem;flex-wrap:wrap">
+                <span style="font-weight:600;font-size:.85rem;color:var(--t3)"><i class="fas fa-filter"></i> {{ t.les_filter|default:"Фильтр" }}</span>
+                <a href="{% url 'test_list' %}" class="btn btn-sm {% if not selected_subject %}btn-primary{% else %}btn-ghost{% endif %}">{{ t.les_all|default:"Все" }}</a>
+                {% for s in subjects %}
+                <a href="{% url 'test_list' %}?subject={{ s.id }}" class="btn btn-sm {% if selected_subject.id == s.id %}btn-primary{% else %}btn-ghost{% endif %}">{{ s.icon }} {{ s|localized_name:lang }}</a>
+                {% endfor %}
+            </div>
+        </div>
+
+        {% if tests %}
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1.1rem">
+            {% for test in tests %}
+            <a href="{% url 'test_take' test.id %}" class="card-interactive reveal" style="padding:1.25rem;display:flex;flex-direction:column;border-top:3px solid {% cycle 'var(--c1)' 'var(--c2)' 'var(--c3)' 'var(--c5)' %};text-decoration:none;color:inherit">
+                <div style="display:flex;align-items:center;gap:.4rem;margin-bottom:.6rem">
+                    <span style="font-size:1rem">{{ test.subject.icon|default:"📝" }}</span>
+                    <span class="badge" style="font-size:.72rem">{{ test.subject|localized_name:lang }}</span>
+                    {% if test.grade_level %}<span class="badge badge-primary" style="font-size:.72rem">{{ test.grade_level }} {{ t.ta_grade_suffix|default:"класс" }}</span>{% endif %}
+                </div>
+                <h3 style="font-size:.95rem;margin-bottom:.4rem;line-height:1.4">{{ test.title }}</h3>
+                <div style="display:flex;gap:.6rem;color:var(--t3);font-size:.8rem;margin-top:auto;padding-top:.6rem;border-top:1px solid var(--border)">
+                    <span><i class="fas fa-list"></i> {{ test.question_count }} {{ t.tl_questions|default:"вопросов" }}</span>
+                    {% if test.time_limit %}<span><i class="fas fa-clock"></i> {{ test.time_limit }} {{ t.tl_minutes|default:"мин" }}</span>{% endif %}
+                    {% if test.teacher %}<span><i class="fas fa-user"></i> {{ test.teacher.full_name }}</span>{% endif %}
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="card-elevated reveal"><div class="empty"><i class="fas fa-spell-check"></i><h3>{{ t.tl_empty|default:"Нет доступных тестов" }}</h3><p>{{ t.tl_empty_desc|default:"Преподаватели ещё не опубликовали тесты" }}</p></div></div>
+        {% endif %}
+
+        {% if my_attempts %}
+        <h2 style="margin-top:2rem;font-size:1.15rem"><i class="fas fa-history"></i> {{ t.tl_my_results|default:"Мои результаты" }}</h2>
+        <div class="card-elevated reveal" style="margin-top:.75rem">
+            <table class="dtable">
+                <thead><tr>
+                    <th>{{ t.ta_name|default:"Тест" }}</th>
+                    <th>{{ t.ta_subject|default:"Предмет" }}</th>
+                    <th>{{ t.tl_score|default:"Баллы" }}</th>
+                    <th>{{ t.tl_percent|default:"%" }}</th>
+                    <th>{{ t.ta_date|default:"Дата" }}</th>
+                    <th></th>
+                </tr></thead>
+                <tbody>
+                {% for a in my_attempts %}
+                <tr>
+                    <td><strong>{{ a.test.title }}</strong></td>
+                    <td>{{ a.test.subject|localized_name:lang }}</td>
+                    <td>{{ a.score }}/{{ a.max_score }}</td>
+                    <td><span class="badge {% if a.percentage >= 70 %}badge-primary{% endif %}">{{ a.percentage|floatformat:0 }}%</span></td>
+                    <td>{{ a.started_at|date:"d.m.Y" }}</td>
+                    <td><a href="{% url 'test_result' a.id %}" class="btn btn-ghost btn-sm"><i class="fas fa-eye"></i></a></td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% if page_obj %}{% include 'core/pagination.html' %}{% endif %}
+{% endblock %}

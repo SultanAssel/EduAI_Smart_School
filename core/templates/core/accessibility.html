@@ -1,0 +1,723 @@
+{% extends "core/base.html" %}
+{% block title %}{{ t.acc_title }}{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+    <div class="hero-orb hero-orb-1"></div>
+    <div class="hero-orb hero-orb-2"></div>
+    <div class="hero-orb hero-orb-3"></div>
+    <div class="container" style="position:relative;z-index:1;text-align:center">
+        <div class="page-hero-icon" style="background:var(--c3-100)"><i class="fas fa-universal-access" style="color:var(--c3)"></i></div>
+        <h1>{{ t.acc_hero_title_1 }} <span class="grad-text">{{ t.acc_hero_title_2 }}</span> {{ t.acc_hero_title_3 }}</h1>
+        <p style="color:var(--t2);font-size:1.05rem;max-width:550px;margin:0 auto">{{ t.acc_hero_desc }}</p>
+    </div>
+</section>
+
+<section class="section section-green" style="padding-top:1.5rem">
+    <div class="container-wide">
+    <div class="tabs reveal">
+        <button class="tab-btn active" data-tab="tts"><i class="fas fa-volume-up"></i> {{ t.acc_tab_tts }}</button>
+        <button class="tab-btn" data-tab="fonts"><i class="fas fa-font"></i> {{ t.acc_tab_fonts|default:"Шрифты" }}</button>
+        <button class="tab-btn" data-tab="voice"><i class="fas fa-microphone"></i> {{ t.acc_tab_voice|default:"Голос" }}</button>
+        <button class="tab-btn" data-tab="easyread"><i class="fas fa-book-reader"></i> {{ t.acc_tab_easyread }}</button>
+        <button class="tab-btn" data-tab="mindmap"><i class="fas fa-project-diagram"></i> {{ t.acc_tab_mindmap }}</button>
+        <button class="tab-btn" data-tab="settings"><i class="fas fa-cog"></i> {{ t.acc_tab_settings }}</button>
+    </div>
+
+    <!-- TTS -->
+   <div class="tab-content active" id="tab-tts">
+        <div class="workspace">
+            <div class="ws-panel">
+                <div class="ws-head"><i class="fas fa-edit"></i> {{ t.acc_tts_head }}</div>
+                <div class="ws-body">
+                    <textarea id="ttsInput" placeholder="{{ t.acc_tts_placeholder }}"></textarea>
+                    <div style="display:flex;gap:.5rem;margin-top:.75rem;flex-wrap:wrap">
+                        <button class="btn btn-primary" id="btnSpeak"><i class="fas fa-volume-up"></i> {{ t.acc_tts_speak }}</button>
+                        <button class="btn btn-secondary" id="btnStop"><i class="fas fa-stop"></i> {{ t.acc_tts_stop }}</button>
+                    </div>
+                </div>
+            </div>
+            <div class="ws-panel">
+                <div class="ws-head"><i class="fas fa-sliders-h"></i> {{ t.acc_tts_control }}</div>
+                <div class="ws-body">
+                    <div class="form-group">
+                        <label class="form-label">{{ t.acc_tts_voice }}:</label>
+                        <select id="voiceSelect" class="form-select" style="width:100%">
+                            <option value="">{{ t.acc_tts_loading_voices }}</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin-top:.6rem">
+                        <label class="form-label">{{ t.acc_tts_volume }}: <span id="ttsVolumeVal">100%</span></label>
+                        <input type="range" id="ttsVolume" min="0" max="100" step="5" value="100" style="width:100%">
+                    </div>
+                    <div class="form-group" style="margin-top:.6rem">
+                        <label class="form-label">{{ t.acc_tts_speed }} <span id="ttsSpeedVal">+0%</span></label>
+                        <input type="range" id="ttsSpeed" min="-50" max="100" step="10" value="0" style="width:100%">
+                    </div>
+                    <div class="form-group" style="margin-top:.6rem">
+                        <label class="form-label">{{ t.acc_tts_font }} <span id="fontSizeVal">16px</span></label>
+                        <input type="range" id="fontSize" min="14" max="32" step="2" value="16" style="width:100%">
+                    </div>
+                    <div class="result-box" id="ttsStatus" style="display:none;margin-top:.75rem"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Fonts -->
+    <div class="tab-content" id="tab-fonts">
+        <div class="card-elevated" style="max-width:720px;padding:1.5rem">
+            <h3 style="margin-bottom:1rem;display:flex;align-items:center;gap:.4rem;font-size:1rem"><i class="fas fa-font" style="color:var(--c2)"></i> {{ t.acc_fonts_title|default:"Выбор шрифта" }}</h3>
+            <p style="color:var(--t2);font-size:.88rem;margin-bottom:1.25rem">{{ t.acc_fonts_desc|default:"Выберите шрифт, который лучше всего подходит для вашего зрения и восприятия текста." }}</p>
+            <div class="acc-font-cards" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.75rem;margin-bottom:1.25rem">
+                <button class="card-interactive acc-font-card" data-ff="default" style="padding:1rem;text-align:center;cursor:pointer;border:2px solid transparent;border-radius:var(--r-lg);transition:all .15s">
+                    <div class="ff-lock" style="font-size:1.2rem;font-weight:700;margin-bottom:.35rem;font-family:'Inter',sans-serif">Inter</div>
+                    <div class="ff-lock" style="font-size:.78rem;color:var(--t3);font-family:'Inter',sans-serif">Стандартный шрифт</div>
+                    <div class="ff-lock" style="margin-top:.5rem;font-size:.9rem;font-family:'Inter',sans-serif">Быстрая коричневая лиса 123</div>
+                </button>
+                <button class="card-interactive acc-font-card" data-ff="opendyslexic" style="padding:1rem;text-align:center;cursor:pointer;border:2px solid transparent;border-radius:var(--r-lg);transition:all .15s">
+                    <div class="ff-lock" style="font-size:1.2rem;font-weight:700;margin-bottom:.35rem;font-family:'Open-Dyslexic',sans-serif">OpenDyslexic</div>
+                    <div style="font-size:.78rem;color:var(--t3)">Для дислексии</div>
+                    <div class="ff-lock" style="margin-top:.5rem;font-size:.9rem;font-family:'Open-Dyslexic','PT Sans',sans-serif">Быстрая коричневая лиса 123</div>
+                </button>
+                <button class="card-interactive acc-font-card" data-ff="comfortaa" style="padding:1rem;text-align:center;cursor:pointer;border:2px solid transparent;border-radius:var(--r-lg);transition:all .15s">
+                    <div class="ff-lock" style="font-size:1.2rem;font-weight:700;margin-bottom:.35rem;font-family:'Comfortaa',cursive">Comfortaa</div>
+                    <div style="font-size:.78rem;color:var(--t3)">Кириллица, мягкий</div>
+                    <div class="ff-lock" style="margin-top:.5rem;font-size:.9rem;font-family:'Comfortaa',cursive">Быстрая коричневая лиса 123</div>
+                </button>
+                <button class="card-interactive acc-font-card" data-ff="ptsans" style="padding:1rem;text-align:center;cursor:pointer;border:2px solid transparent;border-radius:var(--r-lg);transition:all .15s">
+                    <div class="ff-lock" style="font-size:1.2rem;font-weight:700;margin-bottom:.35rem;font-family:'PT Sans',sans-serif">PT Sans</div>
+                    <div style="font-size:.78rem;color:var(--t3)">Кириллица, чёткий</div>
+                    <div class="ff-lock" style="margin-top:.5rem;font-size:.9rem;font-family:'PT Sans',sans-serif">Быстрая коричневая лиса 123</div>
+                </button>
+                <button class="card-interactive acc-font-card" data-ff="pangolin" style="padding:1rem;text-align:center;cursor:pointer;border:2px solid transparent;border-radius:var(--r-lg);transition:all .15s">
+                    <div class="ff-lock" style="font-size:1.2rem;font-weight:700;margin-bottom:.35rem;font-family:'Pangolin',cursive">Pangolin</div>
+                    <div style="font-size:.78rem;color:var(--t3)">Кириллица, рукописный</div>
+                    <div class="ff-lock" style="margin-top:.5rem;font-size:.9rem;font-family:'Pangolin',cursive">Быстрая коричневая лиса 123</div>
+                </button>
+                <button class="card-interactive acc-font-card" data-ff="arial" style="padding:1rem;text-align:center;cursor:pointer;border:2px solid transparent;border-radius:var(--r-lg);transition:all .15s">
+                    <div class="ff-lock" style="font-size:1.2rem;font-weight:700;margin-bottom:.35rem;font-family:Arial,sans-serif">Arial</div>
+                    <div style="font-size:.78rem;color:var(--t3)">Системный, универсальный</div>
+                    <div class="ff-lock" style="margin-top:.5rem;font-size:.9rem;font-family:Arial,sans-serif">Быстрая коричневая лиса 123</div>
+                </button>
+                <button class="card-interactive acc-font-card" data-ff="verdana" style="padding:1rem;text-align:center;cursor:pointer;border:2px solid transparent;border-radius:var(--r-lg);transition:all .15s">
+                    <div class="ff-lock" style="font-size:1.2rem;font-weight:700;margin-bottom:.35rem;font-family:Verdana,sans-serif">Verdana</div>
+                    <div style="font-size:.78rem;color:var(--t3)">Системный, читаемый</div>
+                    <div class="ff-lock" style="margin-top:.5rem;font-size:.9rem;font-family:Verdana,sans-serif">Быстрая коричневая лиса 123</div>
+                </button>
+                <button class="card-interactive acc-font-card" data-ff="georgia" style="padding:1rem;text-align:center;cursor:pointer;border:2px solid transparent;border-radius:var(--r-lg);transition:all .15s">
+                    <div class="ff-lock" style="font-size:1.2rem;font-weight:700;margin-bottom:.35rem;font-family:Georgia,serif">Georgia</div>
+                    <div style="font-size:.78rem;color:var(--t3)">Системный, с засечками</div>
+                    <div class="ff-lock" style="margin-top:.5rem;font-size:.9rem;font-family:Georgia,serif">Быстрая коричневая лиса 123</div>
+                </button>
+                <button class="card-interactive acc-font-card" data-ff="times" style="padding:1rem;text-align:center;cursor:pointer;border:2px solid transparent;border-radius:var(--r-lg);transition:all .15s">
+                    <div class="ff-lock" style="font-size:1.2rem;font-weight:700;margin-bottom:.35rem;font-family:'Times New Roman',serif">Times New Roman</div>
+                    <div style="font-size:.78rem;color:var(--t3)">Системный, классический</div>
+                    <div class="ff-lock" style="margin-top:.5rem;font-size:.9rem;font-family:'Times New Roman',serif">Быстрая коричневая лиса 123</div>
+                </button>
+                <button class="card-interactive acc-font-card" data-ff="courier" style="padding:1rem;text-align:center;cursor:pointer;border:2px solid transparent;border-radius:var(--r-lg);transition:all .15s">
+                    <div class="ff-lock" style="font-size:1.2rem;font-weight:700;margin-bottom:.35rem;font-family:'Courier New',monospace">Courier New</div>
+                    <div style="font-size:.78rem;color:var(--t3)">Моноширинный</div>
+                    <div class="ff-lock" style="margin-top:.5rem;font-size:.9rem;font-family:'Courier New',monospace">Быстрая коричневая лиса 123</div>
+                </button>
+            </div>
+            <div class="form-group">
+                <label class="form-label">{{ t.acc_fonts_size|default:"Размер шрифта" }}: <span id="fontPreviewSize">{{ accessibility.font_size|default:16 }}px</span></label>
+                <input type="range" id="fontPreviewSlider" min="14" max="32" step="2" value="{{ accessibility.font_size|default:16 }}" style="width:100%">
+            </div>
+            <div class="card" style="padding:1rem;margin-top:1rem;border:1px dashed var(--border);border-radius:var(--r-md)">
+                <div style="font-size:.75rem;color:var(--t3);margin-bottom:.35rem">{{ t.acc_fonts_preview|default:"Предпросмотр" }}</div>
+                <p id="fontPreviewText" style="font-size:{{ accessibility.font_size|default:16 }}px;line-height:1.6;margin:0">Этот текст показывает, как будет выглядеть выбранный шрифт на странице. Қазақ тілінде мысал. The quick brown fox jumps over the lazy dog. 0123456789</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Voice Input -->
+    <div class="tab-content" id="tab-voice">
+        <div class="workspace">
+            <div class="ws-panel">
+                <div class="ws-head"><i class="fas fa-microphone"></i> {{ t.acc_voice_head|default:"Голосовой ввод" }}</div>
+                <div class="ws-body">
+                    <p style="color:var(--t2);font-size:.88rem;margin-bottom:1rem">{{ t.acc_voice_desc|default:"Нажмите кнопку микрофона и говорите. Текст появится в поле ниже." }}</p>
+                    <div style="text-align:center;margin-bottom:1rem">
+                        <button class="voice-btn" id="voiceBtnDemo" style="width:64px;height:64px;border-radius:50%;border:2px solid var(--c1);background:var(--card);cursor:pointer;font-size:1.5rem;color:var(--c1);transition:all .2s" title="Начать запись">
+                            <i class="fas fa-microphone"></i>
+                        </button>
+                        <div id="voiceStatus" style="margin-top:.5rem;font-size:.82rem;color:var(--t3)">{{ t.acc_voice_status_ready|default:"Нажмите для записи" }}</div>
+                    </div>
+                    <textarea id="voiceDemoOutput" placeholder="{{ t.acc_voice_output_placeholder|default:'Распознанный текст появится здесь...' }}" rows="4" style="width:100%;resize:vertical"></textarea>
+                    <div style="display:flex;gap:.5rem;margin-top:.75rem;flex-wrap:wrap">
+                        <button class="btn btn-secondary" id="voiceCopyBtn"><i class="fas fa-copy"></i> {{ t.acc_voice_copy|default:"Копировать" }}</button>
+                        <button class="btn btn-secondary" id="voiceClearBtn"><i class="fas fa-eraser"></i> {{ t.acc_voice_clear|default:"Очистить" }}</button>
+                        <button class="btn btn-primary" id="voiceSpeakBtn"><i class="fas fa-volume-up"></i> {{ t.acc_voice_speak|default:"Озвучить" }}</button>
+                    </div>
+                </div>
+            </div>
+            <div class="ws-panel">
+                <div class="ws-head"><i class="fas fa-info-circle"></i> {{ t.acc_voice_tips_head|default:"Советы" }}</div>
+                <div class="ws-body" style="font-size:.88rem;color:var(--t2)">
+                    <ul style="padding-left:1.1rem;margin:0;display:flex;flex-direction:column;gap:.5rem">
+                        <li>{{ t.acc_voice_tip1|default:"Говорите чётко и в умеренном темпе" }}</li>
+                        <li>{{ t.acc_voice_tip2|default:"Работает на русском, казахском и английском" }}</li>
+                        <li>{{ t.acc_voice_tip3|default:"Кнопка микрофона 🎤 доступна во всех полях ввода если включён голосовой ввод" }}</li>
+                        <li>{{ t.acc_voice_tip4|default:"Для смены языка — просто начните говорить на другом языке" }}</li>
+                        <li>{{ t.acc_voice_tip5|default:"Работает во всех современных браузерах" }}</li>
+                    </ul>
+                    <div id="voiceSupportStatus" style="margin-top:1rem;padding:.6rem .8rem;border-radius:var(--r-sm);font-size:.82rem"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Easy Read -->
+    <div class="tab-content" id="tab-easyread">
+        <div class="workspace">
+            <div class="ws-panel">
+                <div class="ws-head"><i class="fas fa-file-alt"></i> {{ t.acc_easyread_head }}</div>
+                <div class="ws-body">
+                    <textarea id="easyReadInput" placeholder="{{ t.acc_easyread_placeholder }}"></textarea>
+                    <div style="display:flex;gap:.5rem;margin-top:.75rem;flex-wrap:wrap">
+                        <button class="btn btn-primary" id="simplifyBtn"><i class="fas fa-magic"></i> {{ t.acc_simplify }}</button>
+                        <button class="voice-btn" id="voiceBtnEasyRead" title="Голосовой ввод" style="display:none;width:36px;height:36px;border-radius:50%;border:1.5px solid var(--border);background:var(--card);cursor:pointer;color:var(--t2)"><i class="fas fa-microphone"></i></button>
+                    </div>
+                </div>
+            </div>
+            <div class="ws-panel">
+                <div class="ws-head"><i class="fas fa-book-reader"></i> {{ t.acc_simplified_head }}</div>
+                <div class="ws-body">
+                    <div id="easyReadResult" class="result-box"><span style="color:var(--t3)">{{ t.acc_simplified_placeholder }}</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mind Map -->
+    <div class="tab-content" id="tab-mindmap">
+        <div class="workspace">
+            <div class="ws-panel">
+                <div class="ws-head"><i class="fas fa-file-alt"></i> {{ t.acc_mindmap_head }}</div>
+                <div class="ws-body">
+                    <textarea id="mindmapInput" placeholder="{{ t.acc_mindmap_placeholder }}"></textarea>
+                    <button class="btn btn-primary" id="mindmapBtn" style="margin-top:.75rem"><i class="fas fa-project-diagram"></i> {{ t.acc_create_mindmap }}</button>
+                </div>
+            </div>
+            <div class="ws-panel">
+                <div class="ws-head"><i class="fas fa-project-diagram"></i> {{ t.acc_mindmap_result_head }}</div>
+                <div class="ws-body">
+                    <div id="mindmapResult">
+                        <div class="empty"><i class="fas fa-project-diagram"></i><h3>{{ t.acc_mindmap_placeholder2 }}</h3><p>{{ t.acc_mindmap_desc }}</p></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings -->
+    <div class="tab-content" id="tab-settings">
+        <div class="card-elevated" style="max-width:640px;padding:1.5rem">
+            <h3 style="margin-bottom:1.25rem;display:flex;align-items:center;gap:.4rem;font-size:1rem"><i class="fas fa-cog" style="color:var(--c2)"></i> {{ t.acc_settings_title }}</h3>
+            <form method="post" action="{% url 'profile' %}">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="update_accessibility">
+                <div class="form-group">
+                    <label class="form-label">{{ t.acc_primary_need }}</label>
+                    <select name="primary_need" class="form-select">
+                        <option value="none" {% if accessibility.primary_need == 'none' %}selected{% endif %}>{{ t.acc_none }}</option>
+                        <option value="vision" {% if accessibility.primary_need == 'vision' %}selected{% endif %}>👁️ {{ t.acc_vision }}</option>
+                        <option value="cognitive" {% if accessibility.primary_need == 'cognitive' %}selected{% endif %}>🧠 {{ t.acc_cognitive }}</option>
+                        <option value="dyslexia" {% if accessibility.primary_need == 'dyslexia' %}selected{% endif %}>📖 {{ t.acc_dyslexia }}</option>
+                        <option value="hearing" {% if accessibility.primary_need == 'hearing' %}selected{% endif %}>👂 {{ t.acc_hearing }}</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">{{ t.acc_font_size }}: <span id="accFontVal">{{ accessibility.font_size|default:16 }}px</span></label>
+                    <input type="range" name="font_size" min="14" max="32" step="2" value="{{ accessibility.font_size|default:16 }}" style="width:100%">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">{{ t.acc_font_family|default:"Шрифт для чтения" }}</label>
+                    <select name="font_family" class="form-select">
+                        <option value="default" {% if not accessibility.font_family or accessibility.font_family == 'default' %}selected{% endif %}>Inter (стандартный)</option>
+                        <option value="opendyslexic" {% if accessibility.font_family == 'opendyslexic' %}selected{% endif %} style="font-family:'Open-Dyslexic',sans-serif">OpenDyslexic (дислексия)</option>
+                        <option value="comfortaa" {% if accessibility.font_family == 'comfortaa' %}selected{% endif %} style="font-family:'Comfortaa',cursive">Сomfortaa (кириллица)</option>
+                        <option value="ptsans" {% if accessibility.font_family == 'ptsans' %}selected{% endif %} style="font-family:'PT Sans',sans-serif">PT Sans (кириллица)</option>
+                        <option value="pangolin" {% if accessibility.font_family == 'pangolin' %}selected{% endif %} style="font-family:'Pangolin',cursive">Pangolin (кириллица)</option>
+                        <option value="arial" {% if accessibility.font_family == 'arial' %}selected{% endif %} style="font-family:Arial,sans-serif">Arial</option>
+                        <option value="verdana" {% if accessibility.font_family == 'verdana' %}selected{% endif %} style="font-family:Verdana,sans-serif">Verdana</option>
+                        <option value="georgia" {% if accessibility.font_family == 'georgia' %}selected{% endif %} style="font-family:Georgia,serif">Georgia</option>
+                        <option value="times" {% if accessibility.font_family == 'times' %}selected{% endif %} style="font-family:'Times New Roman',serif">Times New Roman</option>
+                        <option value="courier" {% if accessibility.font_family == 'courier' %}selected{% endif %} style="font-family:'Courier New',monospace">Courier New</option>
+                    </select>
+                </div>
+                <div class="grid-2" style="margin-bottom:1rem;gap:.5rem">
+                    <label class="card-interactive" style="display:flex;align-items:center;gap:.5rem;cursor:pointer;padding:.75rem;margin:0">
+                        <input type="checkbox" name="text_to_speech" {% if accessibility.text_to_speech %}checked{% endif %} style="accent-color:var(--c1)"> <span style="font-size:.85rem">🔊 {{ t.acc_auto_tts }}</span>
+                    </label>
+                    <label class="card-interactive" style="display:flex;align-items:center;gap:.5rem;cursor:pointer;padding:.75rem;margin:0">
+                        <input type="checkbox" name="easy_read" {% if accessibility.easy_read %}checked{% endif %} style="accent-color:var(--c1)"> <span style="font-size:.85rem">📖 {{ t.acc_easy_text }}</span>
+                    </label>
+                    <label class="card-interactive" style="display:flex;align-items:center;gap:.5rem;cursor:pointer;padding:.75rem;margin:0">
+                        <input type="checkbox" name="visual_aids" {% if accessibility.visual_aids %}checked{% endif %} style="accent-color:var(--c1)"> <span style="font-size:.85rem">🗺️ {{ t.acc_visual_aids }}</span>
+                    </label>
+                    <label class="card-interactive" style="display:flex;align-items:center;gap:.5rem;cursor:pointer;padding:.75rem;margin:0">
+                        <input type="checkbox" name="high_contrast" {% if accessibility.high_contrast %}checked{% endif %} style="accent-color:var(--c1)"> <span style="font-size:.85rem">🌗 {{ t.acc_high_contrast }}</span>
+                    </label>
+                    <label class="card-interactive" style="display:flex;align-items:center;gap:.5rem;cursor:pointer;padding:.75rem;margin:0">
+                        <input type="checkbox" name="zen_mode" {% if accessibility.zen_mode %}checked{% endif %} style="accent-color:var(--c3)"> <span style="font-size:.85rem">🧘 {{ t.acc_zen|default:"Дзен-режим (СДВГ)" }}</span>
+                    </label>
+                    <label class="card-interactive" style="display:flex;align-items:center;gap:.5rem;cursor:pointer;padding:.75rem;margin:0">
+                        <input type="checkbox" name="voice_input" {% if accessibility.voice_input %}checked{% endif %} style="accent-color:var(--c5)"> <span style="font-size:.85rem">🎤 {{ t.acc_voice_input|default:"Голосовой ввод" }}</span>
+                    </label>
+                </div>
+                <button class="btn btn-primary" type="submit"><i class="fas fa-save"></i> {{ t.acc_save }}</button>
+            </form>
+        </div>
+    </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// ── Tabs ──
+document.querySelectorAll('.tab-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+        document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
+        document.querySelectorAll('.tab-content').forEach(function(c){ c.classList.remove('active'); });
+        btn.classList.add('active');
+        document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+    });
+});
+
+// ── TTS: Server-only (edge-tts + gTTS fallback on server) ──
+
+// Load available voices from server
+(function loadVoices(){
+    var sel = document.getElementById('voiceSelect');
+    fetch('/api/tts/voices/')
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+        sel.innerHTML = '';
+        var voices = data.voices || [];
+        if(!voices.length){
+            var opt = document.createElement('option');
+            opt.value = '';
+            opt.textContent = '{{ t.acc_tts_auto_voice }}';
+            sel.appendChild(opt);
+            return;
+        }
+        // Group by language
+        var groups = {};
+        voices.forEach(function(v){
+            var lang = v.lang === 'multi' ? 'multi' : v.lang.split('-').slice(0,2).join('-');
+            if(!groups[lang]) groups[lang] = [];
+            groups[lang].push(v);
+        });
+        var order = ['multi','ru-RU','kk-KZ','en-US','en-GB'];
+        var labels = {'multi':'\ud83c\udf10 \u041c\u0443\u043b\u044c\u0442\u0438\u044f\u0437\u044b\u0447\u043d\u044b\u0435'};
+        var added = {};
+        order.forEach(function(lang){
+            if(groups[lang]){
+                var og = document.createElement('optgroup');
+                og.label = labels[lang] || lang;
+                groups[lang].forEach(function(v){
+                    var opt = document.createElement('option');
+                    opt.value = v.id;
+                    opt.textContent = v.name + ' (' + v.gender + ')';
+                    og.appendChild(opt);
+                });
+                sel.appendChild(og);
+                added[lang] = true;
+            }
+        });
+        Object.keys(groups).sort().forEach(function(lang){
+            if(added[lang]) return;
+            var og = document.createElement('optgroup');
+            og.label = labels[lang] || lang;
+            groups[lang].forEach(function(v){
+                var opt = document.createElement('option');
+                opt.value = v.id;
+                opt.textContent = v.name + ' (' + v.gender + ')';
+                og.appendChild(opt);
+            });
+            sel.appendChild(og);
+        });
+        // Restore saved voice
+        var saved = localStorage.getItem('eduai_tts_voice');
+        if(saved && sel.querySelector('option[value="' + saved + '"]')){
+            sel.value = saved;
+        } else {
+            var multiF = voices.find(function(v){ return v.id === 'en-US-AvaMultilingualNeural'; });
+            if(multiF) sel.value = multiF.id;
+        }
+    })
+    .catch(function(){
+        sel.innerHTML = '';
+        var opt = document.createElement('option');
+        opt.value = '';
+        opt.textContent = '{{ t.acc_tts_auto_voice }}';
+        sel.appendChild(opt);
+    });
+})();
+
+document.getElementById('voiceSelect').addEventListener('change', function(){
+    localStorage.setItem('eduai_tts_voice', this.value);
+});
+
+// ── Speak (chunked for unlimited length) ──
+document.getElementById('btnSpeak').addEventListener('click', speakText);
+document.getElementById('btnStop').addEventListener('click', stopSpeech);
+
+var _ttsState = null; // {aborted, sessionId, chunks, current, audioQueue, playing}
+
+function speakText(){
+    var text = document.getElementById('ttsInput').value.trim();
+    if(!text) return;
+    stopSpeech();
+    var s = document.getElementById('ttsStatus');
+    s.style.display = 'block';
+    s.textContent = '⏳ {{ t.acc_tts_preparing|default:"Подготовка..." }}';
+    s.className = 'result-box ok';
+
+    var voice = document.getElementById('voiceSelect').value;
+    var volume = parseInt(document.getElementById('ttsVolume').value) / 100;
+    var speedVal = parseInt(document.getElementById('ttsSpeed').value);
+    var rate = (speedVal >= 0 ? '+' : '') + speedVal + '%';
+
+    var state = {aborted: false, sessionId: null, totalChunks: 0, current: 0, audioCache: {}, playing: false, voice: voice, rate: rate, volume: volume};
+    _ttsState = state;
+
+    // Short text (≤ 2500 chars) — use simple single request
+    if(text.length <= 2500){
+        var ctrl = new AbortController();
+        state.ctrl = ctrl;
+        fetch('/api/tts/', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken')},
+            body: JSON.stringify({text: text, voice: voice, rate: rate}),
+            signal: ctrl.signal
+        })
+        .then(function(r){ if(!r.ok) throw new Error('status ' + r.status); return r.blob(); })
+        .then(function(blob){
+            if(state.aborted) return;
+            s.textContent = '🔊 {{ t.acc_tts_playing }}';
+            var url = URL.createObjectURL(blob);
+            var audio = new Audio(url);
+            audio.volume = volume;
+            state.audio = audio;
+            audio.onended = function(){ URL.revokeObjectURL(url); _ttsState = null; s.textContent = '✅ {{ t.acc_tts_done }}'; };
+            audio.onerror = function(){ URL.revokeObjectURL(url); _ttsState = null; s.textContent = '❌ {{ t.acc_tts_server_error }}'; s.className = 'result-box err'; };
+            audio.play();
+        })
+        .catch(function(e){ if(e.name==='AbortError') return; s.textContent = '❌ {{ t.acc_tts_server_error }}'; s.className = 'result-box err'; });
+        return;
+    }
+
+    // Long text — chunked mode
+    fetch('/api/tts/chunked/', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken')},
+        body: JSON.stringify({action: 'prepare', text: text})
+    })
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+        if(state.aborted) return;
+        state.sessionId = data.session_id;
+        state.totalChunks = data.total_chunks;
+        s.textContent = '🔊 {{ t.acc_tts_playing }} (1/' + data.total_chunks + ')';
+        // Pre-fetch first 2 chunks then start playing
+        _ttsFetchChunk(state, 0);
+        if(data.total_chunks > 1) _ttsFetchChunk(state, 1);
+    })
+    .catch(function(e){
+        s.textContent = '❌ {{ t.acc_tts_server_error }}';
+        s.className = 'result-box err';
+    });
+}
+
+function _ttsFetchChunk(state, idx){
+    if(state.aborted || idx >= state.totalChunks || state.audioCache[idx]) return;
+    state.audioCache[idx] = 'loading';
+    fetch('/api/tts/chunked/', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken')},
+        body: JSON.stringify({action: 'chunk', session_id: state.sessionId, chunk_index: idx, voice: state.voice, rate: state.rate})
+    })
+    .then(function(r){ if(!r.ok) throw new Error('status ' + r.status); return r.blob(); })
+    .then(function(blob){
+        if(state.aborted) return;
+        state.audioCache[idx] = blob;
+        // If this is the chunk we're waiting for, start playing
+        if(idx === state.current && !state.playing) _ttsPlayChunk(state);
+    })
+    .catch(function(){
+        if(state.aborted) return;
+        state.audioCache[idx] = null;
+        // Skip failed chunk
+        if(idx === state.current && !state.playing){ state.current++; _ttsPlayChunk(state); }
+    });
+}
+
+function _ttsPlayChunk(state){
+    if(state.aborted || state.current >= state.totalChunks){
+        _ttsState = null;
+        var ss = document.getElementById('ttsStatus');
+        ss.textContent = '✅ {{ t.acc_tts_done }}';
+        return;
+    }
+    var blob = state.audioCache[state.current];
+    if(!blob || blob === 'loading') return; // wait for fetch
+    if(blob === null){ state.current++; _ttsPlayChunk(state); return; } // skip error
+
+    state.playing = true;
+    var s = document.getElementById('ttsStatus');
+    s.textContent = '🔊 {{ t.acc_tts_playing }} (' + (state.current + 1) + '/' + state.totalChunks + ')';
+
+    var url = URL.createObjectURL(blob);
+    var audio = new Audio(url);
+    audio.volume = state.volume;
+    state.audio = audio;
+
+    // Pre-fetch next 2 chunks ahead
+    _ttsFetchChunk(state, state.current + 1);
+    _ttsFetchChunk(state, state.current + 2);
+
+    audio.onended = function(){
+        URL.revokeObjectURL(url);
+        state.playing = false;
+        delete state.audioCache[state.current]; // free memory
+        state.current++;
+        _ttsPlayChunk(state);
+    };
+    audio.onerror = function(){
+        URL.revokeObjectURL(url);
+        state.playing = false;
+        state.current++;
+        _ttsPlayChunk(state);
+    };
+    audio.play();
+}
+
+function stopSpeech(){
+    if(_ttsState){
+        _ttsState.aborted = true;
+        if(_ttsState.ctrl) _ttsState.ctrl.abort();
+        if(_ttsState.audio){ _ttsState.audio.pause(); _ttsState.audio.currentTime = 0; }
+        _ttsState = null;
+    }
+    var s = document.getElementById('ttsStatus');
+    s.style.display = 'block';
+    s.textContent = '⏹️ {{ t.acc_tts_stopped }}';
+    s.className = 'result-box';
+}
+
+// ── Sliders ──
+document.getElementById('ttsSpeed').addEventListener('input', function(){
+    var v = parseInt(this.value);
+    document.getElementById('ttsSpeedVal').textContent = (v >= 0 ? '+' : '') + v + '%';
+});
+document.getElementById('fontSize').addEventListener('input', function(){
+    document.getElementById('fontSizeVal').textContent = this.value + 'px';
+    document.getElementById('ttsInput').style.fontSize = this.value + 'px';
+});
+document.getElementById('ttsVolume').addEventListener('input', function(){
+    document.getElementById('ttsVolumeVal').textContent = this.value + '%';
+});
+
+// ── Easy Read ──
+document.getElementById('simplifyBtn').addEventListener('click', function(){
+    var t = document.getElementById('easyReadInput').value.trim();
+    if(!t) return;
+    var b = this;
+    b.disabled = true;
+    b.innerHTML = '<span class="spinner"></span> {{ t.acc_simplifying }}';
+    fetch('/api/simplify/', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken')},
+        body: JSON.stringify({text: t})
+    })
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+        var el = document.getElementById('easyReadResult');
+        if(d.success){
+            el.innerHTML = d.simplified.replace(/\n/g, '<br>');
+            el.className = 'result-box ok';
+        } else {
+            el.textContent = d.error || 'Error';
+            el.className = 'result-box err';
+        }
+    })
+    .catch(function(e){
+        document.getElementById('easyReadResult').textContent = 'Error: ' + e.message;
+    })
+    .finally(function(){
+        b.disabled = false;
+        b.innerHTML = '<i class="fas fa-magic"></i> {{ t.acc_simplify }}';
+    });
+});
+
+// ── Mind Map ──
+document.getElementById('mindmapBtn').addEventListener('click', function(){
+    var t = document.getElementById('mindmapInput').value.trim();
+    if(!t) return;
+    var b = this;
+    b.disabled = true;
+    b.innerHTML = '<span class="spinner"></span> {{ t.acc_generating }}';
+    fetch('/api/mindmap/', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken')},
+        body: JSON.stringify({text: t})
+    })
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+        if(d.success){
+            renderMindmap(d.mindmap);
+        } else {
+            document.getElementById('mindmapResult').innerHTML = '<div class="result-box err">' + _esc(d.error || 'Error') + '</div>';
+        }
+    })
+    .catch(function(e){
+        document.getElementById('mindmapResult').innerHTML = '<div class="result-box err">Error: ' + _esc(e.message) + '</div>';
+    })
+    .finally(function(){
+        b.disabled = false;
+        b.innerHTML = '<i class="fas fa-project-diagram"></i> {{ t.acc_create_mindmap }}';
+    });
+});
+
+function renderMindmap(data){
+    var c = document.getElementById('mindmapResult');
+    var h = '<div style="text-align:center;padding:1.5rem">';
+    h += '<div style="display:inline-block;padding:.6rem 1.25rem;background:var(--grad-1);color:white;border-radius:var(--r-full);font-weight:700;font-size:1rem;margin-bottom:1.5rem">' + (data.central || '{{ t.acc_topic }}') + '</div>';
+    h += '<div style="display:flex;flex-wrap:wrap;justify-content:center;gap:1rem">';
+    (data.branches || []).forEach(function(b){
+        h += '<div style="background:var(--card);border:2px solid ' + (b.color || 'var(--c1)') + ';border-radius:var(--r-lg);padding:.85rem;min-width:170px">';
+        h += '<div style="font-weight:700;color:' + (b.color || 'var(--c1)') + ';margin-bottom:.4rem;font-size:.9rem">' + b.label + '</div>';
+        (b.children || []).forEach(function(ch){
+            h += '<div style="font-size:.82rem;padding:.15rem 0;color:var(--t2)">• ' + ch.label + '</div>';
+        });
+        h += '</div>';
+    });
+    h += '</div></div>';
+    c.innerHTML = h;
+}
+
+// ── Fonts tab ──
+(function(){
+    var cards = document.querySelectorAll('.acc-font-card');
+    var preview = document.getElementById('fontPreviewText');
+    var slider = document.getElementById('fontPreviewSlider');
+    var sizeLabel = document.getElementById('fontPreviewSize');
+    var current = localStorage.getItem('eduai_font') || '{{ acc_font_family|default:"default" }}';
+    var fontMap = {default:"'Inter',sans-serif", opendyslexic:"'Open-Dyslexic','PT Sans',sans-serif", comfortaa:"'Comfortaa',cursive", ptsans:"'PT Sans',sans-serif", pangolin:"'Pangolin',cursive", arial:"Arial,sans-serif", verdana:"Verdana,sans-serif", georgia:"Georgia,serif", times:"'Times New Roman',serif", courier:"'Courier New',monospace"};
+
+    function highlight(ff){
+        cards.forEach(function(c){ c.style.borderColor = c.dataset.ff === ff ? 'var(--c1)' : 'transparent'; });
+    }
+    highlight(current);
+    if(fontMap[current]) preview.style.fontFamily = fontMap[current];
+
+    cards.forEach(function(card){
+        card.addEventListener('click', function(){
+            var ff = card.dataset.ff;
+            highlight(ff);
+            document.documentElement.setAttribute('data-font', ff);
+            localStorage.setItem('eduai_font', ff);
+            if(fontMap[ff]) preview.style.fontFamily = fontMap[ff];
+            // Save to server
+            fetch('/api/accessibility/', {method:'POST', headers:{'Content-Type':'application/json','X-CSRFToken':getCookie('csrftoken')}, body:JSON.stringify({font_family:ff})});
+        });
+    });
+
+    if(slider){
+        slider.addEventListener('input', function(){
+            var s = this.value + 'px';
+            sizeLabel.textContent = s;
+            preview.style.fontSize = s;
+            document.documentElement.setAttribute('data-font-size', this.value);
+            localStorage.setItem('eduai_font_size', this.value);
+        });
+        slider.addEventListener('change', function(){
+            fetch('/api/accessibility/', {method:'POST', headers:{'Content-Type':'application/json','X-CSRFToken':getCookie('csrftoken')}, body:JSON.stringify({font_size: parseInt(this.value)})});
+        });
+    }
+})();
+
+// ── Voice tab ──
+(function(){
+    var demoBtn = document.getElementById('voiceBtnDemo');
+    var output = document.getElementById('voiceDemoOutput');
+    var status = document.getElementById('voiceStatus');
+    var support = document.getElementById('voiceSupportStatus');
+
+    if(!demoBtn) return;
+
+    // Show support status
+    if(window.EduAI && EduAI.voiceInput && EduAI.voiceInput.supported){
+        support.textContent = '✅ Голосовой ввод поддерживается вашим браузером';
+        support.style.background = 'var(--c4-100, rgba(16,185,129,.1))';
+        support.style.color = 'var(--c3)';
+    } else {
+        support.innerHTML = '⚠️ Голосовой ввод недоступен — микрофон не поддерживается браузером.';
+        support.style.background = 'rgba(245,158,11,.1)';
+        support.style.color = 'var(--warn, #f59e0b)';
+    }
+
+    demoBtn.addEventListener('click', function(){
+        if(window.EduAI && EduAI.voiceInput){
+            EduAI.voiceInput.toggle(output, {
+                button: demoBtn,
+                onStart: function(){ status.textContent = '🔴 Идёт запись... говорите'; status.style.color = '#ef4444'; },
+                onEnd: function(){ status.textContent = 'Нажмите для записи'; status.style.color = 'var(--t3)'; },
+                onResult: function(t){ status.textContent = '✅ Распознано'; status.style.color = 'var(--c4)'; }
+            });
+        }
+    });
+
+    // Copy button
+    document.getElementById('voiceCopyBtn').addEventListener('click', function(){
+        var t = output.value;
+        if(!t) return;
+        navigator.clipboard.writeText(t).then(function(){
+            if(window.showNotification) showNotification('Скопировано!', 'success');
+        });
+    });
+
+    // Clear button
+    document.getElementById('voiceClearBtn').addEventListener('click', function(){
+        output.value = '';
+    });
+
+    // Speak button — use browser TTS
+    document.getElementById('voiceSpeakBtn').addEventListener('click', function(){
+        var t = output.value.trim();
+        if(!t) return;
+        if(window.EduAI && EduAI.quickTTS) EduAI.quickTTS.speak(t);
+    });
+
+    // Voice buttons on EasyRead and MindMap inputs
+    var voiceInputEnabled = localStorage.getItem('eduai_voice_input') === 'true' || '{{ acc_voice_input|yesno:"true,false" }}' === 'true';
+    var voiceSupported = window.EduAI && EduAI.voiceInput && EduAI.voiceInput.supported;
+    if(voiceInputEnabled){
+        var vbEr = document.getElementById('voiceBtnEasyRead');
+        if(vbEr){
+            vbEr.style.display = '';
+            vbEr.addEventListener('click', function(){
+                if(voiceSupported){
+                    EduAI.voiceInput.toggle(document.getElementById('easyReadInput'), {button: vbEr});
+                } else {
+                    EduAI.voiceInput.toggle(); // triggers notification
+                }
+            });
+        }
+    }
+})();
+
+// ── Settings font size slider ──
+var accFontSlider = document.querySelector('input[name="font_size"]');
+if(accFontSlider){
+    accFontSlider.addEventListener('input', function(){
+        document.getElementById('accFontVal').textContent = this.value + 'px';
+    });
+}
+</script>
+{% endblock %}

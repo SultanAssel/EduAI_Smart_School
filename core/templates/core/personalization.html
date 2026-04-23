@@ -1,0 +1,114 @@
+{% extends "core/base.html" %}
+{% load custom_filters %}
+{% block title %}{{ t.per_title }}{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+    <div class="hero-orb hero-orb-1"></div>
+    <div class="hero-orb hero-orb-2"></div>
+    <div class="hero-orb hero-orb-3"></div>
+    <div class="container" style="position:relative;z-index:1;text-align:center">
+        <div class="page-hero-icon" style="background:var(--c1-100)"><i class="fas fa-brain" style="color:var(--c1)"></i></div>
+        <h1>{{ t.per_hero_title_1 }} <span class="grad-text">{{ t.per_hero_title_2 }}</span> {{ t.per_hero_title_3 }}</h1>
+        <p style="color:var(--t2);font-size:1.05rem;max-width:520px;margin:0 auto">{{ t.per_hero_desc }}</p>
+    </div>
+</section>
+
+<section class="section section-warm" style="padding-top:1.5rem">
+    <div class="container-wide">
+    <div class="tabs reveal">
+        <button class="tab-btn active" data-tab="explain"><i class="fas fa-brain"></i> {{ t.per_tab_explain }}</button>
+        <button class="tab-btn" data-tab="profile"><i class="fas fa-chart-line"></i> {{ t.per_tab_profile }}</button>
+    </div>
+
+    <div class="tab-content active" id="tab-explain">
+        <div class="workspace">
+            <div class="ws-panel">
+                <div class="ws-head"><i class="fas fa-question-circle"></i> {{ t.per_what_explain }}</div>
+                <div class="ws-body">
+                    <div class="form-group">
+                        <label class="form-label">{{ t.per_subject }}</label>
+                        <select id="pSubject" class="form-select">
+                            {% for s in subjects %}<option value="{{ s|localized_name:lang }}">{{ s.icon }} {{ s|localized_name:lang }}</option>{% empty %}<option value="">{{ t.per_general }}</option>{% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">{{ t.per_topic }}</label>
+                        <input type="text" id="pTopic" class="form-input" placeholder="{{ t.per_topic_placeholder }}">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">{{ t.per_difficulty }}</label>
+                        <div style="display:flex;gap:.4rem;flex-wrap:wrap">
+                            <button class="btn btn-ghost difficulty-btn sel" data-level="easy">🟢 {{ t.per_easy }}</button>
+                            <button class="btn btn-ghost difficulty-btn" data-level="medium">🟡 {{ t.per_medium }}</button>
+                            <button class="btn btn-ghost difficulty-btn" data-level="hard">🔴 {{ t.per_hard }}</button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">{{ t.per_style }}</label>
+                        <div style="display:flex;gap:.4rem;flex-wrap:wrap">
+                            <button class="btn btn-ghost style-btn sel" data-style="simple">📖 {{ t.per_simple }}</button>
+                            <button class="btn btn-ghost style-btn" data-style="analogy">🔗 {{ t.per_analogy }}</button>
+                            <button class="btn btn-ghost style-btn" data-style="visual">🎨 {{ t.per_visual }}</button>
+                            <button class="btn btn-ghost style-btn" data-style="example">💡 {{ t.per_examples }}</button>
+                            <button class="btn btn-ghost style-btn" data-style="step_by_step">🔢 {{ t.per_step }}</button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">{{ t.per_interests }} <span style="color:var(--t3)">({{ t.per_optional }})</span></label>
+                        <input type="text" id="pInterests" class="form-input" placeholder="{{ t.per_interests_placeholder }}" value="{{ learning_profile.interests|default:'' }}">
+                        <div class="form-hint">{{ t.per_interests_hint }}</div>
+                    </div>
+                    <button class="btn btn-primary btn-lg" onclick="personalize()" id="personalizeBtn"><i class="fas fa-brain"></i> {{ t.per_tab_explain }}</button>
+                </div>
+            </div>
+            <div class="ws-panel">
+                <div class="ws-head"><i class="fas fa-lightbulb"></i> {{ t.per_result_head }}</div>
+                <div class="ws-body" id="personalizeResult">
+                    <div class="empty"><i class="fas fa-brain"></i><h3>{{ t.per_result_placeholder }}</h3><p>{{ t.per_result_desc }}</p></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="tab-content" id="tab-profile">
+        <div class="card-elevated" style="max-width:640px;padding:1.5rem">
+            <h3 style="margin-bottom:1rem;display:flex;align-items:center;gap:.4rem;font-size:1rem"><i class="fas fa-chart-line" style="color:var(--c1)"></i> {{ t.per_profile_title }}</h3>
+            {% if learning_profile %}
+            <div class="scores" style="margin-bottom:1rem">
+                <div class="score"><div class="score-val">{{ learning_profile.total_tests_taken }}</div><div class="score-lbl">{{ t.per_tests }}</div></div>
+                <div class="score"><div class="score-val">{{ learning_profile.avg_score|floatformat:0 }}%</div><div class="score-lbl">{{ t.per_avg_score }}</div></div>
+                <div class="score"><div class="score-val">🔥 {{ learning_profile.streak_days }}</div><div class="score-lbl">{{ t.per_streak }}</div></div>
+                <div class="score"><div class="score-val">{{ learning_profile.difficulty_level }}</div><div class="score-lbl">{{ t.per_level }}</div></div>
+            </div>
+            {% if learning_profile.strong_topics %}
+            <div style="margin-bottom:.6rem"><strong style="font-size:.85rem">💪 {{ t.per_strong_topics }}</strong><br>{% for topic in learning_profile.strong_topics %}<span class="badge badge-ok">{{ topic }}</span> {% endfor %}</div>
+            {% endif %}
+            {% if learning_profile.weak_topics %}
+            <div style="margin-bottom:.6rem"><strong style="font-size:.85rem">📌 {{ t.per_weak_topics }}</strong><br>{% for topic in learning_profile.weak_topics %}<span class="badge badge-warning">{{ topic }}</span> {% endfor %}</div>
+            {% endif %}
+            {% if learning_profile.interests %}
+            <div><strong style="font-size:.85rem">❤️ {{ t.per_interests_label }}</strong><br>{% for i in learning_profile.interests %}<span class="badge">{{ i }}</span> {% endfor %}</div>
+            {% endif %}
+            {% else %}
+            <div class="empty"><i class="fas fa-chart-line"></i><h3>{{ t.per_profile_empty }}</h3><p>{{ t.per_profile_empty_desc }}</p></div>
+            {% endif %}
+        </div>
+    </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<style>.sel{border-color:var(--c1)!important;background:var(--c1-50)!important;color:var(--c1)!important}</style>
+<script>
+document.querySelectorAll('.tab-btn').forEach(btn=>{btn.addEventListener('click',()=>{document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));btn.classList.add('active');document.getElementById('tab-'+btn.dataset.tab).classList.add('active')})});
+
+let selectedDifficulty='easy';
+document.querySelectorAll('.difficulty-btn').forEach(b=>{b.addEventListener('click',()=>{document.querySelectorAll('.difficulty-btn').forEach(x=>x.classList.remove('sel'));b.classList.add('sel');selectedDifficulty=b.dataset.level})});
+let selectedStyle='simple';
+document.querySelectorAll('.style-btn').forEach(b=>{b.addEventListener('click',()=>{document.querySelectorAll('.style-btn').forEach(x=>x.classList.remove('sel'));b.classList.add('sel');selectedStyle=b.dataset.style})});
+
+async function personalize(){const topic=document.getElementById('pTopic').value.trim();if(!topic){alert('{{ t.per_enter_topic }}');return}const btn=document.getElementById('personalizeBtn');btn.disabled=true;btn.innerHTML='<span class="spinner"></span> {{ t.per_ai_thinking }}';const interests=document.getElementById('pInterests').value.trim().split(',').map(s=>s.trim()).filter(Boolean);try{const r=await fetch('/api/personalize/',{method:'POST',headers:{'Content-Type':'application/json','X-CSRFToken':getCookie('csrftoken')},body:JSON.stringify({topic,subject:document.getElementById('pSubject').value,difficulty:selectedDifficulty,style:selectedStyle,interests})});const d=await r.json();if(d.success){document.getElementById('personalizeResult').innerHTML='<div class="result-box ok">'+_esc(d.explanation).replace(/\n/g,'<br>')+'</div>'}else{document.getElementById('personalizeResult').innerHTML='<div class="result-box err"><i class="fas fa-exclamation-triangle"></i> '+_esc(d.error||'{{ t.per_error }}')+'</div>'}}catch(e){document.getElementById('personalizeResult').innerHTML='<div class="result-box err">{{ t.per_error }}: '+_esc(e.message)+'</div>'}btn.disabled=false;btn.innerHTML='<i class="fas fa-brain"></i> {{ t.per_tab_explain }}'}
+</script>
+{% endblock %}
